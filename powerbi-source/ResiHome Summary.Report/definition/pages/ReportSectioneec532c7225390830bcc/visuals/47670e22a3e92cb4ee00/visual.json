@@ -1,0 +1,250 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
+  "name": "47670e22a3e92cb4ee00",
+  "position": {
+    "x": 299.66887417218544,
+    "y": 238.41059602649008,
+    "z": 1000,
+    "height": 379.13907284768214,
+    "width": 832.78145695364242,
+    "tabOrder": 3000
+  },
+  "visual": {
+    "visualType": "pivotTable",
+    "query": {
+      "queryState": {
+        "Columns": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DW_Properties"
+                    }
+                  },
+                  "Property": "OCCUPANCY_STATUS_SUMMARY"
+                }
+              },
+              "queryRef": "DW_Properties.OCCUPANCY_STATUS_SUMMARY",
+              "active": true,
+              "displayName": "Property Status"
+            }
+          ]
+        },
+        "Rows": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DW_Properties"
+                    }
+                  },
+                  "Property": "ORGANIZATION_NAME"
+                }
+              },
+              "queryRef": "DW_Properties.ORGANIZATION_NAME",
+              "active": false,
+              "displayName": "Organization"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DW_Properties"
+                    }
+                  },
+                  "Property": "REGION_NAME"
+                }
+              },
+              "queryRef": "DW_Properties.REGION_NAME",
+              "active": true,
+              "displayName": "Region"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DW_Properties"
+                    }
+                  },
+                  "Property": "SUBDIVISION"
+                }
+              },
+              "queryRef": "DW_Properties.SUBDIVISION",
+              "active": false,
+              "displayName": "Subdivision"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DW_Properties"
+                    }
+                  },
+                  "Property": "FLOORPLAN"
+                }
+              },
+              "queryRef": "DW_Properties.FLOORPLAN",
+              "nativeQueryRef": "Floorplan",
+              "active": false,
+              "displayName": "Floorplan"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DW_Properties"
+                    }
+                  },
+                  "Property": "FULL_ADDRESS"
+                }
+              },
+              "queryRef": "DW_Properties.FULL_ADDRESS",
+              "active": false,
+              "displayName": "Address"
+            }
+          ]
+        },
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DW_Properties"
+                    }
+                  },
+                  "Property": "0_Count"
+                }
+              },
+              "queryRef": "DW_Properties.0_Count"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "DW_Properties"
+                  }
+                },
+                "Property": "0_Count"
+              }
+            },
+            "direction": "Descending"
+          }
+        ]
+      }
+    },
+    "expansionStates": [
+      {
+        "roles": [
+          "Rows"
+        ],
+        "levels": [
+          {
+            "queryRefs": [
+              "DW_Properties.ORGANIZATION_NAME"
+            ],
+            "isCollapsed": true,
+            "isPinned": true
+          },
+          {
+            "queryRefs": [
+              "DW_Properties.REGION_NAME"
+            ],
+            "isCollapsed": true
+          },
+          {
+            "queryRefs": [
+              "DW_Properties.SUBDIVISION"
+            ],
+            "isCollapsed": true
+          },
+          {
+            "queryRefs": [
+              "DW_Properties.FLOORPLAN"
+            ],
+            "isCollapsed": true
+          },
+          {
+            "queryRefs": [
+              "DW_Properties.FULL_ADDRESS"
+            ],
+            "isCollapsed": true
+          }
+        ],
+        "root": {}
+      }
+    ],
+    "objects": {
+      "grid": [
+        {
+          "properties": {
+            "gridHorizontal": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Property Summary'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "Filter9566470a603b8cb290b5",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "DW_Tenant"
+              }
+            },
+            "Property": "TENANT_STATUS"
+          }
+        },
+        "type": "Categorical",
+        "howCreated": "User"
+      }
+    ]
+  }
+}

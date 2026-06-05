@@ -1,0 +1,30 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
+  "name": "2f5036dd87ebed0d9295",
+  "position": {
+    "x": 493.954927804035,
+    "y": 1861.2272831319585,
+    "z": 13000,
+    "height": 119.62025316455697,
+    "width": 190.82278481012659,
+    "tabOrder": 15000
+  },
+  "visual": {
+    "visualType": "card",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DW_Properties"
+                    }
+                  },
+                  "Property": "0_Rent Var"
+                }
+              },
+              "queryRef": "DW_Properties.0_Rent Var",
+              "

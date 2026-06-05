@@ -1,0 +1,142 @@
+table QC_ResiAims
+	lineageTag: 2c5f45b9-97d9-4870-a6ac-264093ef4b0e
+
+	column 'Entity ID/Client ID'
+		dataType: string
+		lineageTag: 5be890ac-b199-4764-a3d9-573b39dca62d
+		summarizeBy: none
+		sourceColumn: Entity ID/Client ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column State
+		dataType: string
+		lineageTag: 9d8e2f37-ccd2-4aad-8682-d6cdbe94e4d0
+		summarizeBy: none
+		sourceColumn: State
+
+		annotation SummarizationSetBy = Automatic
+
+	column Move-In(Y/N)
+		dataType: string
+		lineageTag: e0e2c59f-d737-4879-a984-3d6f06541d2a
+		summarizeBy: none
+		sourceColumn: Move-In(Y/N)
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Muni verification Complete(Y/N)'
+		dataType: string
+		lineageTag: c45aa4f2-8b72-4472-b654-eea7537155e5
+		summarizeBy: none
+		sourceColumn: Muni verification Complete(Y/N)
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Outstanding Violations / Permits(Y/N)'
+		dataType: string
+		lineageTag: 8ce3c749-88cf-48d8-9450-2ef930ed3555
+		summarizeBy: none
+		sourceColumn: Outstanding Violations / Permits(Y/N)
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Outstanding Municipal Registrations(Y/N)'
+		dataType: string
+		lineageTag: d76bcae2-fb25-44a6-9fae-51d946822be4
+		summarizeBy: none
+		sourceColumn: Outstanding Municipal Registrations(Y/N)
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Association (Association Name/  N/A)'
+		dataType: string
+		lineageTag: 116b9eeb-b138-4c39-9fed-2c1e7081b6c1
+		summarizeBy: none
+		sourceColumn: Association (Association Name/  N/A)
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Association Leasing Authorized? (Yes/No/Unknown)'
+		dataType: string
+		lineageTag: 75c835e8-d55b-42a7-83f9-0fcfea28b859
+		summarizeBy: none
+		sourceColumn: Association Leasing Authorized? (Yes/No/Unknown)
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Association Requirement(Y/N)'
+		dataType: string
+		lineageTag: 961542b5-f94b-4ded-bbaf-7551c796b3d7
+		summarizeBy: none
+		sourceColumn: Association Requirement(Y/N)
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Association Requirement Description'
+		dataType: string
+		lineageTag: db13a7dd-3afa-4f6b-827c-2782afa8e335
+		summarizeBy: none
+		sourceColumn: Association Requirement Description
+
+		annotation SummarizationSetBy = Automatic
+
+	column Address
+		dataType: string
+		lineageTag: 3fd27479-57e6-4443-b6f8-f58de633e65e
+		summarizeBy: none
+		sourceColumn: Address
+
+		annotation SummarizationSetBy = Automatic
+
+	column City
+		dataType: string
+		lineageTag: cf0626ff-fd44-4a10-b636-e1e977e46bbd
+		summarizeBy: none
+		sourceColumn: City
+
+		annotation SummarizationSetBy = Automatic
+
+	column Zip
+		dataType: int64
+		formatString: 0
+		lineageTag: efe66fe4-17b1-4bf8-86c9-7b46e0bf58d3
+		summarizeBy: sum
+		sourceColumn: Zip
+
+		annotation SummarizationSetBy = Automatic
+
+	column County
+		dataType: string
+		lineageTag: c7b31487-cd94-413a-b011-5e0d5d4d04ff
+		summarizeBy: none
+		sourceColumn: County
+
+		annotation SummarizationSetBy = Automatic
+
+	column Pre-Listing(Y/N)
+		dataType: string
+		lineageTag: 16a97e1f-426b-40a0-9c9f-12a7a8f20b8c
+		summarizeBy: none
+		sourceColumn: Pre-Listing(Y/N)
+
+		annotation SummarizationSetBy = Automatic
+
+	partition QC_ResiAims-e7ade413-3497-47f4-a31e-3b48acaaaa27 = m
+		mode: import
+		queryGroup: QC
+		source =
+				let
+				    Source = SharePoint.Files("https://residentialcapital.sharepoint.com/sites/Hayden-Workspace", [ApiVersion = 15]),
+				    #"Property Pre Checklist Report csv_https://residentialcapital sharepoint com/sites/Hayden-Workspace/Shared Documents/" = Source{[Name="Property Pre Checklist Report.csv",#"Folder Path"="https://residentialcapital.sharepoint.com/sites/Hayden-Workspace/Shared Documents/"]}[Content],
+				    #"Imported CSV" = Csv.Document(#"Property Pre Checklist Report csv_https://residentialcapital sharepoint com/sites/Hayden-Workspace/Shared Documents/",[Delimiter=",", Columns=20, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(#"Imported CSV", [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"Acquisition Date", type date}, {"Acquisition Type", type text}, {"HBPM Property Status", type text}, {"Association ID", Int64.Type}, {"Entity Owner", type text}, {"Entity ID/Client ID", type text}, {"Address", type text}, {"City", type text}, {"State", type text}, {"Zip", Int64.Type}, {"County", type text}, {"Pre-Listing(Y/N)", type text}, {"Move-In(Y/N)", type text}, {"Muni verification Complete(Y/N)", type text}, {"Outstanding Violations / Permits(Y/N)", type text}, {"Outstanding Municipal Registrations(Y/N)", type text}, {"Association (Association Name/  N/A)", type text}, {"Association Leasing Authorized? (Yes/No/Unknown)", type text}, {"Association Requirement(Y/N)", type text}, {"Association Requirement Description", type text}}),
+				    #"Removed Columns" = Table.RemoveColumns(#"Changed Type",{"Entity Owner", "Acquisition Date", "Acquisition Type", "HBPM Property Status", "Association ID"})
+				in
+				    #"Removed Columns"
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

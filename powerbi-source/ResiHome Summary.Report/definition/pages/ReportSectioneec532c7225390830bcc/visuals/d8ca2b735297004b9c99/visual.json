@@ -146,14 +146,14 @@
               "expr": {
                 "Literal": {
                   "Value": "true"
-                }
+              }
               }
             },
             "enableBackground": {
               "expr": {
                 "Literal": {
                   "Value": "true"
-                }
+              }
               }
             },
             "backgroundColor": {
@@ -172,7 +172,7 @@
               "expr": {
                 "Literal": {
                   "Value": "20L"
-                }
+              }
               }
             }
           }
@@ -185,7 +185,7 @@
               "expr": {
                 "Literal": {
                   "Value": "'Left'"
-                }
+              }
               }
             },
             "labelColor": {
@@ -204,7 +204,7 @@
               "expr": {
                 "Literal": {
                   "Value": "false"
-                }
+              }
               }
             }
           }
@@ -219,28 +219,28 @@
               "expr": {
                 "Literal": {
                   "Value": "'Days Occupied'"
-                }
+              }
               }
             },
             "bold": {
               "expr": {
                 "Literal": {
                   "Value": "true"
-                }
+              }
               }
             },
             "fontFamily": {
               "expr": {
                 "Literal": {
                   "Value": "'''Segoe UI Semibold'', wf_segoe-ui_semibold, helvetica, arial, sans-serif'"
-                }
+              }
               }
             },
             "fontSize": {
               "expr": {
                 "Literal": {
                   "Value": "13D"
-                }
+              }
               }
             }
           }

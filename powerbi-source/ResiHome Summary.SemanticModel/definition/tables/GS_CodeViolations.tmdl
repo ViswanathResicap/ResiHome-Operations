@@ -1,0 +1,381 @@
+table GS_CodeViolations
+	lineageTag: bd63cd47-0943-4382-9943-dad17a53b358
+
+	measure '0_Violation Count' = DISTINCTCOUNT(GS_CodeViolations[Violation ID]) + 0
+		formatString: #,0
+		lineageTag: c967ea0e-8dce-493b-ba67-ee089126b659
+
+	column 'Confirm Accepting'
+		dataType: string
+		lineageTag: 3da6e185-4bcc-4ddd-b050-9cef444a1488
+		summarizeBy: none
+		sourceColumn: Confirm Accepting
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Confirm Complete'
+		dataType: string
+		lineageTag: 5f4967f5-f751-49c8-be82-cb2c49cbed36
+		summarizeBy: none
+		sourceColumn: Confirm Complete
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Recent Document'
+		dataType: string
+		lineageTag: c13922cc-5061-468b-a0ac-87a918d0d976
+		summarizeBy: none
+		sourceColumn: Recent Document
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'HBPM Property Status'
+		dataType: string
+		lineageTag: 7f9e2272-6aa8-4803-ae49-cc26b4e36618
+		summarizeBy: none
+		sourceColumn: HBPM Property Status
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Owner Id'
+		dataType: int64
+		formatString: 0
+		lineageTag: 0c0ff568-b6cb-4d49-8004-dba5b6b4f546
+		summarizeBy: count
+		sourceColumn: Owner Id
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Municipality / Association ID'
+		dataType: int64
+		formatString: 0
+		lineageTag: b5cfc79a-878f-4857-8e13-ae849d98a1e4
+		summarizeBy: count
+		sourceColumn: Municipality / Association ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Violation ID'
+		dataType: int64
+		formatString: 0
+		lineageTag: cd3e1e1f-7718-47ef-afd2-489b840ecd2e
+		summarizeBy: count
+		sourceColumn: Violation ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Created Date'
+		dataType: string
+		lineageTag: 7beea114-b0b2-4227-b0d1-611df84ba9fd
+		summarizeBy: none
+		sourceColumn: Created Date
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Date Of Record'
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 5b81de1d-622a-4085-aecf-4b4429d02f65
+		summarizeBy: none
+		sourceColumn: Date Of Record
+
+		variation Variation
+			isDefault
+			relationship: 1ee09d51-89fe-41a3-981c-3ba5fbb7af32
+			defaultHierarchy: LocalDateTable_500df58c-8d40-4bc3-98b0-e23fd7d2aa02.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column 'Received Date'
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 8d05d0c3-8db1-42d8-8386-00d51032e303
+		summarizeBy: none
+		sourceColumn: Received Date
+
+		variation Variation
+			isDefault
+			relationship: 961302b1-8352-414b-9be1-63a39cf3dea6
+			defaultHierarchy: LocalDateTable_76106888-e868-4af3-8699-b0a5bb020b35.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column 'Respond by Date'
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: dba96608-2006-441f-b91f-81c3fede1c82
+		summarizeBy: none
+		sourceColumn: Respond by Date
+
+		variation Variation
+			isDefault
+			relationship: 1c18ace0-a931-4aba-a0a1-62ea38489fb2
+			defaultHierarchy: LocalDateTable_ce7c3638-5844-4f9a-ac7d-ba77a072fa1d.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column 'Correct by Date'
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 0b9ae5d5-be71-4e83-ac85-37703b07c5fb
+		summarizeBy: none
+		sourceColumn: Correct by Date
+
+		variation Variation
+			isDefault
+			relationship: 196e6d83-1eb0-47a6-b8bd-65999e662deb
+			defaultHierarchy: LocalDateTable_012a7703-ee39-456f-b13d-51e35ecb438b.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column 'Completed Date'
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 6dbebed6-ecfa-44f5-98b8-228c82ede32b
+		summarizeBy: none
+		sourceColumn: Completed Date
+
+		variation Variation
+			isDefault
+			relationship: 6d609cc6-1911-49cb-b5a5-c871fabc65f5
+			defaultHierarchy: LocalDateTable_e512fa3c-6821-492f-b4cd-a6031497a312.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column 'Days to Complete'
+		dataType: int64
+		formatString: 0
+		lineageTag: f29118c1-3f59-4bd6-a7f1-0b856c29d68c
+		summarizeBy: sum
+		sourceColumn: Days to Complete
+
+		annotation SummarizationSetBy = Automatic
+
+	column Status
+		dataType: string
+		lineageTag: 63627fd3-c04d-4c4c-9335-c811067c1b17
+		summarizeBy: none
+		sourceColumn: Status
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Entity Id'
+		dataType: string
+		lineageTag: 1ce9c231-0b48-466e-a445-dcc8b2fd0bd3
+		summarizeBy: none
+		sourceColumn: Entity Id
+
+		annotation SummarizationSetBy = Automatic
+
+	column State
+		dataType: string
+		lineageTag: 6680938d-a225-4fd5-9109-33a0114bab9a
+		summarizeBy: none
+		sourceColumn: State
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Municipality / Association'
+		dataType: string
+		lineageTag: 3c1f7d13-f8c7-46bf-b5eb-e72ad43fa8af
+		summarizeBy: none
+		sourceColumn: Municipality / Association
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Name of the Municipality / Association'
+		dataType: string
+		lineageTag: 3e25a018-7a94-436c-88b9-2b7fbc6ae9e9
+		summarizeBy: none
+		sourceColumn: Name of the Municipality / Association
+
+		annotation SummarizationSetBy = Automatic
+
+	column Responsibility
+		dataType: string
+		lineageTag: 81ae8db6-fd8d-4add-98e4-67c5c020ebd5
+		summarizeBy: none
+		sourceColumn: Responsibility
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Responsible B/U'
+		dataType: string
+		lineageTag: 15080f46-65a0-42bf-9368-449a313ab3e5
+		summarizeBy: none
+		sourceColumn: Responsible B/U
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'B/U POC'
+		dataType: string
+		lineageTag: 6476ab47-8599-4bd5-a821-9fff95e79d70
+		summarizeBy: none
+		sourceColumn: B/U POC
+
+		annotation SummarizationSetBy = Automatic
+
+	column Category
+		dataType: string
+		lineageTag: 46bf9c9f-0dc0-4978-87fb-c51cea385836
+		summarizeBy: none
+		sourceColumn: Category
+
+		annotation SummarizationSetBy = Automatic
+
+	column Classification
+		dataType: string
+		lineageTag: 9b04ebe1-9a09-42b1-a500-5691eca503c1
+		summarizeBy: none
+		sourceColumn: Classification
+
+		annotation SummarizationSetBy = Automatic
+
+	column Type
+		dataType: string
+		lineageTag: ee8957dd-348a-4267-8f51-d971b413f208
+		summarizeBy: none
+		sourceColumn: Type
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Follow Up Date'
+		dataType: string
+		lineageTag: bbe2ca8f-8136-4fee-b265-0b3dc28be361
+		summarizeBy: none
+		sourceColumn: Follow Up Date
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Due Date'
+		dataType: string
+		lineageTag: fe5baa6c-5509-4da4-8e89-18458430d427
+		summarizeBy: none
+		sourceColumn: Due Date
+
+		annotation SummarizationSetBy = Automatic
+
+	column 1_Adjusted_FollowUp = MAX(GS_CodeViolations[Correct by Date],(GS_CodeViolations[Received Date]+7))
+		formatString: Short Date
+		lineageTag: 11be096a-4120-461a-9ee6-bff2ea8ac495
+		summarizeBy: none
+
+		variation Variation
+			isDefault
+			relationship: f3ed7c36-32f4-4dca-b1ef-626439c3bb41
+			defaultHierarchy: LocalDateTable_624c8f33-94c9-409d-a122-3d7250574874.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column '1_Days Since Received' = ```
+			IF(GS_CodeViolations[Received Date]<>BLANK(),TODAY() - GS_CodeViolations[Received Date],BLANK())
+			
+			
+			```
+		dataType: double
+		lineageTag: 6a17efce-e9ff-4c9d-875e-ba0cfcb13aac
+		summarizeBy: sum
+
+		changedProperty = DataType
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column '1_Days Till Corrected' = ```
+			IF(GS_CodeViolations[Correct by Date]<>BLANK(),GS_CodeViolations[Correct by Date]-TODAY(),BLANK())
+			
+			```
+		lineageTag: 423a3b2f-8e81-47ad-a2b6-f84a9a3ea836
+		summarizeBy: none
+
+		variation Variation
+			isDefault
+			relationship: 673a778f-5fc1-4968-a75d-43346c2ebc59
+			defaultHierarchy: LocalDateTable_70579caa-44bd-4382-8dd5-beff816fa1d6.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column '1_Due Timing' = ```
+			 IF(GS_CodeViolations[Correct by Date]=BLANK()||GS_CodeViolations[Correct by Date]>=(TODAY()+7),"On Schedule",IF(GS_CodeViolations[Correct by Date]<TODAY(),"Past Due","Final Week"))
+			
+			 
+			```
+		lineageTag: 3687a32c-dd90-4d35-9678-9860438b7488
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column Address
+		dataType: string
+		lineageTag: 8a855a6f-b7f6-4be0-857e-333ef99bbc3e
+		summarizeBy: none
+		sourceColumn: Address
+
+		annotation SummarizationSetBy = Automatic
+
+	column City
+		dataType: string
+		lineageTag: 89f3497b-72c5-43a9-ae25-7b3c6fd0aa5b
+		summarizeBy: none
+		sourceColumn: City
+
+		annotation SummarizationSetBy = Automatic
+
+	column Zip
+		dataType: int64
+		formatString: 0
+		lineageTag: c7391281-bf2d-46d7-97e0-14e3f258c02c
+		summarizeBy: sum
+		sourceColumn: Zip
+
+		annotation SummarizationSetBy = Automatic
+
+	column County
+		dataType: string
+		lineageTag: 7bccdc2e-8f6b-42b3-b3c7-5b43f2283186
+		summarizeBy: none
+		sourceColumn: County
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Court Hearing date'
+		dataType: string
+		lineageTag: 4268eda9-3cbc-4b04-84d2-f4403115a741
+		summarizeBy: none
+		sourceColumn: Court Hearing date
+
+		annotation SummarizationSetBy = Automatic
+
+	partition GS_CodeViolations = m
+		mode: import
+		queryGroup: QC
+		source =
+				let
+				    Source = SharePoint.Files("https://residentialcapital.sharepoint.com/sites/Hayden-Workspace", [ApiVersion = 15]),
+				    #"CodePermit csv_https://residentialcapital sharepoint com/sites/Hayden-Workspace/Shared Documents/" = Source{[Name="CodePermit.csv",#"Folder Path"="https://residentialcapital.sharepoint.com/sites/Hayden-Workspace/Shared Documents/"]}[Content],
+				    #"Imported CSV" = Csv.Document(#"CodePermit csv_https://residentialcapital sharepoint com/sites/Hayden-Workspace/Shared Documents/",[Delimiter=",", Columns=33, Encoding=65001, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(#"Imported CSV", [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"Confirm Accepting", type text}, {"Confirm Complete", type text}, {"Recent Document", type text}, {"HBPM Property Status", type text}, {"Owner Id", Int64.Type}, {"Municipality / Association ID", Int64.Type}, {"Violation ID", Int64.Type}, {"Created Date", type text}, {"Date Of Record", type date}, {"Received Date", type date}, {"Respond by Date", type date}, {"Correct by Date", type date}, {"Completed Date", type date}, {"Days to Complete", Int64.Type}, {"Status", type text}, {"Entity Owner", type text}, {"Entity Id", type text}, {"Address", type text}, {"City", type text}, {"State", type text}, {"Zip", Int64.Type}, {"County", type text}, {"Municipality / Association", type text}, {"Name of the Municipality / Association", type text}, {"Responsibility", type text}, {"Responsible B/U", type text}, {"B/U POC", type text}, {"Category", type text}, {"Classification", type text}, {"Type", type text}, {"Court Hearing date", type text}}),
+				    #"Replaced Value" = Table.ReplaceValue(#"Changed Type","Leasing","PM",Replacer.ReplaceText,{"Responsible B/U"}),
+				    #"Replaced Value1" = Table.ReplaceValue(#"Replaced Value","Evictions","PM",Replacer.ReplaceText,{"Responsible B/U"}),
+				    #"Filtered Rows" = Table.SelectRows(#"Replaced Value1", each true),
+				    #"Sorted Rows" = Table.Sort(#"Filtered Rows",{{"Date Of Record", Order.Descending}}),
+				    #"Removed Columns" = Table.RemoveColumns(#"Sorted Rows",{"Entity Owner"})
+				in
+				    #"Removed Columns"
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+
