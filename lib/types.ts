@@ -19,6 +19,22 @@ export interface PropertySummaryRow {
   count: number;
 }
 
+// One row per property — powers all slicers + client-side aggregation.
+export interface PropertyRow {
+  org: string;
+  region: string;
+  subdivision: string;
+  pm: string;            // PROPERTY_MANAGER
+  apm: string;           // PROPERTY_MANAGER_ASSISTANT
+  pod: string;
+  status: string;        // OCCUPANCY_STATUS_SUMMARY
+  summaryId: number | null; // OCCUPANCY_STATUS_SUMMARYID
+  delinquent: string;    // 1_Tenant Balance Status
+  address: string;       // FULL_ADDRESS
+  rent: number | null;   // CURRENT_RENT
+  uw: number | null;     // UNDER_WRITTEN_RENT
+}
+
 export interface MonthlyTrendRow {
   month: string; // e.g. "May 2026"
   homes: number | null;
@@ -60,4 +76,10 @@ export interface SummaryCache {
   } | null;
   propertySummary: PropertySummaryRow[];
   monthlyTrend: MonthlyTrendRow[];
+  /** Per-property rows (present once the refresh job runs); enables all slicers. */
+  properties?: PropertyRow[];
 }
+
+/** Stabilized-occupancy statuses used as the Occupancy % denominator. */
+export const STABILIZED_STATUSES = ["Tenant Leased", "Trustee Leased", "Vacant - On Market", "Vacant - FMI"];
+export const LEASED_STATUSES = ["Tenant Leased", "Trustee Leased"];

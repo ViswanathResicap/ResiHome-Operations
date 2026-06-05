@@ -62,30 +62,28 @@ async function main() {
   const kpis = { totalProperties: null, occupancyPct: null, activeListings: null,
     totalTenants: null, rentVar: null, holdingFees: null, projActualMis: null,
     netOccupancyGain: null, turnoverPct: null };
-  let propertySummary = [], monthlyTrend = [], podCount = null, imValue = null, internalMaintenance = null;
+  let propertySummary = [], monthlyTrend = [], properties = [], podCount = null, imValue = null, internalMaintenance = null;
   const log = (n, e) => console.error(`[refresh] ${n} failed:`, e.message);
+  const str = (v) => (v == null ? "" : String(v));
+  const LEASED = new Set(["Tenant Leased", "Trustee Leased"]);
 
+  // One faithful scan of DW_Properties -> per-property rows (drives every property tile + all slicers).
   const tProps = (async () => { try {
-    const [r] = await conn.query(`WITH p AS ( SELECT * FROM (\n${DWP}\n) )
-      SELECT COUNT(DISTINCT PROPERTY_KEY) AS TOTAL_PROPERTIES,
-        DIV0(COUNT(DISTINCT IFF(OCCUPANCY_STATUS_SUMMARYID IN (7,8),PROPERTY_KEY,NULL)),
-             COUNT(DISTINCT IFF(OCCUPANCY_STATUS_SUMMARYID IS NOT NULL,PROPERTY_KEY,NULL))) AS OCCUPANCY_PCT,
-        COUNT(DISTINCT IFF(OCCUPANCY_STATUS IN ('Tenant Leased','Trustee Leased'),PROPERTY_KEY,NULL)) AS TOTAL_TENANTS,
-        DIV0(SUM(IFF(CURRENT_RENT IS NOT NULL AND UNDER_WRITTEN_RENT IS NOT NULL,CURRENT_RENT,NULL)),
-             SUM(IFF(CURRENT_RENT IS NOT NULL AND UNDER_WRITTEN_RENT IS NOT NULL,UNDER_WRITTEN_RENT,NULL)))-1 AS RENT_VAR,
-        COUNT(DISTINCT POD) AS POD_COUNT
-      FROM p WHERE ${PAGE_FILTER}`);
-    kpis.totalProperties = numOr(r?.TOTAL_PROPERTIES); kpis.occupancyPct = numOr(r?.OCCUPANCY_PCT);
-    kpis.totalTenants = numOr(r?.TOTAL_TENANTS); kpis.rentVar = numOr(r?.RENT_VAR); podCount = numOr(r?.POD_COUNT);
-  } catch (e) { log("property KPIs", e); } })();
-
-  const tSummary = (async () => { try {
-    const rows = await conn.query(`WITH p AS ( SELECT * FROM (\n${DWP}\n) )
-      SELECT ORGANIZATION_NAME AS ORG, OCCUPANCY_STATUS_SUMMARY AS STATUS, COUNT(DISTINCT PROPERTY_KEY) AS CNT
-      FROM p WHERE ${PAGE_FILTER} GROUP BY 1,2 ORDER BY 1,2`);
-    propertySummary = rows.filter((r) => r.STATUS).map((r) => ({
-      organization: String(r.ORG), region: "—", subdivision: "—", status: String(r.STATUS), count: Number(r.CNT) }));
-  } catch (e) { log("property summary", e); } })();
+    const rows = await conn.query(`SELECT * FROM (\n${DWP}\n) WHERE ${PAGE_FILTER}`);
+    const seen = new Set();
+    for (const r of rows) {
+      const key = r.PROPERTY_KEY;
+      if (key != null && seen.has(key)) continue;
+      if (key != null) seen.add(key);
+      properties.push({
+        org: str(r.ORGANIZATION_NAME), region: str(r.REGION_NAME), subdivision: str(r.SUBDIVISION),
+        pm: str(r.PROPERTY_MANAGER), apm: str(r.PROPERTY_MANAGER_ASSISTANT), pod: str(r.POD),
+        status: str(r.OCCUPANCY_STATUS_SUMMARY), summaryId: numOr(r.OCCUPANCY_STATUS_SUMMARYID),
+        delinquent: str(r["1_Tenant Balance Status"]), address: str(r.FULL_ADDRESS),
+        rent: numOr(r.CURRENT_RENT), uw: numOr(r.UNDER_WRITTEN_RENT),
+      });
+    }
+  } catch (e) { log("property rows", e); } })();
 
   const tListings = (async () => { try {
     const [r] = await conn.query(`WITH l AS ( SELECT * FROM (\n${DWL}\n) )
@@ -113,8 +111,28 @@ async function main() {
     imValue = numOr(r?.IM);
   } catch (e) { log("internal maintenance", e); } })();
 
-  await Promise.allSettled([tProps, tSummary, tListings, tTrend, tIM]);
+  await Promise.allSettled([tProps, tListings, tTrend, tIM]);
   conn.close();
+
+  // Aggregate the property tiles from the per-property rows.
+  if (properties.length) {
+    kpis.totalProperties = properties.length;
+    const leased = properties.filter((p) => LEASED.has(p.status)).length;
+    const stable = properties.filter((p) => ["Tenant Leased","Trustee Leased","Vacant - On Market","Vacant - FMI"].includes(p.status)).length;
+    kpis.totalTenants = leased;
+    kpis.occupancyPct = stable ? leased / stable : null;
+    const rs = properties.filter((p) => p.rent != null && p.uw != null);
+    const sr = rs.reduce((s, p) => s + p.rent, 0), su = rs.reduce((s, p) => s + p.uw, 0);
+    kpis.rentVar = su ? sr / su - 1 : null;
+    podCount = new Set(properties.map((p) => p.pod).filter(Boolean)).size || null;
+    const g = new Map();
+    for (const p of properties) {
+      const key = `${p.org}|${p.status}`;
+      const cur = g.get(key) ?? { organization: p.org, region: "—", subdivision: "—", status: p.status, count: 0 };
+      cur.count++; g.set(key, cur);
+    }
+    propertySummary = Array.from(g.values()).filter((r) => r.status);
+  }
 
   const goal = podCount != null ? podCount * 2 * 2000 * 4 : null;
   if (imValue != null && goal) internalMaintenance = { value: imValue, target: goal, min: 0, max: goal, format: "currency", label: "Internal Maintenance" };
@@ -124,9 +142,9 @@ async function main() {
       note: "Live (refreshed hourly): property KPIs, Property Summary, Active Listings, monthly Homes/Avg Rent, Internal Maintenance. Remaining gauges & trend columns are being wired + validated." },
     filters: { occupancyStatusExcludes: ["Dispositions"], organizationNameExcludes: [null] },
     kpis, gauges: { eomCollections: null, renewal: null, netTurnCost: null, internalMaintenance },
-    propertySummary, monthlyTrend,
+    propertySummary, monthlyTrend, properties,
   };
-  fs.writeFileSync(OUT, JSON.stringify(cache, null, 2));
-  console.log(`Wrote ${OUT}: ${kpis.totalProperties} properties, ${propertySummary.length} summary rows, ${monthlyTrend.length} trend months.`);
+  fs.writeFileSync(OUT, JSON.stringify(cache));
+  console.log(`Wrote ${OUT}: ${kpis.totalProperties} properties, ${propertySummary.length} summary rows, ${properties.length} property rows, ${monthlyTrend.length} trend months.`);
 }
 main().catch((e) => { console.error(e); process.exit(1); });
