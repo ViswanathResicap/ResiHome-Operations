@@ -25,13 +25,16 @@ export function SummaryView({ initialData }: { initialData: SummaryCache }) {
   // Render the instant committed snapshot, then swap in fresh data from the
   // cron-warmed API (full per-property rows + live numbers) once it arrives.
   const [d, setData] = useState<SummaryCache>(initialData);
-  useEffect(() => {
-    let on = true;
-    fetch("/api/summary")
-      .then((r) => (r.ok ? r.json() : null))
-      .then((j) => { if (on && j && j._meta) setData(j as SummaryCache); })
-      .catch(() => {});
-    return () => { on = false; };
+  const [refreshing, setRefreshing] = useState(false);
+  const load = async (fresh: boolean) => {
+    try {
+      setRefreshing(true);
+      const r = await fetch(`/api/summary${fresh ? "?fresh=1" : ""}`, { cache: "no-store" });
+      const j = r.ok ? await r.json() : null;
+      if (j && j._meta) setData(j as SummaryCache);
+    } catch { /* keep current data */ } finally { setRefreshing(false); }
+  };
+  useEffect(() => { load(false); /* initial hydrate */ // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const [f, setF] = useState<Filters>(EMPTY);
   const set = (k: keyof Filters, v: string) => setF((p) => ({ ...p, [k]: v }));
@@ -140,9 +143,22 @@ export function SummaryView({ initialData }: { initialData: SummaryCache }) {
       <main className="canvas">
         <div className="pagehead">
           <h1>Summary</h1>
-          <div className="ctx">
-            {isSample ? "Sample" : "Live · Snowflake"} · active portfolio ·{" "}
-            {new Date(d._meta.generatedAt).toLocaleString("en-US")}
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <div className="ctx">
+              {isSample ? "Sample" : "Live · Snowflake"} · updated{" "}
+              {new Date(d._meta.generatedAt).toLocaleString("en-US")}
+            </div>
+            <button
+              onClick={() => load(true)}
+              disabled={refreshing}
+              style={{
+                border: "1px solid var(--brand)", color: "#fff", background: "var(--brand)",
+                borderRadius: 8, padding: "7px 14px", fontWeight: 700, cursor: refreshing ? "default" : "pointer",
+                opacity: refreshing ? 0.6 : 1, fontFamily: "inherit",
+              }}
+            >
+              {refreshing ? "Refreshing…" : "↻ Refresh data"}
+            </button>
           </div>
         </div>
 

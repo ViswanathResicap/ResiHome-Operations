@@ -10,8 +10,8 @@ const cachedLive = unstable_cache(
     const { getLiveSummary } = await import("./live-summary");
     return getLiveSummary();
   },
-  ["summary-live-v1"],
-  { revalidate: 3600 }
+  ["summary-live-v2"],
+  { revalidate: 3600, tags: ["summary"] }
 );
 
 /**
