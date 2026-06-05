@@ -1,6 +1,6 @@
 import { connect } from "./snowflake";
-import { DW_PROPERTIES_SQL, DW_LISTINGS_SQL, PM_BOM_SQL } from "./generated/sql";
-import type { SummaryCache, PropertySummaryRow, MonthlyTrendRow } from "./types";
+import { DW_PROPERTIES_SQL, DW_LISTINGS_SQL, PM_BOM_SQL, DW_WO_SQL } from "./generated/sql";
+import type { SummaryCache, PropertySummaryRow, MonthlyTrendRow, GaugeData } from "./types";
 
 // Page-level filters from the Summary page.json.
 const PAGE_FILTER = `OCCUPANCY_STATUS <> 'Dispositions' AND ORGANIZATION_NAME IS NOT NULL`;
@@ -22,6 +22,8 @@ export async function getLiveSummary(): Promise<SummaryCache> {
   };
   let propertySummary: PropertySummaryRow[] = [];
   let monthlyTrend: MonthlyTrendRow[] = [];
+  let podCount: number | null = null;
+  let internalMaintenance: GaugeData | null = null;
 
   try {
     // Property-level KPIs (match the card measures over DW_Properties).
@@ -34,12 +36,14 @@ export async function getLiveSummary(): Promise<SummaryCache> {
                 COUNT(DISTINCT IFF(OCCUPANCY_STATUS_SUMMARYID IS NOT NULL, PROPERTY_KEY, NULL)) ) AS OCCUPANCY_PCT,
           COUNT(DISTINCT IFF(OCCUPANCY_STATUS IN ('Tenant Leased','Trustee Leased'), PROPERTY_KEY, NULL)) AS TOTAL_TENANTS,
           DIV0( SUM(IFF(CURRENT_RENT IS NOT NULL AND UNDER_WRITTEN_RENT IS NOT NULL, CURRENT_RENT, NULL)),
-                SUM(IFF(CURRENT_RENT IS NOT NULL AND UNDER_WRITTEN_RENT IS NOT NULL, UNDER_WRITTEN_RENT, NULL)) ) - 1 AS RENT_VAR
+                SUM(IFF(CURRENT_RENT IS NOT NULL AND UNDER_WRITTEN_RENT IS NOT NULL, UNDER_WRITTEN_RENT, NULL)) ) - 1 AS RENT_VAR,
+          COUNT(DISTINCT POD) AS POD_COUNT
         FROM p WHERE ${PAGE_FILTER}`);
       kpis.totalProperties = numOr(r?.TOTAL_PROPERTIES);
       kpis.occupancyPct = numOr(r?.OCCUPANCY_PCT);
       kpis.totalTenants = numOr(r?.TOTAL_TENANTS);
       kpis.rentVar = numOr(r?.RENT_VAR);
+      podCount = numOr(r?.POD_COUNT);
     } catch (e) { console.error("[live] property KPIs failed:", (e as Error).message); }
 
     // Property Summary pivot source (Organization x occupancy status).
@@ -87,6 +91,28 @@ export async function getLiveSummary(): Promise<SummaryCache> {
         renewal: null, turnover: null, netTurnCost: null,
       }));
     } catch (e) { console.error("[live] monthly trend failed:", (e as Error).message); }
+
+    // Internal Maintenance gauge (last 4 months, native DW_WO columns).
+    // 04_Interal Maintenance = SUM(CLIENT_INVOICE_AMOUNT) closed internal-vendor WOs;
+    // gauge excludes the non-maintenance vendor companies; goal = POD*2*2000*4.
+    try {
+      const [r] = await conn.query<Record<string, unknown>>(`
+        WITH w AS ( SELECT * FROM ( ${DW_WO_SQL} ) )
+        SELECT SUM(CLIENT_INVOICE_AMOUNT) AS IM
+        FROM w
+        WHERE WORKORDER_STATUS = 'Closed' AND IS_INTERNAL_VENDOR = 'Y'
+          AND DATE_TRUNC('month', WO_CLOSED_DATE) >= DATEADD('month', -3, DATE_TRUNC('month', CURRENT_DATE()))
+          AND DATE_TRUNC('month', WO_CLOSED_DATE) <= DATE_TRUNC('month', CURRENT_DATE())
+          AND COMPANY_NAME NOT IN ('Credit Card Vendor','GE Vendor (Maintenance)','New Builder Warranty Vendor','Lennar Builder Warranty')`);
+      const im = numOr(r?.IM);
+      const goal = podCount != null ? podCount * 2 * 2000 * 4 : null;
+      if (im != null && goal) {
+        internalMaintenance = {
+          value: im, target: goal, min: 0, max: goal,
+          format: "currency", label: "Internal Maintenance",
+        };
+      }
+    } catch (e) { console.error("[live] internal maintenance failed:", (e as Error).message); }
   } finally {
     conn.close();
   }
@@ -99,7 +125,7 @@ export async function getLiveSummary(): Promise<SummaryCache> {
     },
     filters: { occupancyStatusExcludes: ["Dispositions"], organizationNameExcludes: [null] },
     kpis,
-    gauges: null,
+    gauges: { eomCollections: null, renewal: null, netTurnCost: null, internalMaintenance },
     propertySummary,
     monthlyTrend,
   };
