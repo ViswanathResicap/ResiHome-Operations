@@ -1,0 +1,2085 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
+  "name": "100c623a9bd89596d9a1",
+  "position": {
+    "x": 306.33931843165993,
+    "y": 1263.4664712348845,
+    "z": 48000,
+    "height": 344.44851593990472,
+    "width": 1666.5445218028581,
+    "tabOrder": 48000
+  },
+  "visual": {
+    "visualType": "pivotTable",
+    "query": {
+      "queryState": {
+        "Rows": {
+          "projections": [
+            {
+              "field": {
+                "HierarchyLevel": {
+                  "Expression": {
+                    "Hierarchy": {
+                      "Expression": {
+                        "PropertyVariationSource": {
+                          "Expression": {
+                            "SourceRef": {
+                              "Entity": "0_Month"
+                            }
+                          },
+                          "Name": "Variation",
+                          "Property": "BEG_OF_MONTH"
+                        }
+                      },
+                      "Hierarchy": "Date Hierarchy"
+                    }
+                  },
+                  "Level": "Year"
+                }
+              },
+              "queryRef": "0_Month.BEG_OF_MONTH.Variation.Date Hierarchy.Year",
+              "nativeQueryRef": "BEG_OF_MONTH Year",
+              "active": true
+            },
+            {
+              "field": {
+                "HierarchyLevel": {
+                  "Expression": {
+                    "Hierarchy": {
+                      "Expression": {
+                        "PropertyVariationSource": {
+                          "Expression": {
+                            "SourceRef": {
+                              "Entity": "0_Month"
+                            }
+                          },
+                          "Name": "Variation",
+                          "Property": "BEG_OF_MONTH"
+                        }
+                      },
+                      "Hierarchy": "Date Hierarchy"
+                    }
+                  },
+                  "Level": "Month"
+                }
+              },
+              "queryRef": "0_Month.BEG_OF_MONTH.Variation.Date Hierarchy.Month",
+              "nativeQueryRef": "BEG_OF_MONTH Month",
+              "active": true
+            }
+          ]
+        },
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "0_Month"
+                    }
+                  },
+                  "Property": "0_All Homes"
+                }
+              },
+              "queryRef": "0_Month.0_All Homes",
+              "nativeQueryRef": "Homes",
+              "displayName": "Homes"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "0_Month"
+                    }
+                  },
+                  "Property": "0_Avg_Rent"
+                }
+              },
+              "queryRef": "0_Month.0_Avg_Rent",
+              "nativeQueryRef": "Avg Rent",
+              "displayName": "Avg Rent"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "0_Month"
+                    }
+                  },
+                  "Property": "0_Occ_BOM %"
+                }
+              },
+              "queryRef": "0_Month.0_Occ %",
+              "nativeQueryRef": "BOM Occ",
+              "displayName": "BOM Occ"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "0_Month"
+                    }
+                  },
+                  "Property": "01_Forecasted_Net_Occupancy"
+                }
+              },
+              "queryRef": "0_Month.01_Forecasted_Net_Occupancy",
+              "nativeQueryRef": "Net Occ Gain",
+              "displayName": "Net Occ Gain"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "0_Month"
+                    }
+                  },
+                  "Property": "0_Occ_EOM %"
+                }
+              },
+              "queryRef": "0_Month.0_Occ_EOM %",
+              "nativeQueryRef": "EOM Occ",
+              "displayName": "EOM Occ"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "0_Month"
+                    }
+                  },
+                  "Property": "02_HF_PullThru"
+                }
+              },
+              "queryRef": "0_Month.2_HF_Pullthru %",
+              "nativeQueryRef": "HF Pull-Thru",
+              "displayName": "HF Pull-Thru"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "0_Month"
+                    }
+                  },
+                  "Property": "01_Lease %"
+                }
+              },
+              "queryRef": "Month.01_Lease %",
+              "displayName": "BOM Vacant Leased"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "0_Month"
+                    }
+                  },
+                  "Property": "04_EOM Collections"
+                }
+              },
+              "queryRef": "0_Month.04_EOM Collections",
+              "nativeQueryRef": "EOM Collections",
+              "displayName": "EOM Collections"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "0_Month"
+                    }
+                  },
+                  "Property": "04_Renewal"
+                }
+              },
+              "queryRef": "0_Month.04_Renewal",
+              "nativeQueryRef": "Retention",
+              "displayName": "Retention"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "0_Month"
+                    }
+                  },
+                  "Property": "0_Turnover %"
+                }
+              },
+              "queryRef": "Month.0_Turnover %",
+              "displayName": "Turnover"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "0_Month"
+                    }
+                  },
+                  "Property": "0_Renewal_Actual"
+                }
+              },
+              "queryRef": "0_Month.0_Renewal_Actual",
+              "nativeQueryRef": "Renewal",
+              "displayName": "Renewal"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "0_Month"
+                    }
+                  },
+                  "Property": "04_Renewal_Rent_Growth"
+                }
+              },
+              "queryRef": "0_Month.04_Renewal_Rent_Growth",
+              "nativeQueryRef": "Renewal Rent Growth",
+              "displayName": "Renewal Rent Growth"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "0_Month"
+                    }
+                  },
+                  "Property": "0_Release Growth"
+                }
+              },
+              "queryRef": "0_Month.0_Release Growth",
+              "nativeQueryRef": "Release Rent Growth",
+              "displayName": "Release Rent Growth"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "0_Month"
+                    }
+                  },
+                  "Property": "0_Blended Spread %"
+                }
+              },
+              "queryRef": "Month.0_Renewal Spread % (CM)",
+              "displayName": "Blended Rent Growth"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "0_Month"
+                    }
+                  },
+                  "Property": "04_90+ Spend"
+                }
+              },
+              "queryRef": "0_Month.04_90+ Spend",
+              "nativeQueryRef": "90+ Maint. Spend",
+              "displayName": "90+ Maint. Spend"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "0_Month"
+                    }
+                  },
+                  "Property": "04_Net Turn Cost"
+                }
+              },
+              "queryRef": "0_Month.04_Net Turn Cost",
+              "nativeQueryRef": "Net Turn Cost",
+              "displayName": "Net Turn Cost"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "HierarchyLevel": {
+                "Expression": {
+                  "Hierarchy": {
+                    "Expression": {
+                      "PropertyVariationSource": {
+                        "Expression": {
+                          "SourceRef": {
+                            "Entity": "0_Month"
+                          }
+                        },
+                        "Name": "Variation",
+                        "Property": "BEG_OF_MONTH"
+                      }
+                    },
+                    "Hierarchy": "Date Hierarchy"
+                  }
+                },
+                "Level": "Year"
+              }
+            },
+            "direction": "Ascending"
+          },
+          {
+            "field": {
+              "HierarchyLevel": {
+                "Expression": {
+                  "Hierarchy": {
+                    "Expression": {
+                      "PropertyVariationSource": {
+                        "Expression": {
+                          "SourceRef": {
+                            "Entity": "0_Month"
+                          }
+                        },
+                        "Name": "Variation",
+                        "Property": "BEG_OF_MONTH"
+                      }
+                    },
+                    "Hierarchy": "Date Hierarchy"
+                  }
+                },
+                "Level": "Month"
+              }
+            },
+            "direction": "Ascending"
+          }
+        ]
+      }
+    },
+    "expansionStates": [
+      {
+        "roles": [
+          "Rows"
+        ],
+        "levels": [
+          {
+            "queryRefs": [
+              "0_Month.BEG_OF_MONTH.Variation.Date Hierarchy.Year"
+            ],
+            "isPinned": true
+          },
+          {
+            "queryRefs": [
+              "0_Month.BEG_OF_MONTH.Variation.Date Hierarchy.Month"
+            ],
+            "isCollapsed": true,
+            "isPinned": true
+          }
+        ],
+        "root": {}
+      }
+    ],
+    "objects": {
+      "grid": [
+        {
+          "properties": {
+            "gridHorizontal": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "gridHorizontalColor": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "ThemeDataColor": {
+                      "ColorId": 1,
+                      "Percent": 0
+                    }
+                  }
+                }
+              }
+            },
+            "outlineColor": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "ThemeDataColor": {
+                      "ColorId": 1,
+                      "Percent": 0
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ],
+      "columnHeaders": [
+        {
+          "properties": {
+            "backColor": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "ThemeDataColor": {
+                      "ColorId": 0,
+                      "Percent": -0.1
+                    }
+                  }
+                }
+              }
+            },
+            "bold": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "alignment": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Center'"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "columnFormatting": [
+        {
+          "properties": {
+            "styleHeader": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "styleTotal": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "alignment": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Center'"
+                }
+              }
+            },
+            "labelPrecision": {
+              "expr": {
+                "Literal": {
+                  "Value": "1L"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "Month.0_Renewal Spread % (CM)"
+          }
+        },
+        {
+          "properties": {
+            "styleHeader": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "styleTotal": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "alignment": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Center'"
+                }
+              }
+            },
+            "labelPrecision": {
+              "expr": {
+                "Literal": {
+                  "Value": "1L"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "Month.01_Lease %"
+          }
+        },
+        {
+          "properties": {
+            "styleTotal": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "styleHeader": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "alignment": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Center'"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "Month.0_Turnover %"
+          }
+        },
+        {
+          "properties": {
+            "labelPrecision": {
+              "expr": {
+                "Literal": {
+                  "Value": "0L"
+                }
+              }
+            },
+            "styleHeader": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "styleTotal": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "alignment": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Center'"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "0_Month.04_Net Turn Cost"
+          }
+        },
+        {
+          "properties": {
+            "labelPrecision": {
+              "expr": {
+                "Literal": {
+                  "Value": "1L"
+                }
+              }
+            },
+            "styleHeader": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "styleTotal": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "alignment": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Center'"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "0_Month.2_HF_Pullthru %"
+          }
+        },
+        {
+          "properties": {
+            "labelPrecision": {
+              "expr": {
+                "Literal": {
+                  "Value": "1L"
+                }
+              }
+            },
+            "styleHeader": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "styleTotal": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "alignment": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Center'"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "0_Month.0_Occ_EOM %"
+          }
+        },
+        {
+          "properties": {
+            "styleHeader": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "styleTotal": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "alignment": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Center'"
+                }
+              }
+            },
+            "labelPrecision": {
+              "expr": {
+                "Literal": {
+                  "Value": "1L"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "0_Month.0_Occ %"
+          }
+        },
+        {
+          "properties": {
+            "styleHeader": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "alignment": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Center'"
+                }
+              }
+            },
+            "styleTotal": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "0_Month.01_Forecasted_Net_Occupancy"
+          }
+        },
+        {
+          "properties": {
+            "styleHeader": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "styleTotal": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "alignment": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Center'"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "0_Month.04_90+ Spend"
+          }
+        },
+        {
+          "properties": {
+            "alignment": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Center'"
+                }
+              }
+            },
+            "styleHeader": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "styleTotal": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "labelPrecision": {
+              "expr": {
+                "Literal": {
+                  "Value": "0L"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "0_Month.0_All Homes"
+          }
+        },
+        {
+          "properties": {
+            "styleValues": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "styleHeader": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "styleTotal": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "alignment": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Center'"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "0_Month.04_Renewal"
+          }
+        },
+        {
+          "properties": {
+            "styleHeader": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "styleTotal": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "alignment": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Center'"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "0_Month.04_Renewal_Rent_Growth"
+          }
+        },
+        {
+          "properties": {
+            "styleHeader": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "styleTotal": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "alignment": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Center'"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "0_Month.0_Release Growth"
+          }
+        },
+        {
+          "properties": {
+            "styleHeader": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "styleTotal": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "alignment": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Center'"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "0_Month.04_EOM Collections"
+          }
+        },
+        {
+          "properties": {
+            "styleHeader": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "styleTotal": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "labelPrecision": {
+              "expr": {
+                "Literal": {
+                  "Value": "0L"
+                }
+              }
+            },
+            "alignment": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Center'"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "0_Month.0_Avg_Rent"
+          }
+        }
+      ],
+      "columnWidth": [
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "74.06169510742848D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "data": [
+              {
+                "scopeId": {
+                  "Comparison": {
+                    "ComparisonKind": 0,
+                    "Left": {
+                      "Column": {
+                        "Expression": {
+                          "SourceRef": {
+                            "Entity": "DW_Properties"
+                          }
+                        },
+                        "Property": "OCCUPANCY_STATUS_SUMMARY"
+                      }
+                    },
+                    "Right": {
+                      "Literal": {
+                        "Value": "'Trustee Occupied'"
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "82.25924389573622D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "data": [
+              {
+                "scopeId": {
+                  "Comparison": {
+                    "ComparisonKind": 0,
+                    "Left": {
+                      "Column": {
+                        "Expression": {
+                          "SourceRef": {
+                            "Entity": "DW_Properties"
+                          }
+                        },
+                        "Property": "OCCUPANCY_STATUS_SUMMARY"
+                      }
+                    },
+                    "Right": {
+                      "Literal": {
+                        "Value": "'Trustee Leased'"
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "67.16046950158234D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "data": [
+              {
+                "scopeId": {
+                  "Comparison": {
+                    "ComparisonKind": 0,
+                    "Left": {
+                      "Column": {
+                        "Expression": {
+                          "SourceRef": {
+                            "Entity": "DW_Properties"
+                          }
+                        },
+                        "Property": "OCCUPANCY_STATUS_SUMMARY"
+                      }
+                    },
+                    "Right": {
+                      "Literal": {
+                        "Value": "'Tenant Leased'"
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "70.9876402377582D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "data": [
+              {
+                "scopeId": {
+                  "Comparison": {
+                    "ComparisonKind": 0,
+                    "Left": {
+                      "Column": {
+                        "Expression": {
+                          "SourceRef": {
+                            "Entity": "DW_Properties"
+                          }
+                        },
+                        "Property": "OCCUPANCY_STATUS_SUMMARY"
+                      }
+                    },
+                    "Right": {
+                      "Literal": {
+                        "Value": "'Vacant - FMI'"
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "88.79009144945044D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "data": [
+              {
+                "scopeId": {
+                  "Comparison": {
+                    "ComparisonKind": 0,
+                    "Left": {
+                      "Column": {
+                        "Expression": {
+                          "SourceRef": {
+                            "Entity": "DW_Properties"
+                          }
+                        },
+                        "Property": "OCCUPANCY_STATUS_SUMMARY"
+                      }
+                    },
+                    "Right": {
+                      "Literal": {
+                        "Value": "'Vacant - On Market'"
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "90.06169510742848D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "data": [
+              {
+                "scopeId": {
+                  "Comparison": {
+                    "ComparisonKind": 0,
+                    "Left": {
+                      "Column": {
+                        "Expression": {
+                          "SourceRef": {
+                            "Entity": "DW_Properties"
+                          }
+                        },
+                        "Property": "OCCUPANCY_STATUS_SUMMARY"
+                      }
+                    },
+                    "Right": {
+                      "Literal": {
+                        "Value": "'Vacant - Off Market'"
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "89.5252450963641D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "Month.01_Lease %"
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "91.14610310368201D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "0_Month.04_Net Turn Cost"
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "83.13095554035613D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "0_Month.04_90+ Spend"
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "92.21390428625129D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "Month.0_Renewal Spread % (CM)"
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "75.62561563212012D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "0_Month.2_HF_Pullthru %"
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "62.88290199927938D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "0_Month.01_Forecasted_Net_Occupancy"
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "67.10304088305794D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "0_Month.0_Occ %"
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "63.991777471039434D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "0_Month.0_Occ_EOM %"
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "77.77614135197696D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "Month.0_Turnover %"
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "91.36505676995529D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "0_Month.04_Renewal_Rent_Growth"
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "89.31829852839377D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "0_Month.0_Release Growth"
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "85.2222255563831D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "0_Month.04_EOM Collections"
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "218.44443698169437D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "0_Month.BEG_OF_MONTH.Variation.Date Hierarchy.Year"
+          }
+        }
+      ],
+      "rowHeaders": [
+        {
+          "properties": {
+            "wordWrap": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "values": [
+        {
+          "properties": {},
+          "selector": {
+            "data": [
+              {
+                "dataViewWildcard": {
+                  "matchingOption": 1
+                }
+              }
+            ],
+            "metadata": "Month.01_Lease %"
+          }
+        },
+        {
+          "properties": {},
+          "selector": {
+            "data": [
+              {
+                "dataViewWildcard": {
+                  "matchingOption": 1
+                }
+              }
+            ],
+            "metadata": "Month.0_Renewal Spread % (CM)"
+          }
+        },
+        {
+          "properties": {},
+          "selector": {
+            "data": [
+              {
+                "dataViewWildcard": {
+                  "matchingOption": 1
+                }
+              }
+            ],
+            "metadata": "Month.0_Turnover %"
+          }
+        }
+      ]
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Aggregation": {
+                  "Expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "0_Month"
+                        }
+                      },
+                      "Property": "Title"
+                    }
+                  },
+                  "Function": 3
+                }
+              }
+            },
+            "fontFamily": {
+              "expr": {
+                "Literal": {
+                  "Value": "'''Segoe UI Semibold'', wf_segoe-ui_semibold, helvetica, arial, sans-serif'"
+                }
+              }
+            },
+            "fontSize": {
+              "expr": {
+                "Literal": {
+                  "Value": "12D"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "Filtere4c7a9b119c501640302",
+        "ordinal": 0,
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "0_Month"
+              }
+            },
+            "Property": "0_All Homes"
+          }
+        },
+        "type": "Advanced",
+        "filter": {
+          "Version": 2,
+          "From": [
+            {
+              "Name": "0",
+              "Entity": "0_Month",
+              "Type": 0
+            }
+          ],
+          "Where": [
+            {
+              "Condition": {
+                "Not": {
+                  "Expression": {
+                    "Comparison": {
+                      "ComparisonKind": 0,
+                      "Left": {
+                        "Measure": {
+                          "Expression": {
+                            "SourceRef": {
+                              "Source": "0"
+                            }
+                          },
+                          "Property": "0_All Homes"
+                        }
+                      },
+                      "Right": {
+                        "Literal": {
+                          "Value": "null"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      },
+      {
+        "name": "fb009081f90ea3b35d84",
+        "ordinal": 1,
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "0_Month"
+              }
+            },
+            "Property": "BEG_OF_MONTH"
+          }
+        },
+        "type": "RelativeDate",
+        "filter": {
+          "Version": 2,
+          "From": [
+            {
+              "Name": "0",
+              "Entity": "0_Month",
+              "Type": 0
+            }
+          ],
+          "Where": [
+            {
+              "Condition": {
+                "Between": {
+                  "Expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Source": "0"
+                        }
+                      },
+                      "Property": "BEG_OF_MONTH"
+                    }
+                  },
+                  "LowerBound": {
+                    "DateSpan": {
+                      "Expression": {
+                        "DateAdd": {
+                          "Expression": {
+                            "DateAdd": {
+                              "Expression": {
+                                "Now": {}
+                              },
+                              "Amount": 1,
+                              "TimeUnit": 0
+                            }
+                          },
+                          "Amount": -13,
+                          "TimeUnit": 2
+                        }
+                      },
+                      "TimeUnit": 0
+                    }
+                  },
+                  "UpperBound": {
+                    "DateSpan": {
+                      "Expression": {
+                        "Now": {}
+                      },
+                      "TimeUnit": 0
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "howCreated": "User"
+      },
+      {
+        "name": "Filterbe7e77b07ccfeabac5ec",
+        "ordinal": 2,
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "DW_Properties"
+              }
+            },
+            "Property": "0_Count"
+          }
+        },
+        "type": "Advanced",
+        "howCreated": "User"
+      },
+      {
+        "name": "Filter8bbc55408c2c0c942acb",
+        "ordinal": 3,
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "0_Month"
+              }
+            },
+            "Property": "0_Occ_BOM %"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "Filter5e314dc603cc598290e4",
+        "ordinal": 4,
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "DW_Properties"
+              }
+            },
+            "Property": "FULL_ADDRESS"
+          }
+        },
+        "type": "Categorical",
+        "howCreated": "User"
+      },
+      {
+        "name": "Filter7a7ccf345cc0dc2cf990",
+        "ordinal": 5,
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "0_Month"
+              }
+            },
+            "Property": "BEG_OF_MONTH"
+          }
+        },
+        "type": "RelativeDate",
+        "howCreated": "User"
+      },
+      {
+        "name": "Filter05301058ea565aae2810",
+        "ordinal": 6,
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "DW_Properties"
+              }
+            },
+            "Property": "ORGANIZATION_NAME"
+          }
+        },
+        "type": "Categorical",
+        "howCreated": "User"
+      },
+      {
+        "name": "Filter8ef9a8e5eb5e320fa9d8",
+        "ordinal": 7,
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "DW_Properties"
+              }
+            },
+            "Property": "REGION_NAME"
+          }
+        },
+        "type": "Categorical",
+        "howCreated": "User"
+      },
+      {
+        "name": "Filtera2fad4ab77500f03d74d",
+        "ordinal": 8,
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "DW_Properties"
+              }
+            },
+            "Property": "SUBDIVISION"
+          }
+        },
+        "type": "Categorical",
+        "howCreated": "User"
+      },
+      {
+        "name": "Filterce8d89ae7fd50ef0eaf2",
+        "ordinal": 9,
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "DW_Deals"
+              }
+            },
+            "Property": "HF (BOM)"
+          }
+        },
+        "type": "Categorical",
+        "howCreated": "User"
+      },
+      {
+        "name": "Filter9566470a603b8cb290b5",
+        "ordinal": 10,
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "DW_Tenant"
+              }
+            },
+            "Property": "TENANT_STATUS"
+          }
+        },
+        "type": "Categorical",
+        "howCreated": "User"
+      },
+      {
+        "name": "Filterc1ebdf4446e078aa7523",
+        "ordinal": 11,
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "DW_Tenant_Charges"
+              }
+            },
+            "Property": "0_Collection %"
+          }
+        },
+        "type": "Advanced",
+        "howCreated": "User"
+      },
+      {
+        "name": "Filtercb507da2644c13b7d01d",
+        "ordinal": 12,
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "DW_Deals"
+              }
+            },
+            "Property": "0_Deal Count"
+          }
+        },
+        "type": "Advanced",
+        "howCreated": "User"
+      },
+      {
+        "name": "Filter68312546638100a88aec",
+        "ordinal": 13,
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "0_Month"
+              }
+            },
+            "Property": "0_Renewal %"
+          }
+        },
+        "type": "Advanced",
+        "howCreated": "User"
+      },
+      {
+        "name": "Filterbf0b5405e70906731508",
+        "ordinal": 14,
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "0_Month"
+              }
+            },
+            "Property": "01_Lease %"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "Filterf3bb9fa1e718ba510718",
+        "ordinal": 15,
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "0_Month"
+              }
+            },
+            "Property": "0_Collection %_Rent"
+          }
+        },
+        "type": "Advanced",
+        "howCreated": "User"
+      },
+      {
+        "name": "Filter50037245d1a005c28905",
+        "ordinal": 16,
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "0_Month"
+              }
+            },
+            "Property": "0_Blended Spread %"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "Filterc7cf6eff2a04535d736c",
+        "ordinal": 17,
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "0_Month"
+              }
+            },
+            "Property": "0_Turnover %"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "Filterf7c88b15daec136ea338",
+        "ordinal": 18,
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "0_Month"
+              }
+            },
+            "Property": "0_Days Occ"
+          }
+        },
+        "type": "Advanced",
+        "howCreated": "User"
+      },
+      {
+        "name": "3e32bb3446ae348b9f2c",
+        "ordinal": 19,
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "0_Month"
+              }
+            },
+            "Property": "04_90+ Spend"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "d1c556962535318368d7",
+        "ordinal": 20,
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "0_Month"
+              }
+            },
+            "Property": "04_Net Turn Cost"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "407ae1b1fcf5a9817a09",
+        "ordinal": 21,
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "0_Month"
+              }
+            },
+            "Property": "02_HF_PullThru"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "ae721e249a9c1623f9cb",
+        "ordinal": 22,
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "0_Month"
+              }
+            },
+            "Property": "01_Forecasted_Net_Occupancy"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "1c9f2b00eed84b6f0240",
+        "ordinal": 23,
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "0_Month"
+              }
+            },
+            "Property": "0_Occ_EOM %"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "f8cc4711ff388796021b",
+        "ordinal": 24,
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "0_Month"
+              }
+            },
+            "Property": "04_Renewal"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "00cc45c761812a459e68",
+        "ordinal": 25,
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "0_Month"
+              }
+            },
+            "Property": "04_Renewal_Rent_Growth"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "fb2d60e86284f1b6bdae",
+        "ordinal": 26,
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "0_Month"
+              }
+            },
+            "Property": "0_Renewal_Actual"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "b3f8aa99a403cbd13a6a",
+        "ordinal": 27,
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "0_Month"
+              }
+            },
+            "Property": "0_Release Growth"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "c4086864b2a23f7793b7",
+        "ordinal": 28,
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "DW_Deals"
+              }
+            },
+            "Property": "0_Rent Var (HF)"
+          }
+        },
+        "type": "Advanced",
+        "howCreated": "User"
+      },
+      {
+        "name": "499a40b7a9a6dc74abac",
+        "ordinal": 29,
+        "field": {
+          "HierarchyLevel": {
+            "Expression": {
+              "Hierarchy": {
+                "Expression": {
+                  "PropertyVariationSource": {
+                    "Expression": {
+                      "SourceRef": {
+                        "Entity": "0_Month"
+                      }
+                    },
+                    "Name": "Variation",
+                    "Property": "BEG_OF_MONTH"
+                  }
+                },
+                "Hierarchy": "Date Hierarchy"
+              }
+            },
+            "Level": "Year"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "ae02c1b3c5311f9eebb1",
+        "ordinal": 30,
+        "field": {
+          "HierarchyLevel": {
+            "Expression": {
+              "Hierarchy": {
+                "Expression": {
+                  "PropertyVariationSource": {
+                    "Expression": {
+                      "SourceRef": {
+                        "Entity": "0_Month"
+                      }
+                    },
+                    "Name": "Variation",
+                    "Property": "BEG_OF_MONTH"
+                  }
+                },
+                "Hierarchy": "Date Hierarchy"
+              }
+            },
+            "Level": "Month"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "bcbfa6a8949bcab2a915",
+        "ordinal": 31,
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "0_Month"
+              }
+            },
+            "Property": "04_EOM Collections"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "bd7cbb4eb0dd8b1a963e",
+        "ordinal": 32,
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "0_Month"
+              }
+            },
+            "Property": "0_Avg_Rent"
+          }
+        },
+        "type": "Advanced"
+      }
+    ],
+    "filterSortOrder": "Custom"
+  }
+}

@@ -1,0 +1,220 @@
+table DW_Tenant_Secondary
+	lineageTag: 1dc7ddae-c895-4943-a1c1-94c77296c384
+
+	column TENANT_KEY
+		dataType: double
+		lineageTag: 3bcd8da4-0fe7-4b49-9463-00a865cbe510
+		summarizeBy: sum
+		sourceColumn: TENANT_KEY
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column TENANT_SECONDAY_RANK
+		dataType: double
+		lineageTag: 4951a018-ce55-4807-b66f-c477ee4ca6a4
+		summarizeBy: sum
+		sourceColumn: TENANT_SECONDAY_RANK
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column TENANT_INFORMATION_ID
+		dataType: int64
+		lineageTag: 8759c2d8-e28c-4fe2-8561-daa5ef375622
+		summarizeBy: count
+		sourceColumn: TENANT_INFORMATION_ID
+
+		changedProperty = DataType
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column LEASE_ID
+		dataType: int64
+		lineageTag: cd914050-40a9-4fa1-90a6-e79eaf4a178e
+		summarizeBy: none
+		sourceColumn: LEASE_ID
+
+		changedProperty = DataType
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column PROPERTY_KEY
+		dataType: double
+		lineageTag: 2a2ab467-ddd2-46eb-aaac-32866ce41778
+		summarizeBy: sum
+		sourceColumn: PROPERTY_KEY
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column HBPM_PROPERTY_ID
+		dataType: double
+		lineageTag: 966078a2-d9c8-4969-b78f-43d76ac77757
+		summarizeBy: count
+		sourceColumn: HBPM_PROPERTY_ID
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column PORTFOLIO_NAME
+		dataType: string
+		lineageTag: 201b20eb-1290-46cc-a297-22b40f282b78
+		summarizeBy: none
+		sourceColumn: PORTFOLIO_NAME
+
+		annotation SummarizationSetBy = Automatic
+
+	column REGION_NAME
+		dataType: string
+		lineageTag: 5ede7193-bd93-4cbc-a384-1160ae2c5854
+		summarizeBy: none
+		sourceColumn: REGION_NAME
+
+		annotation SummarizationSetBy = Automatic
+
+	column ORGANIZATION_KEY
+		dataType: double
+		lineageTag: 251f450b-a6af-41bf-9409-34eebb64592a
+		summarizeBy: sum
+		sourceColumn: ORGANIZATION_KEY
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ORGANIZATION_NAME
+		dataType: string
+		lineageTag: 274a260b-866b-42cf-bf8c-4facea74185d
+		summarizeBy: none
+		sourceColumn: ORGANIZATION_NAME
+
+		annotation SummarizationSetBy = Automatic
+
+	column ADDRESS
+		dataType: string
+		lineageTag: dde1aa08-3e19-462a-b6f4-e818d1002939
+		summarizeBy: none
+		sourceColumn: ADDRESS
+
+		annotation SummarizationSetBy = Automatic
+
+	column ENTITYID
+		dataType: string
+		lineageTag: b615f2ba-6ef0-4642-8350-affd725060f3
+		summarizeBy: none
+		sourceColumn: ENTITYID
+
+		annotation SummarizationSetBy = Automatic
+
+	column OCCUPANCY_STATUS
+		dataType: string
+		lineageTag: 46ccb4dc-d2e0-49e8-95e7-17dc6f461872
+		summarizeBy: none
+		sourceColumn: OCCUPANCY_STATUS
+
+		annotation SummarizationSetBy = Automatic
+
+	column FULL_NAME
+		dataType: string
+		lineageTag: fec79365-e8e7-40aa-bf3f-83dfb7c923c0
+		summarizeBy: none
+		sourceColumn: FULL_NAME
+
+		annotation SummarizationSetBy = Automatic
+
+	column EMAIL_ADDRESS
+		dataType: string
+		lineageTag: d2d64dfc-746d-40af-ac17-546ce69a0609
+		summarizeBy: none
+		sourceColumn: EMAIL_ADDRESS
+
+		annotation SummarizationSetBy = Automatic
+
+	column PHONE_NUMBER
+		dataType: string
+		lineageTag: e2894149-5c9f-4f6c-89cf-575405303a5e
+		summarizeBy: none
+		sourceColumn: PHONE_NUMBER
+
+		annotation SummarizationSetBy = Automatic
+
+	column TENANT_STATUS
+		dataType: string
+		lineageTag: 6d5ef5e5-098e-471e-8c51-ce509db95db3
+		summarizeBy: none
+		sourceColumn: TENANT_STATUS
+
+		annotation SummarizationSetBy = Automatic
+
+	column TENANT_TYPE
+		dataType: string
+		lineageTag: 6052bf8b-33e7-44a4-b1d7-d231287dfe37
+		summarizeBy: none
+		sourceColumn: TENANT_TYPE
+
+		annotation SummarizationSetBy = Automatic
+
+	column PRIMARY_TENANT
+		dataType: string
+		lineageTag: e8de4600-4992-430f-8a37-12abf581c151
+		summarizeBy: none
+		sourceColumn: PRIMARY_TENANT
+
+		annotation SummarizationSetBy = Automatic
+
+	column EVICTION_STATUS
+		dataType: string
+		lineageTag: 4ff8b03e-8919-4ea7-9cf4-8b770a6c574d
+		summarizeBy: none
+		sourceColumn: EVICTION_STATUS
+
+		annotation SummarizationSetBy = Automatic
+
+	column NOTICE_DATE
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 83227a5f-ec82-4146-9b31-021bc9e27126
+		summarizeBy: none
+		sourceColumn: NOTICE_DATE
+
+		variation Variation
+			isDefault
+			relationship: f824733b-a62a-4d1a-b8ab-294e7f546f0f
+			defaultHierarchy: LocalDateTable_ba44e5bc-bae1-4c28-8802-0f9e5545a62e.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column CURRENT_RENT
+		dataType: double
+		lineageTag: ff4102b8-0e5e-4359-8938-29dc79743989
+		summarizeBy: sum
+		sourceColumn: CURRENT_RENT
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition DW_Tenant_Secondary-70b48a0e-9e88-42b8-900c-c87bad82bc35 = m
+		mode: import
+		queryGroup: 'DW Sources'
+		source =
+				let
+				    Source = Value.NativeQuery(Snowflake.Databases("ota12822.us-east-1.snowflakecomputing.com","DEVELOPER_WH",[Implementation="2.0"]){[Name="PROD_REPLICA"]}[Data], "SELECT T.TENANT_KEY FROM PROD_ANALYTICS.DBT_RESICAP.DIM_TENANT T WHERE T.CURRENT_FLAG = 'Y'", null, [EnableFolding=true])
+				in
+				    Source
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

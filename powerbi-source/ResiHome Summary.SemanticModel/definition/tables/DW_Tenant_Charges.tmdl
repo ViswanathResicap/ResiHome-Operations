@@ -1,0 +1,403 @@
+table DW_Tenant_Charges
+	lineageTag: 13ff813a-d2df-467e-91de-59b76731228a
+
+	measure '0_Collection %' = ```
+			IF(SUM(DW_Tenant_Charges[Charge_Amount])>0, min(COALESCE(SUM(DW_Tenant_Receipts[PAID_AMOUNT]),0) /SUM(DW_Tenant_Charges[Charge_Amount]), 1), min(DIVIDE(SUM(DW_Tenant_Receipts[PAID_AMOUNT]), SUM(DW_Tenant_Charges[Charge_Amount]), BLANK()), 1))
+			
+			```
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: c4ea72c1-ab3c-4479-b743-1fdd73aeb7cf
+
+		changedProperty = FormatString
+
+	measure '0_Collection_FORMAT %' = IF(MAX(DW_Tenant_Charges[Charge_Date_BOM])=DATE(YEAR(TODAY()),MONTH(TODAY()),1),BLANK(),DW_Tenant_Charges[0_Collection %])
+		lineageTag: feef845c-a294-46b4-8fc5-ff3f15b4412d
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 0_Concessions = ```
+			CALCULATE(SUM(DW_Tenant_Receipts[PAID_AMOUNT]),FILTER(DW_Tenant_Receipts,DW_Tenant_Receipts[CREDITTYPEID]=1))
+			            
+			```
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: 4a348a60-8cdc-4808-b256-4c62011e89b6
+
+		changedProperty = FormatString
+
+	measure 0_Collections_Net =
+			IF(SUM(DW_Tenant_Charges[Charge_Amount])>0,
+			                 min(COALESCE((SUM(DW_Tenant_Receipts[PAID_AMOUNT]) -[0_Concessions]),0) / (SUM(DW_Tenant_Charges[Charge_Amount]) - [0_Concessions]), 1),
+			                 min((SUM(DW_Tenant_Receipts[PAID_AMOUNT]) - [0_Concessions]) /(SUM(DW_Tenant_Charges[Charge_Amount])- [0_Concessions]), 1))
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: d6dd22b5-7479-4b38-aa88-5fcd86b74a38
+
+		changedProperty = FormatString
+
+	measure 0_Collections_Switch = IF(SELECTEDVALUE(SEL_Collections_Type[Value])="Net (x-Concessions)",[0_Collections_Net],[0_Collection %])
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: 219f1cff-2148-4db5-9cc2-1a2b606f887f
+
+		changedProperty = FormatString
+
+	measure 0_Unpaid = SUM(DW_Tenant_Charges[Charge_Amount]) - SUM(DW_Tenant_Receipts[PAID_AMOUNT])
+		formatString: \$#,0;(\$#,0);\$#,0
+		lineageTag: e0d64107-83b8-46e9-a191-a7b0f81e1455
+
+		changedProperty = FormatString
+
+	measure 0_Delinquency = IF(DW_Tenant_Charges[0_Charges]>0, 1 - [0_Collections_Switch], BLANK())
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: 49d393dd-d469-4336-b09d-7663c224e9e2
+
+		changedProperty = FormatString
+
+	measure 0_Charges = (SUM(DW_Tenant_Charges[Charge_Amount]) - IF(SELECTEDVALUE(SEL_Collections_Type[Value])="Gross",BLANK(),[0_Concessions]))
+		formatString: \$#,0;(\$#,0);\$#,0
+		lineageTag: c3fdfad6-2ce5-490e-95eb-614e06d07f33
+
+		changedProperty = FormatString
+
+	column PROPERTY_KEY
+		dataType: double
+		lineageTag: 7747cb82-610a-453f-b74d-d1d2330322ec
+		summarizeBy: none
+		sourceColumn: PROPERTY_KEY
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column TENANT_KEY
+		dataType: double
+		lineageTag: cea29161-5515-400c-847d-c577028da8ea
+		summarizeBy: sum
+		sourceColumn: TENANT_KEY
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column RECEIVABLE_ID
+		dataType: double
+		lineageTag: 8c82491d-d93e-4a87-a15d-3e7b2bbdf2bb
+		summarizeBy: none
+		sourceColumn: RECEIVABLE_ID
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column GL_ACCOUNT_KEY
+		dataType: double
+		lineageTag: 82debac0-43ca-48a7-8d95-d9b141de31c7
+		summarizeBy: sum
+		sourceColumn: GL_ACCOUNT_KEY
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ACCOUNT_NUMBER
+		dataType: string
+		lineageTag: c9187754-18a5-4d93-a6fc-262085b92e42
+		summarizeBy: none
+		sourceColumn: ACCOUNT_NUMBER
+
+		annotation SummarizationSetBy = Automatic
+
+	column Charge_GL
+		dataType: string
+		lineageTag: 73962daf-abe6-481b-b6d5-8e5bd01c30fb
+		summarizeBy: none
+		sourceColumn: Charge_GL
+
+		annotation SummarizationSetBy = Automatic
+
+	column REMARKS
+		dataType: string
+		lineageTag: 973590a4-4aed-4e23-b6b1-20fade7bc821
+		summarizeBy: none
+		sourceColumn: REMARKS
+
+		annotation SummarizationSetBy = Automatic
+
+	column TRANSACTION_TYPE
+		dataType: string
+		lineageTag: 0298e047-5303-4e5e-93e8-e1bfef1bf3c5
+		summarizeBy: none
+		sourceColumn: TRANSACTION_TYPE
+
+		annotation SummarizationSetBy = Automatic
+
+	column IS_CREDIT
+		dataType: string
+		lineageTag: b85d13da-82c4-41d2-b529-f07178cf27e0
+		summarizeBy: none
+		sourceColumn: IS_CREDIT
+
+		annotation SummarizationSetBy = Automatic
+
+	column '1_Amount Paid_DW' = CALCULATE(SUM(DW_Tenant_Receipts[PAID_AMOUNT]),FILTER(DW_Tenant_Receipts,DW_Tenant_Receipts[RECEIVABLE_ID]=DW_Tenant_Charges[RECEIVABLE_ID]&&DW_Tenant_Receipts[CREDITTYPEID]<>2))
+		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
+		lineageTag: af23707d-4a6b-46fb-9f6a-62002a4110d7
+		summarizeBy: sum
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	column ADDRESS
+		dataType: string
+		lineageTag: 4a9a6103-e73b-4042-be8b-efb154b1e3d5
+		summarizeBy: none
+		sourceColumn: ADDRESS
+
+		annotation SummarizationSetBy = Automatic
+
+	column TENANT_STATUS
+		dataType: string
+		lineageTag: 2d5db2ae-6403-4137-ba50-6ef8a9e043f1
+		summarizeBy: none
+		sourceColumn: TENANT_STATUS
+
+		annotation SummarizationSetBy = Automatic
+
+	column MONTH_TO_MONTH
+		dataType: string
+		lineageTag: 6ef129e6-e33c-4d7e-ae8c-4849a5bcaadb
+		summarizeBy: none
+		sourceColumn: MONTH_TO_MONTH
+
+		annotation SummarizationSetBy = Automatic
+
+	column LEASE_FROM_DATE
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 954da742-7ac7-4f79-b4e3-0fbb41d1d0d5
+		summarizeBy: none
+		sourceColumn: LEASE_FROM_DATE
+
+		variation Variation
+			isDefault
+			relationship: 1efbb1ff-b833-4267-93be-d902cc2ad004
+			defaultHierarchy: LocalDateTable_d764b4eb-eb65-4950-b459-de3aeb27393a.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column LEASE_TO_DATE
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: a6e2fda5-f86e-4b48-a5b9-60c4d5a3051d
+		summarizeBy: none
+		sourceColumn: LEASE_TO_DATE
+
+		variation Variation
+			isDefault
+			relationship: ca0a2a7f-cc2a-43df-b406-493eaad87e36
+			defaultHierarchy: LocalDateTable_19a6a6f3-e1ee-40f6-8de9-2f559e286a6b.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column '1_Days Aged' = IF((DW_Tenant_Charges[Balance]>1||DW_Tenant_Charges[Balance]<-1)&&DW_Tenant_Charges[1_Balance_Cumulative]>1,max((TODAY()-DW_Tenant_Charges[Charge_Date]+1),0),BLANK())
+		dataType: int64
+		formatString: 0
+		lineageTag: 546fddae-1553-4e90-a840-53a63e57b706
+		summarizeBy: sum
+
+		changedProperty = DataType
+
+		annotation SummarizationSetBy = Automatic
+
+	column '1_Balance Age Category' =
+			IF(DW_Tenant_Charges[1_Days Aged]=BLANK(),BLANK(),
+			                        IF(DW_Tenant_Charges[1_Days Aged]<30," <30",
+			                        IF(DW_Tenant_Charges[1_Days Aged]<=60," 30-60",
+			                        IF(DW_Tenant_Charges[1_Days Aged]<=90," 60-90",
+			                        IF(DW_Tenant_Charges[1_Days Aged]>90,"+90",
+			                        BLANK())))))
+		lineageTag: 8fab9bbd-298b-40d4-b703-6713ab58b462
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column ORGANIZATION_KEY
+		dataType: double
+		lineageTag: f584a8cd-20bb-4eb4-aa43-849eeb6eb601
+		summarizeBy: sum
+		sourceColumn: ORGANIZATION_KEY
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column PORTFOLIO_NAME
+		dataType: string
+		lineageTag: 6ffe5666-10c0-40c9-9206-cc551c347778
+		summarizeBy: none
+		sourceColumn: PORTFOLIO_NAME
+
+		annotation SummarizationSetBy = Automatic
+
+	column CREDITTYPEID
+		dataType: double
+		lineageTag: 816c8b23-f197-4dba-bdcd-97d3b60af61e
+		summarizeBy: count
+		sourceColumn: CREDITTYPEID
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column CREDIT_TYPE_NAME
+		dataType: string
+		lineageTag: 082883ec-8042-4434-af7f-ac90de0ca2bc
+		summarizeBy: none
+		sourceColumn: CREDIT_TYPE_NAME
+
+		annotation SummarizationSetBy = Automatic
+
+	column '1_Amount Concession_DW' = CALCULATE(SUM(DW_Tenant_Receipts[PAID_AMOUNT]),FILTER(DW_Tenant_Receipts,DW_Tenant_Receipts[RECEIVABLE_ID]=DW_Tenant_Charges[RECEIVABLE_ID]&&DW_Tenant_Receipts[CREDITTYPEID]=1))
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: dead15d6-c404-482a-a265-ed7e0e3a10d0
+		summarizeBy: sum
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	column '1_Amount Bad Debt_DW' = CALCULATE(SUM(DW_Tenant_Receipts[PAID_AMOUNT]),FILTER(DW_Tenant_Receipts,DW_Tenant_Receipts[RECEIVABLE_ID]=DW_Tenant_Charges[RECEIVABLE_ID]&&DW_Tenant_Receipts[CREDITTYPEID]=2))
+		lineageTag: 68c2d9fc-c4f4-4a15-8658-38bd07312459
+		summarizeBy: sum
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 1_Balance_Cumulative = ```
+			CALCULATE(SUM(DW_Tenant_Charges[Balance]),filter(ALLEXCEPT(DW_Tenant_Charges,DW_Tenant_Charges[TENANT_KEY],DW_Tenant_Charges[PROPERTY_KEY]),DW_Tenant_Charges[Charge_Date]<=TODAY())) -
+			
+			CALCULATE(SUM(DW_Tenant_Receipts[PAID_AMOUNT]),FILTER(DW_Tenant_Receipts,DW_Tenant_Receipts[TENANT_KEY]=DW_Tenant_Charges[TENANT_KEY]&&DW_Tenant_Receipts[RECEIVABLE_ID]=BLANK()&&DW_Tenant_Charges[Charge_Date]<=TODAY()&&DW_Tenant_Receipts[RECEIPT_STATUS]="Active"))
+			
+			```
+		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
+		lineageTag: aab61298-5492-4ec8-bd4e-c1e5845f82ab
+		summarizeBy: sum
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+	column TENANT_NAME
+		dataType: string
+		lineageTag: fe373b2d-e1b7-4289-837c-b394ddf94f6d
+		summarizeBy: none
+		sourceColumn: TENANT_NAME
+
+		annotation SummarizationSetBy = Automatic
+
+	column Charge_Date
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: f2a7c8d4-ad50-4f65-ac25-d251797e9c88
+		summarizeBy: none
+		sourceColumn: Charge_Date
+
+		variation Variation
+			isDefault
+			relationship: 95b8da15-30ff-41d0-baba-06f6321feb49
+			defaultHierarchy: LocalDateTable_5a3f92a7-2b83-48e6-b843-bf0beb65060c.'Date Hierarchy'
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+	column Charge_Amount
+		dataType: double
+		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
+		lineageTag: 8e751c13-9d10-4a85-a582-ce244eb20a91
+		summarizeBy: sum
+		sourceColumn: Charge_Amount
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	column Amount_Paid_PM
+		dataType: double
+		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
+		lineageTag: 0e485158-8b1c-4df9-8a32-68b60b6897e0
+		summarizeBy: sum
+		sourceColumn: Amount_Paid_PM
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+	column Balance
+		dataType: double
+		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
+		lineageTag: b66bf070-654a-458b-8cca-d76cce51d655
+		summarizeBy: sum
+		sourceColumn: Balance
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	column 'Notice Days' = RELATED(SEL_DemandLetters[Days till Demand Letter])
+		lineageTag: a227fa0d-4e56-4302-b840-7cb82e90b1c6
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	column '1_Eligible to File on' = IF(DW_Tenant_Charges[1_Days Aged]>DW_Tenant_Charges[Notice Days],1,0)
+		lineageTag: 7bf3fcdb-d4da-4005-817c-09df9d453599
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	column LEASE_ID
+		dataType: double
+		lineageTag: 3d55302f-b350-4ef2-825c-c8632496b33c
+		summarizeBy: count
+		sourceColumn: LEASE_ID
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column USER_KEY
+		dataType: double
+		lineageTag: d8105195-a33a-4424-a43c-06283b9db7c7
+		summarizeBy: sum
+		sourceColumn: USER_KEY
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column HBPM_PROPERTY_ID
+		dataType: double
+		lineageTag: f29aa9c0-4b01-4445-9d54-9a3bf5b59cef
+		summarizeBy: count
+		sourceColumn: HBPM_PROPERTY_ID
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+	
+partition sentinel

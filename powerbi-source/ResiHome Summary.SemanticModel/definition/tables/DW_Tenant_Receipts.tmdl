@@ -1,0 +1,294 @@
+table DW_Tenant_Receipts
+	lineageTag: 27a45159-f09c-4e9e-98d5-dc2a26c5deba
+
+	measure 0_Receipts = (SUM(DW_Tenant_Receipts[PAID_AMOUNT]) - IF(SELECTEDVALUE(SEL_Collections_Type[Value])="Gross",BLANK(),[0_Concessions]))
+		formatString: \$#,0;(\$#,0);\$#,0
+		lineageTag: deed5ad8-6c40-45a1-9916-bbe9381fed41
+
+		changedProperty = FormatString
+
+	column PROPERTY_KEY
+		dataType: double
+		lineageTag: d1867072-5a1e-45cf-9969-6c14cd48d5b4
+		summarizeBy: sum
+		sourceColumn: PROPERTY_KEY
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column TENANT_KEY
+		dataType: double
+		lineageTag: 6049e57d-800d-45a3-9f97-2c98db49c7d5
+		summarizeBy: sum
+		sourceColumn: TENANT_KEY
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column RECEIVABLE_ID
+		dataType: double
+		lineageTag: 01bec51b-282c-4648-a393-b9c791fbffda
+		summarizeBy: none
+		sourceColumn: RECEIVABLE_ID
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column RECEIPT_DETAIL_ID
+		dataType: double
+		lineageTag: a47c8a3c-891e-4e9f-9779-0cea777adb1d
+		summarizeBy: count
+		sourceColumn: RECEIPT_DETAIL_ID
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column RECEIPTID
+		dataType: double
+		lineageTag: daec0585-6d8d-4130-ae25-7895ca565332
+		summarizeBy: count
+		sourceColumn: RECEIPTID
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column RECEIVED_DATE
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 53ea46d5-186d-437f-8d9a-f073f3d053e4
+		summarizeBy: none
+		sourceColumn: RECEIVED_DATE
+
+		variation Variation
+			isDefault
+			relationship: 379d7e09-7e67-4f3d-9f77-c3f1f5a6752d
+			defaultHierarchy: LocalDateTable_fa30f1aa-57ac-4acb-b8b8-7e654f264662.'Date Hierarchy'
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column PAID_BY
+		dataType: string
+		lineageTag: 8f9fda9e-7ee5-4b2d-887c-725202aa3293
+		summarizeBy: none
+		sourceColumn: PAID_BY
+
+		annotation SummarizationSetBy = Automatic
+
+	column PAID_BY_TYPE
+		dataType: string
+		lineageTag: 65e610a6-d07a-4283-94c5-f811ad1deb30
+		summarizeBy: none
+		sourceColumn: PAID_BY_TYPE
+
+		annotation SummarizationSetBy = Automatic
+
+	column PAID_AMOUNT
+		dataType: double
+		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
+		lineageTag: a7c71bc8-2cb8-466b-b5dd-55a68d8451bd
+		summarizeBy: sum
+		sourceColumn: PAID_AMOUNT
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	column REFERENCENUMBER
+		dataType: string
+		lineageTag: 010bf972-dd17-4ce5-a0a3-7ea9ede7f149
+		summarizeBy: none
+		sourceColumn: REFERENCENUMBER
+
+		annotation SummarizationSetBy = Automatic
+
+	column RECEIPTREMARKS
+		dataType: string
+		lineageTag: 31eb0c2e-4f21-4c6d-8bbb-d3e9c4875054
+		summarizeBy: none
+		sourceColumn: RECEIPTREMARKS
+
+		annotation SummarizationSetBy = Automatic
+
+	column RECEIPTSTATUSID
+		dataType: double
+		lineageTag: 61831c1a-24fc-4e58-beda-3db6bbc7e983
+		summarizeBy: count
+		sourceColumn: RECEIPTSTATUSID
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column RECEIPT_STATUS
+		dataType: string
+		lineageTag: 2036d606-18c1-4abd-994e-93fa3c30c10e
+		summarizeBy: none
+		sourceColumn: RECEIPT_STATUS
+
+		annotation SummarizationSetBy = Automatic
+
+	column ADDRESS
+		dataType: string
+		lineageTag: a8bfb8fe-ea20-408b-a801-208cccfcb629
+		summarizeBy: none
+		sourceColumn: ADDRESS
+
+		annotation SummarizationSetBy = Automatic
+
+	column TRANSACTION_TYPE
+		dataType: string
+		lineageTag: 8c6544e2-c56d-4568-a5cb-82d21217b29d
+		summarizeBy: none
+		sourceColumn: TRANSACTION_TYPE
+
+		annotation SummarizationSetBy = Automatic
+
+	column IS_CREDIT
+		dataType: string
+		lineageTag: 2754cfbc-69dc-44ca-85c8-31688b5ddcc5
+		summarizeBy: none
+		sourceColumn: IS_CREDIT
+
+		annotation SummarizationSetBy = Automatic
+
+	column CHARGE_DATE
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 889a8c80-ee14-495e-a797-b80781227251
+		summarizeBy: none
+		sourceColumn: CHARGE_DATE
+
+		variation Variation
+			isDefault
+			relationship: 4623e54d-c5f4-4345-95ec-8aa1de04c55c
+			defaultHierarchy: LocalDateTable_198698c7-4972-4e85-88a4-a0b4168f82eb.'Date Hierarchy'
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Charge_GL
+		dataType: string
+		lineageTag: 662491fb-c1e0-46fb-b357-815704c918c2
+		summarizeBy: none
+		sourceColumn: Charge_GL
+
+		annotation SummarizationSetBy = Automatic
+
+	column CREDITTYPEID
+		dataType: int64
+		lineageTag: bd06832c-4469-43ab-8b6f-d685bbc0a982
+		summarizeBy: count
+		sourceColumn: CREDITTYPEID
+
+		changedProperty = DataType
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column CREDIT_TYPE_NAME
+		dataType: string
+		lineageTag: 6dc4a8a5-4ebc-4fc2-8993-ca673654d142
+		summarizeBy: none
+		sourceColumn: CREDIT_TYPE_NAME
+
+		annotation SummarizationSetBy = Automatic
+
+	column ORGANIZATION_KEY
+		dataType: double
+		lineageTag: 9797955d-672d-453d-b4ed-9a0e04d87e95
+		summarizeBy: sum
+		sourceColumn: ORGANIZATION_KEY
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ORGANIZATION_NAME
+		dataType: string
+		lineageTag: 1bd6c1b5-d229-49d1-a2c9-71459e42a90f
+		summarizeBy: none
+		sourceColumn: ORGANIZATION_NAME
+
+		annotation SummarizationSetBy = Automatic
+
+	column HBPM_PROPERTY_ID
+		dataType: double
+		lineageTag: 6b81715d-b538-44bf-8e86-e661fe45fbb5
+		summarizeBy: count
+		sourceColumn: HBPM_PROPERTY_ID
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column REGION_NAME
+		dataType: string
+		lineageTag: d132a87d-0ade-42ab-9920-99ab84e5b394
+		summarizeBy: none
+		sourceColumn: REGION_NAME
+
+		annotation SummarizationSetBy = Automatic
+
+	column PORTFOLIO_NAME
+		dataType: string
+		lineageTag: 73f8e289-4899-41c7-bd6a-1da17fcb1591
+		summarizeBy: none
+		sourceColumn: PORTFOLIO_NAME
+
+		annotation SummarizationSetBy = Automatic
+
+	column GL = LOOKUPVALUE(DW_Tenant_Charges[ACCOUNT_NUMBER],DW_Tenant_Charges[RECEIVABLE_ID],DW_Tenant_Receipts[RECEIVABLE_ID])
+		lineageTag: ebbfaf46-b03e-477f-8763-b8f731882298
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column DAYS_TO_PAY
+		dataType: double
+		lineageTag: 1b2af1d0-ac63-4ce2-87b7-497401f830b1
+		summarizeBy: sum
+		sourceColumn: DAYS_TO_PAY
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column LATE_FLAG
+		dataType: double
+		lineageTag: e088f71a-7a9c-4bf4-b839-8d2cf790c2a0
+		summarizeBy: sum
+		sourceColumn: LATE_FLAG
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition DW_Tenant_Receipts-589de79c-ca20-4a2d-a5e1-c51066b7792a = m
+		mode: import
+		queryGroup: 'DW Sources'
+		source =
+				let
+				    Source = Value.NativeQuery(Snowflake.Databases("ota12822.us-east-1.snowflakecomputing.com","DEVELOPER_WH",[Implementation="2.0"]){[Name="PROD_REPLICA"]}[Data], "WITH BadDebt AS (#(lf)#(lf)Select #(lf)ARD.ReceiptId#(lf),MAX(AR.CreditTypeID) CreditTYpeID#(lf)FROM PROD_REPLICA.HBPM_DBO.ACCOUNTSRECEIPTDETAILS ARD#(lf)LEFT JOIN PROD_REPLICA.HBPM_DBO.ACCOUNTSRECEIVABLES AR ON AR.ReceivableID = ARD.ReceivableId#(lf)WHERE AR.ReceivableStatusId = 901#(lf)GROUP BY ARD.ReceiptId )#(lf)#(lf)SELECT #(lf)#(lf)P.Property_Key#(lf),P.HBPM_PROPERTY_ID#(lf),R.REGION_NAME#(lf),PO.PORTFOLIO_NAME#(lf)#(lf)#(tab),CASE WHEN P.ORGANIZATION_KEY IN (-1,18,26,28,48) THEN -1#(lf)      WHEN P.ORGANIZATION_KEY IN (27,50,51,52,54,45,55,53,56,57) THEN 27#(lf)      WHEN P.ORGANIZATION_KEY IN (58,59) THEN 58#(lf)      ELSE P.ORGANIZATION_KEY END AS ORGANIZATION_KEY#(lf)      #(lf)#(tab),CASE WHEN P.ORGANIZATION_KEY IN (-1,18,26,28,48) THEN 'RP SFR' #(lf)#(tab)      WHEN P.ORGANIZATION_KEY IN (27,50,51,52,54,45,55,53,56,57) THEN 'RB DRC'#(lf)#(tab)      WHEN P.ORGANIZATION_KEY IN (58,59) THEN 'Hudson Oak'#(lf)#(tab)      ELSE O.ORGANIZATION_NAME END AS ORGANIZATION_NAME#(lf),P.Address#(lf),P.EntityID#(lf),TEN.TENANT_KEY#(lf),TEN.LEASE_ID#(lf),LT.RECEIVABLE_ID#(lf),LT.RECEIPT_DETAIL_ID#(lf),AR.RECEIPTID#(lf),TO_DATE(LT.Charge_DATE_KEY::TEXT,'yyyymmdd') AS Charge_Date#(lf),TO_DATE(LT.RECEIVED_ON_DATE_KEY::TEXT,'yyyymmdd') AS Received_Date#(lf),DATE_TRUNC('month',TO_DATE(LT.Charge_DATE_KEY::TEXT,'yyyymmdd')) Charge_Date_BOM#(lf),DATE_TRUNC('month',AR.RECEIVEDON) Received_Date_BOM#(lf),DATEDIFF(DAY,TO_DATE(LT.Charge_DATE_KEY::TEXT,'yyyymmdd'),TO_DATE(LT.RECEIVED_ON_DATE_KEY::TEXT,'yyyymmdd')) AS DAYS_TO_PAY#(lf),CASE WHEN DATEDIFF(DAY,TO_DATE(LT.Charge_DATE_KEY::TEXT,'yyyymmdd'),TO_DATE(LT.RECEIVED_ON_DATE_KEY::TEXT,'yyyymmdd')) > 5 THEN 1 ELSE 0 END AS LATE_FLAG#(lf),u.FIRST_NAME || ' ' || u.LAST_NAME AS PAID_BY#(lf),u.User_Id AS PAID_BY_ID#(lf),PT.Description AS PAID_BY_TYPE#(lf),LT.Transaction_Type#(lf),LT.IS_CREDIT#(lf),LT.AMOUNT AS Paid_Amount#(lf),AP.AMOUNT AS RECEIVABLE_AMOUNT#(lf),AR.REFERENCENUMBER#(lf),AR.RECEIPTREMARKS#(lf),AR.RECEIPTSTATUSID#(lf),AR.ISACHPAYMENT#(lf),AR.STRIPESETTLEMENTDATE#(lf),AR.RECEIPTAMOUNT#(lf),AR.REVERSEDRECEIPTID#(lf),CASE WHEN AR.REVERSEDRECEIPTID IS NOT NULL THEN 'Y' ELSE 'N' END AS IS_REVERSE_RECEIPT#(lf),CASE WHEN ManualPayment IS NULL THEN 'N' ELSE 'Y' END AS MANUAL_PAYMENT#(lf)#(lf),RS.Description AS Receipt_Status#(lf),CB.UserID AS Created_By_User_ID#(lf),CB.FirstNAME || ' ' || CB.LastName AS RECEIPT_CREATED_BY#(lf)#(lf),GL_2.Account_Number AS CASH_ACCOUNT_NUMBER#(lf),LT.CASH_GL_ACCOUNT_KEY#(lf),LT.CASH_GL_DESCRIPTION#(lf)#(lf),LT.CHARGE_GL_ACCOUNT_NUMBER#(lf),LT.CHARGE_GL_ACCOUNT_NAME AS ""Charge_GL""#(lf),BD.CreditTypeId#(lf),CASE WHEN BD.CreditTypeId = 1 THEN 'Concession'#(lf)     WHEN BD.CreditTypeId = 2 THEN 'Bad Debt' END AS Credit_Type_Name#(lf) ,'https://honeybadgerpm.com/ReportingModule/ViewReport?reportId=1789&UserId=' || U.USER_ID || '&LeaseId=' || TEN.LEASE_ID || '#/' AS Ledger_URL#(lf) ,'https://honeybadgerpm.com/AccountingModule#/Receipts/' || AR.RECEIPTID || '/0/0/0/' AS Receipt_URL#(lf) ,TI.MoveOut#(lf)#(tab)#(lf)FROM PROD_ANALYTICS.DBT_RESICAP.FCT_LEASING_TRANSACTION LT#(lf)#(lf)LEFT JOIN PROD_REPLICA.HBPM_DBO.ACCOUNTSRECEIPTDETAILS ARD ON  ARD.RECEIPTDETAILID = LT.RECEIPT_DETAIL_ID AND ARD.""_FIVETRAN_DELETED""='N'#(lf)LEFT JOIN PROD_REPLICA.HBPM_DBO.ACCOUNTSRECEIPTS AR ON AR.RECEIPTID = ARD.RECEIPTID AND AR.""_FIVETRAN_DELETED""='N'#(lf)LEFT JOIN PROD_REPLICA.HBPM_DBO.ACCOUNTSRECEIVABLES AP ON AP.RECEIVABLEID = LT.RECEIVABLE_ID AND AP.""_FIVETRAN_DELETED""='N'#(lf)LEFT JOIN PROD_REPLICA.HBPM_DBO.USERS CB ON AR.CREATEDBYID = CB.USERID AND CB.""_FIVETRAN_DELETED""='N'#(lf)LEFT join PROD_REPLICA.HBPM_DBO.LOOKUPMASTERS RS ON RS.LOOKUPMASTERID = AR.RECEIPTSTATUSID #(lf)LEFT join PROD_REPLICA.HBPM_DBO.LOOKUPMASTERS PT ON PT.LOOKUPMASTERID = AR.PAIDBYTYPEID #(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_GL_ACCOUNT GL ON GL.GL_ACCOUNT_KEY = LT.GL_ACCOUNT_KEY #(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_GL_ACCOUNT GL_2 ON GL_2.GL_ACCOUNT_KEY = LT.CASH_GL_ACCOUNT_KEY #(lf)LEFT JOIN BadDebt BD ON BD.ReceiptID = ARD.ReceiptID#(lf)#(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_TENANT TEN ON TEN.LEASE_ID = AR.LeaseID AND TEN.PRIMARY_TENANT = 'Y' #(lf)LEFT JOIN PROD_REPLICA.HBPM_DBO.TENANTINFORMATIONS TI ON TI.TenantInformationId = TEN.TENANT_INFORMATION_ID#(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.FCT_TENANT_LEASING_ACCUM TS ON TS.TENANT_KEY = TEN.TENANT_KEY #(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_USER U ON U.USER_KEY = TS.USER_KEY#(lf)#(lf)JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PROPERTY P#(tab)ON P.PROPERTY_KEY = TS.PROPERTY_KEY#(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.FCT_PROPERTY_UNIT_SUMMARY PUS ON PUS.PROPERTY_KEY  = P.PROPERTY_KEY #(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PROPERTY_UNIT PU ON PU.PROPERTY_UNIT_KEY = PUS.PROPERTY_UNIT_KEY#(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PORTFOLIO PO ON PO.PORTFOLIO_KEY = PUS.PORTFOLIO_KEY #(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_OWNER_ORGANIZATION O ON O.ORGANIZATION_KEY = PUS.ORGANIZATION_KEY #(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_REGION R ON R.REGION_KEY = PUS.REGION_KEY #(lf)LEFT JOIN PROD_REPLICA.HBPM_DBO.PROPERTIES HBPM ON HBPM.PROPERTYID = P.HBPM_PROPERTY_ID --*REPLCA DB*#(lf)LEFT JOIN PROD_REPLICA.HBAM_DBO.PROPERTIES HBAM ON HBAM.HBID = P.HBAM_PROPERTY_ID --*REPLCA DB*#(lf)#(lf)#(lf)#(lf)WHERE #(lf)1=1#(lf)AND LT.TRANSACTION_TYPE = 'Payment'#(lf)AND LT.Tenant_Key IS NOT NULL#(tab)#(lf)AND (AR.RECEIPTSTATUSID IN (901,904) OR AR.RECEIPTSTATUSID Is null) --Active/Pending#(lf)AND ARD.""_FIVETRAN_DELETED""='N'#(lf)AND AR.""_FIVETRAN_DELETED""='N'#(lf)AND TEN.CURRENT_FLAG = 'Y'#(lf)AND TEN.PRIMARY_TENANT = 'Y'#(lf)#(lf)#(tab)AND (HBAM.PROPERTYSTATUSID >9 OR HBAM.PROPERTYSTATUSID IS NULL) --out of bid#(lf)#(lf)#(tab)AND P.PROPERTY_STATE ='Active'#(lf)#(tab)AND P.EntityID <> ''#(lf)#(tab)AND (HBAM.PROPERTYSTATUSID NOT IN (53,75) OR HBAM.PROPERTYSTATUSID IS NULL)#(lf)#(tab)AND PO.Portfolio_KEY NOT IN (223,598,147,102,109,28,603,169,602,170,58,54)#(lf)#(tab)AND PUS.Organization_KEY not IN (16,17)#(lf)#(tab)AND PO.IS_Active_AM = 'Y'#(lf)#(tab)AND PO.Current_Flag = 'Y'#(lf)#(tab)AND P.Current_Flag = 'Y'#(lf)#(tab)AND PU.Current_Flag = 'Y'#(lf)#(tab)AND PUS.Occupancy_Status NOT IN ('Not Managed')#(lf)#(tab)AND (HBPM.PROPERTYSTATEID = 26 OR HBPM.PROPERTYSTATEID IS NULL) #(lf)#(tab)AND P.HBMM_Property_ID IS NOT NULL#(lf)#(tab)AND P.Property_Key NOT IN (166418,57201,23237,166851,229060)#(lf)#(tab)AND (TI._FIVETRAN_DELETED = 'N' OR TI._FIVETRAN_DELETED IS NULL)#(lf)AND TEN.TENANT_KEY NOT IN (70575)--bad DATA#(lf)#(lf)    AND NOT (#(lf)      TEN.TENANT_STATUS = 'Past'#(lf)      AND TI.MoveOut < DATEADD(YEAR, -1, GETDATE()) )#(lf)#(lf)--******************************************************************************#(lf)--AND P.Property_KEY = 452261#(lf)--AND LT.RECEIVABLE_ID = 1979714]#(lf)--AND CREDITTYPEID =1#(lf)#(lf)--LEFT JOIN PROD_REPLICA.HBPM_DBO.ACCOUNTSRECEIPTDETAILS ARD ON  ARD.RECEIPTDETAILID = LT.RECEIPT_DETAIL_ID AND ARD.""_FIVETRAN_DELETED""='N'#(lf)--LEFT JOIN PROD_REPLICA.HBPM_DBO.ACCOUNTSRECEIPTS AR ON AR.RECEIPTID = ARD.RECEIPTID AND AR.""_FIVETRAN_DELETED""='N'#(lf)--AND LT.RECEIVABLE_ID IS null", null, [EnableFolding=true]),
+				    #"Capitalized Each Word" = Table.TransformColumns(Source,{{"PAID_BY", Text.Proper, type text}})
+				in
+				    #"Capitalized Each Word"
+
+	annotation PBI_ResultType = Exception
+
+	annotation PBI_NavigationStepName = Navigation
+

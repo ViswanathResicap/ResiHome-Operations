@@ -1,0 +1,156 @@
+table LTO
+	lineageTag: 1e4084c2-5136-4cef-b37f-3607d019f823
+
+	measure 0_FP = IF(ISFILTERED(LTO[ENTITYID]),FIRSTNONBLANK(LTO[FLOORPLAN],LTO[FLOORPLAN]),BLANK())
+		lineageTag: 39ea9617-81d6-4f3f-8364-d10f60451073
+
+	measure 0_Address = IF(ISFILTERED(LTO[ENTITYID]),FIRSTNONBLANK(LTO[ADDRESS],LTO[ADDRESS]),BLANK())
+		lineageTag: 864165f9-69fb-489b-a7f4-5b3f016a48c6
+
+	measure 0_NLS = IF(ISFILTERED(LTO[ENTITYID]),FIRSTNONBLANK(LTO[N_LEASESTART],LTO[N_LEASESTART]),BLANK())
+		formatString: Short Date
+		lineageTag: 7a58cdf2-963c-4f35-ad97-536d2f6ddce4
+
+	measure 0_RG = ```
+			IF( SUM(LTO[N_AMOUNT])<>BLANK()&&SUM(LTO[N_AMOUNT])<>BLANK(), (DIVIDE(SUM(LTO[N_AMOUNT]), SUM(LTO[C_AMOUNT]), BLANK())) -1, BLANK())
+			
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: c6aee707-592e-4d6f-9754-c82fa5b784c1
+
+	column PROPERTY_KEY
+		lineageTag: f71efe54-0605-4f26-87fd-d8932bd9643b
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: DW_Renewals[PROPERTY_KEY]
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ENTITYID
+		lineageTag: 8dea6bd8-e008-45d8-b63e-ba6ff0d25694
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: DW_Renewals[ENTITYID]
+
+		annotation SummarizationSetBy = Automatic
+
+	column PORTFOLIO_NAME
+		lineageTag: 316f49b0-3023-4bce-8ade-82b04a637134
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: DW_Renewals[PORTFOLIO_NAME]
+
+		annotation SummarizationSetBy = Automatic
+
+	column ADDRESS
+		lineageTag: ec6ba62f-da6d-4336-9d9f-86a8c29f09ee
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: DW_Renewals[ADDRESS]
+
+		annotation SummarizationSetBy = Automatic
+
+	column FLOORPLAN
+		lineageTag: d16b53ea-974e-4975-97e1-f9d9db871a5c
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: DW_Renewals[FLOORPLAN]
+
+		annotation SummarizationSetBy = Automatic
+
+	column SQUARE_FOOTAGE
+		lineageTag: bea2bc74-9793-42d8-b10a-3c00cff82751
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: DW_Renewals[SQUARE_FOOTAGE]
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column C_AMOUNT
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: 85eed211-4b2e-47de-9bb6-856d1ee24ac3
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: DW_Renewals[C_AMOUNT]
+
+		annotation SummarizationSetBy = Automatic
+
+	column N_AMOUNT
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: 8536b0c4-853c-465b-bd1e-0520d6586fa2
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: DW_Renewals[N_AMOUNT]
+
+		annotation SummarizationSetBy = Automatic
+
+	column RENT_GROWTH
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: b9a9e5f7-e069-44f0-88cf-3e6a5691199e
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: DW_Renewals[RENT_GROWTH]
+
+		annotation SummarizationSetBy = Automatic
+
+	column N_LEASESTART
+		formatString: Short Date
+		lineageTag: 33dcc1cc-0fdd-445c-a2ad-9400a8379875
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: DW_Renewals[N_LEASESTART]
+
+		variation Variation
+			isDefault
+			relationship: bbd4cf69-7d1e-4a24-9cb1-fe19c3db5a2d
+			defaultHierarchy: LocalDateTable_61e01db9-96fc-48ef-a9e7-6b0f5105753b.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column TYPE
+		lineageTag: b8ca9fdb-1917-48d6-a194-58d39596ad8f
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: DW_Renewals[TYPE]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition LTO = calculated
+		mode: import
+		source = ```
+				UNION(
+				    SUMMARIZE(FILTER(DW_Renewals,DW_Renewals[Renewal Result]="Renewed"),
+				    DW_Renewals[PROPERTY_KEY],
+				    DW_Renewals[ENTITYID],
+				    DW_Renewals[PORTFOLIO_NAME],
+				    DW_Renewals[ADDRESS],
+				    DW_Renewals[FLOORPLAN],
+				    DW_Renewals[SQUARE_FOOTAGE],
+				    DW_Renewals[C_AMOUNT],
+				    DW_Renewals[N_AMOUNT],
+				    DW_Renewals[RENT_GROWTH],
+				    DW_Renewals[N_LEASESTART],
+				    DW_Renewals[TYPE]),
+				
+				SUMMARIZE(FILTER(DW_Turns,DW_Turns[N_MOVEIN]<>BLANK()),
+				    DW_Turns[PROPERTY_KEY],
+				    DW_Turns[ENTITYID],
+				    DW_Turns[PORTFOLIO_NAME],
+				    DW_Turns[ADDRESS],
+				    DW_Turns[FLOORPLAN],
+				    DW_Turns[SQUARE_FOOTAGE],
+				    DW_Turns[O_CURRENT_RENT],
+				    DW_Turns[N_CURRENT_RENT],
+				    DW_Turns[RENT_GROWTH],
+				    DW_Turns[N_MOVEIN],
+				    DW_Turns[TYPE]))
+				
+				
+				```
+
+	annotation PBI_Id = 87421351131d4d1c9a94374c766426da
+
