@@ -1,0 +1,356 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.7.0/schema.json",
+  "name": "f4f4ec570d77316cd24d",
+  "position": {
+    "x": 833.70960722445841,
+    "y": 1620.9267217930581,
+    "z": 44000,
+    "height": 360.57692307692309,
+    "width": 786.85897435897436,
+    "tabOrder": 44000
+  },
+  "visual": {
+    "visualType": "pivotTable",
+    "query": {
+      "queryState": {
+        "Rows": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DW_Properties"
+                    }
+                  },
+                  "Property": "SUBDIVISION"
+                }
+              },
+              "queryRef": "DW_Properties.SUBDIVISION",
+              "nativeQueryRef": "Community",
+              "active": true,
+              "displayName": "Community"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "LTO"
+                    }
+                  },
+                  "Property": "TYPE"
+                }
+              },
+              "queryRef": "LTO.TYPE",
+              "nativeQueryRef": "Type",
+              "active": true,
+              "displayName": "Type"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "LTO"
+                    }
+                  },
+                  "Property": "ENTITYID"
+                }
+              },
+              "queryRef": "LTO.ENTITYID",
+              "nativeQueryRef": "EntityID",
+              "active": true,
+              "displayName": "EntityID"
+            }
+          ]
+        },
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "LTO"
+                    }
+                  },
+                  "Property": "0_Address"
+                }
+              },
+              "queryRef": "LTO.0_Address",
+              "nativeQueryRef": "Address",
+              "displayName": "Address"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "LTO"
+                    }
+                  },
+                  "Property": "0_FP"
+                }
+              },
+              "queryRef": "LTO.0_FP",
+              "nativeQueryRef": "Floorplan",
+              "displayName": "Floorplan"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "LTO"
+                    }
+                  },
+                  "Property": "0_NLS"
+                }
+              },
+              "queryRef": "LTO.0_NLS",
+              "nativeQueryRef": "New Lease Start",
+              "displayName": "New Lease Start"
+            },
+            {
+              "field": {
+                "Aggregation": {
+                  "Expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "LTO"
+                        }
+                      },
+                      "Property": "SQUARE_FOOTAGE"
+                    }
+                  },
+                  "Function": 1
+                }
+              },
+              "queryRef": "Sum(LTO.SQUARE_FOOTAGE)",
+              "nativeQueryRef": "Average of SQUARE_FOOTAGE",
+              "displayName": "Sqft"
+            },
+            {
+              "field": {
+                "Aggregation": {
+                  "Expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "LTO"
+                        }
+                      },
+                      "Property": "C_AMOUNT"
+                    }
+                  },
+                  "Function": 1
+                }
+              },
+              "queryRef": "Sum(LTO.C_AMOUNT)",
+              "nativeQueryRef": "Current Rent",
+              "displayName": "Current Rent"
+            },
+            {
+              "field": {
+                "Aggregation": {
+                  "Expression": {
+                    "Column": {
+                      "Expression": {
+                        "SourceRef": {
+                          "Entity": "LTO"
+                        }
+                      },
+                      "Property": "N_AMOUNT"
+                    }
+                  },
+                  "Function": 1
+                }
+              },
+              "queryRef": "Sum(LTO.N_AMOUNT)",
+              "nativeQueryRef": "New Rent",
+              "displayName": "New Rent"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "LTO"
+                    }
+                  },
+                  "Property": "0_RG"
+                }
+              },
+              "queryRef": "LTO.0_RG",
+              "nativeQueryRef": "Rent Growth",
+              "displayName": "Rent Growth"
+            }
+          ]
+        }
+      }
+    },
+    "expansionStates": [
+      {
+        "roles": [
+          "Rows"
+        ],
+        "levels": [
+          {
+            "queryRefs": [
+              "DW_Properties.SUBDIVISION"
+            ],
+            "isPinned": true
+          },
+          {
+            "queryRefs": [
+              "LTO.TYPE"
+            ],
+            "isPinned": true
+          },
+          {
+            "queryRefs": [
+              "LTO.ENTITYID"
+            ],
+            "isCollapsed": true,
+            "isPinned": true
+          }
+        ],
+        "root": {}
+      }
+    ],
+    "objects": {
+      "columnWidth": [
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "148.16666541265698D"
+              }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "DW_Properties.SUBDIVISION"
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "126.96153821239747D"
+              }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "LTO.0_Address"
+          }
+        }
+      ]
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+              }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'DRC LTO'"
+              }
+              }
+            },
+            "fontFamily": {
+              "expr": {
+                "Literal": {
+                  "Value": "'''Segoe UI Semibold'', wf_segoe-ui_semibold, helvetica, arial, sans-serif'"
+              }
+              }
+            },
+            "fontColor": {
+              "solid": {
+                "color": {
+                  "expr": {
+                    "ThemeDataColor": {
+                      "ColorId": 2,
+                      "Percent": 0
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "2b76b57732ea2cd8a2a4",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "DW_Properties"
+              }
+            },
+            "Property": "ORGANIZATION_NAME"
+          }
+        },
+        "type": "Categorical",
+        "filter": {
+          "Version": 2,
+          "From": [
+            {
+              "Name": "d",
+              "Entity": "DW_Properties",
+              "Type": 0
+            }
+          ],
+          "Where": [
+            {
+              "Condition": {
+                "In": {
+                  "Expressions": [
+                    {
+                      "Column": {
+                        "Expression": {
+                          "SourceRef": {
+                            "Source": "d"
+                          }
+                        },
+                        "Property": "ORGANIZATION_NAME"
+                      }
+                    }
+                  ],
+                  "Values": [
+                    [
+                      {
+                        "Literal": {
+                          "Value": "'RB DRC'"
+                        }
+                      }
+                    ]
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        "howCreated": "User"
+      }
+    ]
+  }
+}
