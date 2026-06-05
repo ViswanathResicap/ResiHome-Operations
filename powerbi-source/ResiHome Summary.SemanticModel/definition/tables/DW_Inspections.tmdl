@@ -1,0 +1,319 @@
+table DW_Inspections
+	lineageTag: a1019b72-7f0a-4ee9-baff-305f243e9ca7
+
+	measure 0_Inspection_Count = ```
+			DISTINCTCOUNT(DW_Inspections[INSPECTION_ID]) + 0 
+			```
+		formatString: #,0
+		lineageTag: 159531a3-0de5-4f30-9045-0ca25aab097f
+
+	column INSPECTION_ID
+		dataType: string
+		lineageTag: 66639f5d-4d75-4469-a049-27dbaa6fb58f
+		summarizeBy: none
+		sourceColumn: INSPECTION_ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column INSPECTION_INSPECTOR_NAME
+		dataType: string
+		lineageTag: 1a8d9c39-6d3c-483a-bd90-fb014952acfc
+		summarizeBy: none
+		sourceColumn: INSPECTION_INSPECTOR_NAME
+
+		annotation SummarizationSetBy = Automatic
+
+	column INSPECTION_COMPLETED_DATE
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 74fe5012-2bb9-415b-8596-8b6fbc2c0a95
+		summarizeBy: none
+		sourceColumn: INSPECTION_COMPLETED_DATE
+
+		variation Variation
+			isDefault
+			relationship: e76f830f-6df4-4a6b-bd92-1872eb2ab2a8
+			defaultHierarchy: LocalDateTable_c87bdf48-9ca0-4a31-8df3-4d379422bcf5.'Date Hierarchy'
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column INSPECTION_TEMPLATE
+		dataType: string
+		lineageTag: 971c476f-bbbf-45d5-b4c0-d5449668c29e
+		summarizeBy: none
+		sourceColumn: INSPECTION_TEMPLATE
+
+		annotation SummarizationSetBy = Automatic
+
+	column INSPECTION_LINK
+		dataType: string
+		lineageTag: bf47bab8-d9f8-48df-8dae-c96d8b4cb7db
+		summarizeBy: none
+		sourceColumn: INSPECTION_LINK
+
+		annotation SummarizationSetBy = Automatic
+
+	column PROPERTY_KEY
+		dataType: double
+		lineageTag: 6ff5d8e1-3bde-403c-b7ef-39dbf3ea1db3
+		summarizeBy: none
+		sourceColumn: PROPERTY_KEY
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column REGION_NAME
+		dataType: string
+		lineageTag: ef421f35-a403-44b3-a76c-f42ce29e15b6
+		summarizeBy: none
+		sourceColumn: REGION_NAME
+
+		annotation SummarizationSetBy = Automatic
+
+	column FULL_ADDRESS
+		dataType: string
+		lineageTag: 6d984333-4a6d-40d4-9c4f-005e15e788cb
+		summarizeBy: none
+		sourceColumn: FULL_ADDRESS
+
+		annotation SummarizationSetBy = Automatic
+
+	column ENTITYID
+		dataType: string
+		lineageTag: ad41bcc2-1fb2-47c9-9a1d-141cf407cec6
+		summarizeBy: none
+		sourceColumn: ENTITYID
+
+		annotation SummarizationSetBy = Automatic
+
+	column PORTFOLIO_NAME
+		dataType: string
+		lineageTag: d6b8647f-6e4d-48ec-83cc-bbf734fc2387
+		summarizeBy: none
+		sourceColumn: PORTFOLIO_NAME
+
+		annotation SummarizationSetBy = Automatic
+
+	column INSPECTION_REVIEW_FORMATTING
+		dataType: double
+		lineageTag: 6877707c-af78-4845-838b-af1aba7e08bd
+		summarizeBy: sum
+		sourceColumn: INSPECTION_REVIEW_FORMATTING
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column INSPECTION_REVIEW_CHECK
+		dataType: string
+		lineageTag: 5c7c7db6-99bd-4b25-a75e-3193f06119ee
+		summarizeBy: none
+		sourceColumn: INSPECTION_REVIEW_CHECK
+
+		annotation SummarizationSetBy = Automatic
+
+	column 1_Listing_ID = CALCULATE(MAX(DW_Listings[RENT_LIST_HIST_ID]),FILTER(DW_Listings,DW_Listings[PROPERTY_KEY]=DW_Inspections[PROPERTY_KEY]&&DW_Listings[MOST_RECENT_LISTING]="Yes"))
+		lineageTag: 16696338-fdf3-46a1-9b57-0cf8de526946
+		summarizeBy: count
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 1_Listing_Status = CALCULATE(MAX(DW_Listings[LISTING_STATUS]),FILTER(DW_Listings,DW_Listings[PROPERTY_KEY]=DW_Inspections[PROPERTY_KEY]&&DW_Listings[MOST_RECENT_LISTING]="Yes"))
+		lineageTag: 2e5a4506-0711-46d9-bfec-cdf27e16c106
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column 1_MI_Date = CALCULATE(MAX(DW_Listings[LEASE_START_DATE]),FILTER(DW_Listings,DW_Listings[PROPERTY_KEY]=DW_Inspections[PROPERTY_KEY]&&DW_Listings[MOST_RECENT_LISTING]="Yes"))
+		formatString: Short Date
+		lineageTag: 39fc3ef6-565e-4c07-9837-9a21368e2d15
+		summarizeBy: none
+
+		variation Variation
+			isDefault
+			relationship: 62f78663-bf74-433f-8548-3bdb1783c8c9
+			defaultHierarchy: LocalDateTable_b46ad53f-5f9f-4b4a-9fe9-1fa18fbfbd1a.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column ITEM_NOTES_P
+		dataType: string
+		lineageTag: b170b9e0-2d14-421b-b32f-66218addeb7c
+		summarizeBy: none
+		sourceColumn: ITEM_NOTES_P
+
+		annotation SummarizationSetBy = Automatic
+
+	column ITEM_RATINGS_P
+		dataType: string
+		lineageTag: 9d81191c-de6b-49b0-8a33-e40d42a8f379
+		summarizeBy: none
+		sourceColumn: ITEM_RATINGS_P
+
+		annotation SummarizationSetBy = Automatic
+
+	column ITEM_NOTES_GC
+		dataType: string
+		lineageTag: 498c0bdb-52a9-44fa-8908-94869eb282c5
+		summarizeBy: none
+		sourceColumn: ITEM_NOTES_GC
+
+		annotation SummarizationSetBy = Automatic
+
+	column ITEM_RATINGS_GC
+		dataType: string
+		lineageTag: 0d3ec2ad-18ad-40fc-a1a8-a0b3c9531c4a
+		summarizeBy: none
+		sourceColumn: ITEM_RATINGS_GC
+
+		annotation SummarizationSetBy = Automatic
+
+	column ITEM_NOTES
+		dataType: string
+		lineageTag: 24b069a5-d1c3-41a4-9ede-fcc150c2cd70
+		summarizeBy: none
+		sourceColumn: ITEM_NOTES
+
+		annotation SummarizationSetBy = Automatic
+
+	column PPW_ACTION_FLAG
+		dataType: string
+		lineageTag: b819ea42-ef1b-4478-8f41-779d001a985e
+		summarizeBy: none
+		sourceColumn: PPW_ACTION_FLAG
+
+		annotation SummarizationSetBy = Automatic
+
+	column ITEM_NOTES_LIST_PRICE
+		dataType: string
+		lineageTag: 52a0ee10-781b-41f8-ab71-e4a0e3eb7b99
+		summarizeBy: none
+		sourceColumn: ITEM_NOTES_LIST_PRICE
+
+		annotation SummarizationSetBy = Automatic
+
+	column ITEM_NOTES_FEEDBACK
+		dataType: string
+		lineageTag: b3e81454-b249-434d-ad77-f2252531a645
+		summarizeBy: none
+		sourceColumn: ITEM_NOTES_FEEDBACK
+
+		annotation SummarizationSetBy = Automatic
+
+	column LIST_PRICE_FEEDBACK
+		dataType: string
+		lineageTag: d01d910d-c4d5-4e5b-a7b2-78fd5d131410
+		summarizeBy: none
+		sourceColumn: LIST_PRICE_FEEDBACK
+
+		annotation SummarizationSetBy = Automatic
+
+	column UNIT_ID
+		dataType: string
+		lineageTag: 0a131164-5130-46ec-be02-43ddb0a1820c
+		summarizeBy: none
+		sourceColumn: UNIT_ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column UNIT_EXTERNAL_ID
+		dataType: string
+		lineageTag: 24478510-d3dd-49bd-8cc4-7f764e73082c
+		summarizeBy: none
+		sourceColumn: UNIT_EXTERNAL_ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column UNIT_ADDRESS
+		dataType: string
+		lineageTag: 4c5397ea-365e-4a49-83ae-0d47ee667687
+		summarizeBy: none
+		sourceColumn: UNIT_ADDRESS
+
+		annotation SummarizationSetBy = Automatic
+
+	column RECENT_INS_RANK
+		dataType: double
+		lineageTag: d0304a41-8244-487d-83ec-119c1a9ffe56
+		summarizeBy: sum
+		sourceColumn: RECENT_INS_RANK
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column _LINE
+		dataType: double
+		lineageTag: ed3493c9-f21d-483c-9538-8d72cb2b2656
+		summarizeBy: sum
+		sourceColumn: _LINE
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column SOURCE_SYSTEM
+		dataType: string
+		lineageTag: 1a34baae-1b73-4857-82dc-bb373d1cd432
+		summarizeBy: none
+		sourceColumn: SOURCE_SYSTEM
+
+		annotation SummarizationSetBy = Automatic
+
+	column HUBSPOT_STATUS
+		dataType: string
+		lineageTag: e96e9059-3849-4364-94cb-5506e1d4af0a
+		summarizeBy: none
+		sourceColumn: HUBSPOT_STATUS
+
+		annotation SummarizationSetBy = Automatic
+
+	column INSPECTOR_EMAIL
+		dataType: string
+		lineageTag: 0b016cb1-de83-48aa-bd2c-bd066d38bba9
+		summarizeBy: none
+		sourceColumn: INSPECTOR_EMAIL
+
+		annotation SummarizationSetBy = Automatic
+
+	column INSPECTION_STATUS
+		dataType: string
+		lineageTag: 3be9fddc-905d-4d74-a55e-20d32d23a467
+		summarizeBy: none
+		sourceColumn: INSPECTION_STATUS
+
+		annotation SummarizationSetBy = Automatic
+
+	column PDF_URL
+		dataType: string
+		lineageTag: 60c0049a-1b8e-45bb-9eee-9b8d0d06db4d
+		summarizeBy: none
+		sourceColumn: PDF_URL
+
+		annotation SummarizationSetBy = Automatic
+
+	partition DW_Inspections-9180183b-67f5-487a-b7d0-d94bf21c4d18 = m
+		mode: import
+		queryGroup: 'DW Sources'
+		source =
+				let
+				    Source = Value.NativeQuery(Snowflake.Databases("ota12822.us-east-1.snowflakecomputing.com","DEVELOPER_WH",[Implementation="2.0"]){[Name="PROD_REPLICA"]}[Data], "WITH CLEAN_ITEM AS (#(lf)SELECT#(lf)  ITEM._MODIFIED ,ITEM.ID AS ITEM_ID ,ITEM.SECTION AS ITEM_Section ,ITEM.ITEM AS ITEM_Item#(lf) ,ITEM.RATINGS AS ITEM_Ratings ,ITEM.NOTES AS ITEM_Notes ,ITEM.SCORE AS ITEM_SCORE ,ITEM.INSPECTION_ID#(lf) ,RANK() OVER( PARTITION BY ITEM.INSPECTION_ID ORDER BY DATE_TRUNC('min',_FIVETRAN_SYNCED) DESC) UPDATE_RANK#(lf) ,RANK() OVER( PARTITION BY ITEM_SECTION, ITEM_ITEM, ITEM.INSPECTION_ID ORDER BY DATE_TRUNC('min',_MODIFIED) DESC) RECENT_RANK#(lf)FROM PROD_REPLICA.HAPPYCO_NEW.ITEM_2025 ITEM )#(lf)#(lf),CLEAN_UNIT_PRE AS (#(lf) SELECT UNIT._MODIFIED ,UNIT.ID AS UNIT_ID ,UNIT.EXTERNAL_ID AS UNIT_EXTERNAL_ID ,UNIT.ADDRESS AS UNIT_ADDRESS ,UNIT.LINE_1 AS UNIT_LINE_1#(lf)  ,RANK() OVER( PARTITION BY ID ORDER BY DATE_TRUNC('min',_MODIFIED) DESC) RECENT_RANK#(lf)FROM PROD_REPLICA.HAPPY_CO.UNIT)#(lf)#(lf),CLEAN_UNIT AS (#(lf) SELECT DISTINCT CLEAN_UNIT_PRE.* ,COALESCE (P1.PROPERTY_KEY,P2.PROPERTY_KEY,P3.PROPERTY_KEY,P4.PROPERTY_KEY ) AS PROPERTY_KEY ,P1.PROPERTY_KEY P1 ,P2.PROPERTY_KEY P2 ,P3.PROPERTY_KEY P3 ,P4.PROPERTY_KEY P4#(lf) FROM CLEAN_UNIT_PRE#(lf)  LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PROPERTY P1 ON P1.HBAM_PROPERTY_ID::TEXT = CLEAN_UNIT_PRE.UNIT_EXTERNAL_ID::TEXT AND P1.CURRENT_FLAG = 'Y' AND P1.PROPERTY_STATE = 'Active' AND P1.PROPERTY_STATUS <> 'Property Sold'#(lf)  LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PROPERTY P2 ON P2.ENTITYID = CLEAN_UNIT_PRE.UNIT_EXTERNAL_ID AND P2.CURRENT_FLAG = 'Y' AND P2.PROPERTY_STATE = 'Active' AND P2.PROPERTY_STATUS <> 'Property Sold'#(lf)  LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PROPERTY P3 ON INITCAP(TRIM(P3.ADDRESS)) = INITCAP(TRIM(CLEAN_UNIT_PRE.UNIT_LINE_1)) AND P3.CURRENT_FLAG = 'Y' AND P3.PROPERTY_STATE = 'Active' AND P3.PROPERTY_STATUS <> 'Property Sold'#(lf)  LEFT JOIN (SELECT LEFT(INITCAP(TRIM(ADDRESS)),9) ADD_TRIM, MAX(PROPERTY_KEY) PROPERTY_KEY FROM PROD_ANALYTICS.DBT_RESICAP.DIM_PROPERTY WHERE CURRENT_FLAG = 'Y' AND PROPERTY_STATE = 'Active' AND PROPERTY_STATUS <> 'Property Sold' GROUP BY LEFT(INITCAP(TRIM(ADDRESS)),9) ) P4 ON ADD_TRIM = LEFT(INITCAP(TRIM(COALESCE(CLEAN_UNIT_PRE.UNIT_LINE_1,UNIT_ADDRESS))),9)#(lf)  WHERE CLEAN_UNIT_PRE.RECENT_RANK = 1)#(lf)#(lf),CLEAN_INPSECTOR AS (#(lf) SELECT INS._MODIFIED ,INS.INSPECTION_ID ,COALESCE(INS.INSPECTION_ASSIGNED_INSPECTOR_NAME,INS.INSPECTION_INSPECTOR_NAME) AS CLEAN_INSPECTOR#(lf) ,RANK() OVER( PARTITION BY INS.INSPECTION_ID ORDER BY DATE_TRUNC('min',_MODIFIED) ASC) RECENT_RANK#(lf)FROM PROD_REPLICA.HAPPY_CO.INSPECTION INS QUALIFY RECENT_RANK =1 )#(lf)#(lf),CLEAN_INPSECTION AS (#(lf) SELECT INS._MODIFIED ,INS._LINE ,INS.INSPECTION_ID ,COALESCE(CLEAN_INSPECTOR,INS.INSPECTION_ASSIGNED_INSPECTOR_NAME) AS INSPECTION_ASSIGNED_INSPECTOR_NAME ,INS.INSPECTION_INSPECTOR_NAME ,INS.INSPECTION_COMPLETED_DATE ,INS.INSPECTION_STATUS ,INS.INSPECTION_TEMPLATE#(lf) ,'https://manage.happyco.com/next/b/46160/s/prop/l/87504/inspection/inspections/' || INS.INSPECTION_ID || '/previewreport' AS INSPECTION_LINK ,INS.UNIT_ID#(lf) ,ROW_NUMBER() OVER( PARTITION BY INS.INSPECTION_ID ORDER BY INS._MODIFIED DESC, INS._LINE DESC) RECENT_RANK#(lf)FROM PROD_REPLICA.HAPPY_CO.INSPECTION INS LEFT JOIN CLEAN_INPSECTOR CI ON CI.INSPECTION_ID = INS.INSPECTION_ID )#(lf)#(lf),HAPPY_CO_DETAIL AS (#(lf)SELECT DISTINCT#(lf) 'HappyCo' AS SOURCE_SYSTEM ,CLEAN_UNIT.PROPERTY_KEY ,CLEAN_UNIT.UNIT_ID ,CLEAN_UNIT.UNIT_EXTERNAL_ID ,CLEAN_UNIT.UNIT_Address ,CLEAN_INPSECTION.INSPECTION_ID ,CAST(NULL AS TEXT) AS HUBSPOT_STATUS ,COALESCE(INSPECTION_ASSIGNED_INSPECTOR_NAME,CLEAN_INPSECTION.INSPECTION_INSPECTOR_NAME) AS INSPECTION_INSPECTOR_NAME ,CAST(NULL AS TEXT) AS INSPECTOR_EMAIL ,CLEAN_INPSECTION._LINE ,CLEAN_INPSECTION.INSPECTION_COMPLETED_DATE ,INITCAP(CLEAN_INPSECTION.INSPECTION_STATUS) AS INSPECTION_STATUS ,CLEAN_INPSECTION.INSPECTION_TEMPLATE ,CLEAN_INPSECTION.INSPECTION_LINK ,CLEAN_INPSECTION.INSPECTION_LINK AS PDF_URL ,R.REGION_NAME ,P.ADDRESS || ', ' || COALESCE (CI.CITY_NAME, PM_CI.CityName) || ', ' || S.STATE_NAME || ' ' || P.ZIPCODE AS Full_Address ,P.ENTITYID ,PO.PORTFOLIO_NAME#(lf),CASE WHEN CLEAN_ITEM.ITEM_Item = 'Confirm Reviewed and Actions Taken on Identified Issues?' THEN CASE WHEN CLEAN_ITEM.ITEM_Ratings = 'Yes' OR DATEDIFF('day',CLEAN_INPSECTION.INSPECTION_COMPLETED_DATE,GETDATE()) > 10 THEN 1 ELSE 0 END ELSE NULL END AS Inspection_Review_Formatting#(lf),CASE WHEN CLEAN_ITEM.ITEM_Item = 'Confirm Reviewed and Actions Taken on Identified Issues?' THEN CASE WHEN CLEAN_ITEM.ITEM_Ratings = 'Yes' OR DATEDIFF('day',CLEAN_INPSECTION.INSPECTION_COMPLETED_DATE,GETDATE()) > 10 THEN 'Yes' ELSE 'Pending' END ELSE NULL END AS Inspection_Review_Check#(lf),CLEAN_ITEM.ITEM_Notes ,CLEAN_ITEM_P.ITEM_Notes AS ITEM_NOTES_P ,CLEAN_ITEM_P.ITEM_Ratings AS ITEM_RATINGS_P ,CLEAN_ITEM_GC.ITEM_Notes AS ITEM_NOTES_GC ,CLEAN_ITEM_GC.ITEM_Ratings AS ITEM_RATINGS_GC#(lf),CASE WHEN CLEAN_ITEM_P.ITEM_Ratings LIKE '%Major%' OR CLEAN_ITEM_P.ITEM_Ratings LIKE '%Minor%' OR CLEAN_ITEM_GC.ITEM_Ratings LIKE '%Major%' OR CLEAN_ITEM_GC.ITEM_Ratings LIKE '%Minor%' THEN 'Needs PPW Action' ELSE 'No Action Needed' END AS PPW_Action_Flag#(lf),CLEAN_ITEM_LP.ITEM_Ratings AS LIST_PRICE_FEEDBACK ,CLEAN_ITEM_LP.ITEM_Ratings || ' - ' || CLEAN_ITEM_LP.ITEM_Notes AS ITEM_NOTES_LIST_PRICE#(lf),CASE WHEN CLEAN_ITEM_FB.ITEM_Ratings = 'N/A' THEN NULL ELSE CLEAN_ITEM_FB.ITEM_Ratings || ' - ' || CLEAN_ITEM_FB.ITEM_Notes END AS ITEM_NOTES_FEEDBACK#(lf)FROM CLEAN_INPSECTION#(lf)LEFT JOIN CLEAN_ITEM ON CLEAN_ITEM.INSPECTION_ID = CLEAN_INPSECTION.INSPECTION_ID AND CLEAN_ITEM.RECENT_RANK = 1 AND CLEAN_ITEM.UPDATE_RANK = 1 AND CLEAN_ITEM.ITEM_Item = 'Confirm Reviewed and Actions Taken on Identified Issues?'#(lf)LEFT JOIN CLEAN_ITEM CLEAN_ITEM_P ON CLEAN_ITEM_P.INSPECTION_ID = CLEAN_INPSECTION.INSPECTION_ID AND CLEAN_ITEM_P.RECENT_RANK = 1 AND CLEAN_ITEM_P.UPDATE_RANK = 1 AND CLEAN_ITEM_P.ITEM_Item = 'Pool - Present/Condition (2 PHOTOS MIN)'#(lf)LEFT JOIN CLEAN_ITEM CLEAN_ITEM_GC ON CLEAN_ITEM_GC.INSPECTION_ID = CLEAN_INPSECTION.INSPECTION_ID AND CLEAN_ITEM_GC.RECENT_RANK = 1 AND CLEAN_ITEM_GC.UPDATE_RANK = 1 AND CLEAN_ITEM_GC.ITEM_Item = 'Grass Condition (2 PHOTOS MIN)'#(lf)LEFT JOIN CLEAN_ITEM CLEAN_ITEM_LP ON CLEAN_ITEM_LP.INSPECTION_ID = CLEAN_INPSECTION.INSPECTION_ID AND CLEAN_ITEM_LP.RECENT_RANK = 1 AND CLEAN_ITEM_LP.UPDATE_RANK = 1 AND CLEAN_ITEM_LP.ITEM_Item = 'Evaluate Listing Price?'#(lf)LEFT JOIN CLEAN_ITEM CLEAN_ITEM_FB ON CLEAN_ITEM_FB.INSPECTION_ID = CLEAN_INPSECTION.INSPECTION_ID AND CLEAN_ITEM_FB.RECENT_RANK = 1 AND CLEAN_ITEM_FB.UPDATE_RANK = 1 AND CLEAN_ITEM_FB.ITEM_Item = 'Upgrades to Help Rentability / Feedback From Leads?'#(lf)LEFT JOIN CLEAN_UNIT ON CLEAN_UNIT.UNIT_ID = CLEAN_INPSECTION.UNIT_ID AND CLEAN_UNIT.RECENT_RANK = 1#(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PROPERTY P ON P.PROPERTY_KEY = CLEAN_UNIT.PROPERTY_KEY#(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.FCT_PROPERTY_UNIT_SUMMARY PUS ON PUS.PROPERTY_KEY = P.PROPERTY_KEY#(lf)LEFT JOIN PROD_REPLICA.HBPM_DBO.PROPERTIES HBPM ON HBPM.PROPERTYID = P.HBPM_PROPERTY_ID#(lf)LEFT JOIN PROD_REPLICA.HBPM_DBO.PROPERTYADDLINFOES PM_AI ON PM_AI.PROPERTYID = HBPM.PROPERTYID AND PM_AI.""_FIVETRAN_DELETED"" = 'N'#(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_CITY CI ON CI.CITY_KEY = PUS.CITY_KEY#(lf)LEFT JOIN PROD_REPLICA.HBPM_DBO.Cities PM_CI ON PM_CI.CityID = HBPM.CityID#(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_STATE S ON S.STATE_KEY = PUS.STATE_KEY#(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_REGION R ON R.REGION_KEY = PUS.REGION_KEY#(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PORTFOLIO PO ON PO.PORTFOLIO_KEY = PUS.PORTFOLIO_KEY#(lf)WHERE 1=1 AND CLEAN_INPSECTION.RECENT_RANK = 1 AND CLEAN_INPSECTION.INSPECTION_STATUS = 'Complete' )#(lf)#(lf),HUBSPOT_INSPECTION AS (#(lf)SELECT#(lf) 'ResiWalk' AS SOURCE_SYSTEM ,P.PROPERTY_KEY ,CAST(NULL AS TEXT) AS UNIT_ID ,HI.PROPERTY_ENTITY_ID AS UNIT_EXTERNAL_ID ,HI.PROPERTY_FULL_ADDRESS AS UNIT_Address ,TO_CHAR(HI.ID) AS INSPECTION_ID ,HI.PROPERTY_STATUS AS HUBSPOT_STATUS ,HI.PROPERTY_INSPECTOR_NAME AS INSPECTION_INSPECTOR_NAME ,HI.PROPERTY_INSPECTOR_EMAIL AS INSPECTOR_EMAIL ,CAST(NULL AS NUMBER) AS _LINE ,HI.PROPERTY_COMPLETED_AT::DATE AS INSPECTION_COMPLETED_DATE ,CASE WHEN LOWER(HI.PROPERTY_STATUS) = 'completed' THEN 'Complete' ELSE INITCAP(REPLACE(HI.PROPERTY_STATUS, '_', ' ')) END AS INSPECTION_STATUS#(lf),CASE HI.PROPERTY_TEMPLATE_TYPE WHEN 'pm_scope_rate_card' THEN '(PM) Scope Inspection' WHEN 'pm_turn_reinspect_qc' THEN '(PM) Turn Inspection' WHEN 'leasing_agent_1099_property_inspection' THEN 'Leasing Agent Inspection' ELSE HI.PROPERTY_TEMPLATE_TYPE END AS INSPECTION_TEMPLATE#(lf),COALESCE(HI.PROPERTY_LINK_MASTER, HI.PROPERTY_PDF_MASTER_URL) AS INSPECTION_LINK ,COALESCE(HI.PROPERTY_PDF_MASTER_URL, HI.PROPERTY_LINK_MASTER) AS PDF_URL ,R.REGION_NAME#(lf),COALESCE( P.ADDRESS || ', ' || COALESCE (CI.CITY_NAME, PM_CI.CityName) || ', ' || S.STATE_NAME || ' ' || P.ZIPCODE, HI.PROPERTY_FULL_ADDRESS) AS Full_Address ,COALESCE(P.ENTITYID, HI.PROPERTY_ENTITY_ID) AS ENTITYID ,PO.PORTFOLIO_NAME ,CAST(NULL AS NUMBER) AS Inspection_Review_Formatting#(lf),CASE WHEN LOWER(HI.PROPERTY_CONFIRM_REVIEWED) = 'yes' THEN 'Yes' WHEN HI.PROPERTY_CONFIRM_REVIEWED IS NULL THEN NULL ELSE 'Pending' END AS Inspection_Review_Check#(lf),CAST(NULL AS TEXT) AS ITEM_Notes ,CAST(NULL AS TEXT) AS ITEM_NOTES_P ,CAST(NULL AS TEXT) AS ITEM_RATINGS_P ,CAST(NULL AS TEXT) AS ITEM_NOTES_GC ,CAST(NULL AS TEXT) AS ITEM_RATINGS_GC ,CAST(NULL AS TEXT) AS PPW_Action_Flag ,CAST(NULL AS TEXT) AS LIST_PRICE_FEEDBACK ,CAST(NULL AS TEXT) AS ITEM_NOTES_LIST_PRICE ,CAST(NULL AS TEXT) AS ITEM_NOTES_FEEDBACK#(lf)FROM PROD_REPLICA.HUBSPOT_2.INSPECTION HI#(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PROPERTY P ON P.ENTITYID = HI.PROPERTY_ENTITY_ID AND P.CURRENT_FLAG = 'Y'#(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.FCT_PROPERTY_UNIT_SUMMARY PUS ON PUS.PROPERTY_KEY = P.PROPERTY_KEY#(lf)LEFT JOIN PROD_REPLICA.HBPM_DBO.PROPERTIES HBPM ON HBPM.PROPERTYID = P.HBPM_PROPERTY_ID#(lf)LEFT JOIN PROD_REPLICA.HBPM_DBO.Cities PM_CI ON PM_CI.CityID = HBPM.CityID#(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_CITY CI ON CI.CITY_KEY = PUS.CITY_KEY#(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_STATE S ON S.STATE_KEY = PUS.STATE_KEY#(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_REGION R ON R.REGION_KEY = PUS.REGION_KEY#(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PORTFOLIO PO ON PO.PORTFOLIO_KEY = PUS.PORTFOLIO_KEY#(lf)WHERE 1=1 AND (HI._FIVETRAN_DELETED = FALSE OR HI._FIVETRAN_DELETED IS NULL)#(lf)-- AND HI.PROPERTY_STATUS = 'completed'#(lf))#(lf)#(lf),COMBINED AS ( SELECT * FROM HAPPY_CO_DETAIL UNION ALL SELECT * FROM HUBSPOT_INSPECTION )#(lf)#(lf)SELECT COMBINED.*#(lf),RANK() OVER (PARTITION BY PROPERTY_KEY ORDER BY INSPECTION_COMPLETED_DATE DESC NULLS LAST, INSPECTION_ID DESC) AS RECENT_INS_RANK#(lf)FROM COMBINED#(lf)QUALIFY ROW_NUMBER() OVER (PARTITION BY INSPECTION_ID ORDER BY INSPECTION_COMPLETED_DATE DESC NULLS LAST, _LINE DESC, UNIT_Address) = 1", null, [EnableFolding=true]),
+				    #"Replaced Value" = Table.ReplaceValue(Source,"Turn RRQC","Turn",Replacer.ReplaceText,{"INSPECTION_TEMPLATE"}),
+				    #"Replaced Value1" = Table.ReplaceValue(#"Replaced Value"," (Duplicate) test1","",Replacer.ReplaceText,{"INSPECTION_TEMPLATE"}),
+				    #"Filtered Rows1" = Table.SelectRows(#"Replaced Value1", each not Text.Contains([INSPECTION_TEMPLATE], "Acquisition")),
+				    #"Filtered Rows" = Table.SelectRows(#"Filtered Rows1", each not Text.Contains([INSPECTION_TEMPLATE], "Asset Mgmt")),
+				    #"Filtered Rows2" = Table.SelectRows(#"Filtered Rows", each [INSPECTION_TEMPLATE] <> null and [INSPECTION_TEMPLATE] <> "Resipro")
+				in
+				    #"Filtered Rows2"
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

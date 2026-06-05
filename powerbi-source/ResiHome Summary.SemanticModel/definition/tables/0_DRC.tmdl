@@ -1,0 +1,279 @@
+table 0_DRC
+	lineageTag: 2bcd523b-ed66-4955-a947-bf4869c76792
+
+	measure '1_Active Listings' = CALCULATE(COUNT(DW_Listings[PROPERTY_KEY]),FILTER(DW_Listings,DW_Listings[LISTING_STATUS]="Active"&&DW_Listings[IS_PUBLISHED]="Y"))
+		formatString: 0
+		lineageTag: 72de532a-1764-4765-acc6-9644284a908d
+
+	measure '1_Active Pre-Listings' = COALESCE(CALCULATE(COUNT(DW_Listings[PROPERTY_KEY]),FILTER(DW_Listings,DW_Listings[LISTING_STATUS]="Active"&&DW_Listings[IS_PUBLISHED]="Y"&&DW_Listings[PM_MIR]<>BLANK()&&DW_Listings[PM_MIR]>=TODAY())),0)
+		formatString: 0
+		lineageTag: 02133e6d-46f0-4a5b-9b53-cacb0594cc5c
+
+	measure 1_Apps_30 = COALESCE(CALCULATE(DISTINCTCOUNT(DW_Deals[DEAL_KEY]),FILTER(DW_Deals,DW_Deals[PRIMARY_LEAD_ID]=BLANK()&&DW_Deals[APPLICATION_SUBMIT_DATE]>=(TODAY()-30)&&DW_Deals[APPLICATION_SUBMIT_DATE]<=(TODAY()-1))),0)
+		formatString: 0
+		lineageTag: 95723eb1-2ef9-47aa-ad29-4418e0312af5
+
+	measure 1_Apps_7 = COALESCE(CALCULATE(DISTINCTCOUNT(DW_Deals[DEAL_KEY]),FILTER(DW_Deals,DW_Deals[PRIMARY_LEAD_ID]=BLANK()&&DW_Deals[APPLICATION_SUBMIT_DATE]>=(TODAY()-7)&&DW_Deals[APPLICATION_SUBMIT_DATE]<=(TODAY()-1))),0)
+		formatString: 0
+		lineageTag: b10f69b0-5739-4338-8b5e-aabfb183da63
+
+	measure 1_Apps_S_30 = COALESCE(CALCULATE(DISTINCTCOUNT(DW_Deals[DEAL_KEY]),FILTER(DW_Deals,DW_Deals[PRIMARY_LEAD_ID]=BLANK()&&DW_Deals[APPLICATION_STARTED_DATE]>=(TODAY()-30)&&DW_Deals[APPLICATION_STARTED_DATE]<=(TODAY()-1))),0)
+		formatString: 0
+		lineageTag: b7b2c9d3-de9f-463e-8ab4-2494959608b9
+
+	measure 1_Apps_S_7 = COALESCE(CALCULATE(DISTINCTCOUNT(DW_Deals[DEAL_KEY]),FILTER(DW_Deals,DW_Deals[PRIMARY_LEAD_ID]=BLANK()&&DW_Deals[APPLICATION_STARTED_DATE]>=(TODAY()-7)&&DW_Deals[APPLICATION_STARTED_DATE]<=(TODAY()-1))),0)
+		formatString: 0
+		lineageTag: 32384bcd-16d6-41b5-9f2e-d38f0658f99a
+
+	measure 1_Apps_S_Total = COALESCE(CALCULATE(DISTINCTCOUNT(DW_Deals[DEAL_KEY]),FILTER(DW_Deals,DW_Deals[PRIMARY_LEAD_ID]=BLANK()&&DW_Deals[APPLICATION_STARTED_DATE]<>BLANK())),0)
+		formatString: 0
+		lineageTag: 79f300f0-cbcd-4b4e-ace7-da55ad6e40be
+
+	measure 1_Apps_Total = COALESCE(CALCULATE(DISTINCTCOUNT(DW_Deals[DEAL_KEY]),FILTER(DW_Deals,DW_Deals[PRIMARY_LEAD_ID]=BLANK()&&DW_Deals[APPLICATION_SUBMIT_DATE]<>BLANK())),0)
+		formatString: 0
+		lineageTag: 50271569-ae20-4a7c-b13c-61dec35e52e2
+
+	measure '1_Deposit Taken' = COALESCE(CALCULATE(COUNT(DW_Listings[PROPERTY_KEY]),FILTER(DW_Listings,DW_Listings[FMI_FLAG]=1&&DW_Listings[CURRENT_DEAL_STATUS]<>"Closed Won"&&DW_Listings[CURRENT_DEAL_STATUS]<>"Deal Won"&&DW_Listings[MOST_RECENT_LISTING]="Yes")),0)
+		formatString: 0
+		lineageTag: d9fb3b3c-a87e-417f-b5d6-50e47b05f501
+
+	measure 1_HF_30 = COALESCE(CALCULATE(DISTINCTCOUNT(DW_Deals[DEAL_KEY]),FILTER(DW_Deals,DW_Deals[PRIMARY_LEAD_ID]=BLANK()&&DW_Deals[CURRENT_DEAL_STATUS]<>"Closed Lost"&&DW_Deals[HF Date]>=(TODAY()-30)&&DW_Deals[HF Date]<=(TODAY()-1))),0)
+		formatString: 0
+		lineageTag: 205db2fc-8cd9-43cf-9335-2b9fa882c69a
+
+	measure 1_HF_7 = COALESCE(CALCULATE(DISTINCTCOUNT(DW_Deals[DEAL_KEY]),FILTER(DW_Deals,DW_Deals[PRIMARY_LEAD_ID]=BLANK()&&DW_Deals[CURRENT_DEAL_STATUS]<>"Closed Lost"&&DW_Deals[HF Date]>=(TODAY()-7)&&DW_Deals[HF Date]<=(TODAY()-1))),0)
+		formatString: 0
+		lineageTag: a2328704-e916-4bfb-950e-485caf42274c
+
+	measure 1_HF_Total = COALESCE(CALCULATE(DISTINCTCOUNT(DW_Deals[DEAL_KEY]),FILTER(DW_Deals,DW_Deals[PRIMARY_LEAD_ID]=BLANK()&&DW_Deals[CURRENT_DEAL_STATUS]<>"Closed Lost"&&DW_Deals[HF Date]<>BLANK())),0)
+		formatString: 0
+		lineageTag: a4d5989f-b619-47ce-ad63-4f73e0c5b899
+
+	measure '1_Leads L30' = COALESCE(CALCULATE(DISTINCTCOUNT(DW_Leads[LEAD_KEY]),FILTER(DW_Leads,DW_Leads[PRIMARY_LEAD_ID]=BLANK()&&DW_Leads[LEAD_CREATED_DATE]>=(TODAY()-30)&&DW_Leads[LEAD_CREATED_DATE]<=(TODAY()-1))),0)
+		formatString: 0
+		lineageTag: 788c9230-ab56-4c31-a030-10c9ee5ad85c
+
+	measure '1_Leads L7' = COALESCE(CALCULATE(DISTINCTCOUNT(DW_Leads[LEAD_KEY]),FILTER(DW_Leads,DW_Leads[PRIMARY_LEAD_ID]=BLANK()&&DW_Leads[LEAD_CREATED_DATE]>=(TODAY()-7)&&DW_Leads[LEAD_CREATED_DATE]<=(TODAY()-1))),0)
+		formatString: 0
+		lineageTag: 6c09db24-3b0b-4ce3-9e5c-d076a26c07d4
+
+	measure 1_Leads_Total = ```
+			COALESCE(CALCULATE(DISTINCTCOUNT(DW_Leads[LEAD_KEY]),DW_Leads[PRIMARY_LEAD_ID]=BLANK()),0)
+			
+			```
+		formatString: 0
+		lineageTag: 5b7859d2-3477-4345-be29-1d1630288dda
+
+	measure 1_MI_30 = COALESCE(CALCULATE(DISTINCTCOUNT(DW_MoveOut[TENANT_KEY]),FILTER(DW_MoveOut,DW_MoveOut[LEASE_FROM_DATE]>=(TODAY()-30)&&DW_MoveOut[LEASE_FROM_DATE]<=(TODAY()-1))),0)
+		formatString: 0
+		lineageTag: 7f34953a-073f-461d-bb72-0098614e5e62
+
+	measure 1_MI_7 = COALESCE(CALCULATE(DISTINCTCOUNT(DW_MoveOut[TENANT_KEY]),FILTER(DW_MoveOut,DW_MoveOut[LEASE_FROM_DATE]>=(TODAY()-7)&&DW_MoveOut[LEASE_FROM_DATE]<=(TODAY()-1))),0)
+		formatString: 0
+		lineageTag: 769c9512-4bec-44ee-914d-f2d9957993f2
+
+	measure 1_MI_Total = COALESCE(CALCULATE(COUNT(DW_Tenant[TENANT_KEY])),0)
+		formatString: 0
+		lineageTag: ccb30d71-a7f5-4636-b882-d2489f0da08d
+
+	measure 1_Open_Apps = COALESCE(CALCULATE(DISTINCTCOUNT(DW_Deals[DEAL_KEY]),FILTER(DW_Deals,DW_Deals[PRIMARY_LEAD_ID]=BLANK()&&OR(OR(DW_Deals[CURRENT_DEAL_STATUS]="Under Review",DW_Deals[CURRENT_DEAL_STATUS]="Conditional Approval"),DW_Deals[CURRENT_DEAL_STATUS]="Full Approval")&&DW_Deals[APP_STAGE]<>"Pending Denial")),0)
+		formatString: 0
+		lineageTag: 1c84cf25-9155-4dd4-a7bc-3106b3f87765
+
+	measure 2_Leased = COALESCE(CALCULATE(COUNT(DW_Properties[PROPERTY_KEY]),FILTER(DW_Properties,DW_Properties[OCCUPANCY_STATUS]="Tenant Leased"||DW_Properties[OCCUPANCY_STATUS]="Trustee Leased")),0)
+		formatString: 0
+		lineageTag: b58a9d9a-bd15-42b9-8817-e0737bae579c
+
+	measure '2_MI Ready' = COALESCE(CALCULATE(COUNT('DW_Off Market'[PROPERTY_KEY]),FILTER('DW_Off Market',COALESCE('DW_Off Market'[DRC_CO_DATE],'DW_Off Market'[2_AM_QC_Result_Date])<>BLANK())),0)
+		formatString: 0
+		lineageTag: d9f36c07-b3e1-493d-a090-f363739ea5ae
+
+	measure '2_Total Homes' = COALESCE(CALCULATE(COUNT(DW_Properties[PROPERTY_KEY])),0)
+		formatString: 0
+		lineageTag: 726f4162-17f3-4271-bc9f-cdb30230b82c
+
+	measure '3_ PSF' = ```
+			CALCULATE(DIVIDE(SUM(DW_Properties[CURRENT_RENT]), SUM(DW_Properties[SQUARE_FOOTAGE]), BLANK()),DW_Properties[OCCUPANCY_STATUS]="Tenant Leased")
+			
+			```
+		lineageTag: 020931ea-de4e-4446-a13d-5823bb4cd39f
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure '3_In Place Rent' = ```
+			CALCULATE(AVERAGE(DW_Tenant[CURRENT_RENT]),DW_Tenant[OCCUPANCY_STATUS]="Tenant Leased")
+			
+			```
+		lineageTag: 401feee9-1bd2-4400-9623-35277588736e
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 3_List_Price = CALCULATE(AVERAGE(DW_Listings[CURRENT_LIST_PRICE]),FILTER(DW_Listings,DW_Listings[LISTING_STATUS]="Active"&&DW_Listings[IS_PUBLISHED]="Y"))
+		lineageTag: fde6e937-8841-45ee-bed9-2f1b9becba51
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure '3_List_Price (Deposit)' = CALCULATE(AVERAGE(DW_Listings[CURRENT_LIST_PRICE]),FILTER(DW_Listings,DW_Listings[FMI_FLAG]=1&&DW_Listings[CURRENT_DEAL_STATUS]<>"Closed Won"&&DW_Listings[CURRENT_DEAL_STATUS]<>"Deal Won"&&DW_Listings[MOST_RECENT_LISTING]="Yes"))
+		lineageTag: 958d7988-923f-4002-9235-fc9b560f1edc
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 3_List_Price_UW = CALCULATE(AVERAGE(DW_Listings[UNDER_WRITTEN_RENT]),FILTER(DW_Listings,DW_Listings[LISTING_STATUS]="Active"&&DW_Listings[IS_PUBLISHED]="Y"))
+		lineageTag: c9df07b2-b417-4993-aadd-39e7b382025c
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure '3_List_Price_UW (Deposit)' = CALCULATE(AVERAGE(DW_Listings[UNDER_WRITTEN_RENT]),FILTER(DW_Listings,DW_Listings[FMI_FLAG]=1&&DW_Listings[CURRENT_DEAL_STATUS]<>"Closed Won"&&DW_Listings[CURRENT_DEAL_STATUS]<>"Deal Won"&&DW_Listings[MOST_RECENT_LISTING]="Yes"))
+		lineageTag: de0b4eb8-1bd9-4342-8538-8731b57a5a8f
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 3_List_PSF = ```
+			CALCULATE(DIVIDE(SUM(DW_Listings[CURRENT_LIST_PRICE]), SUM(DW_Listings[SQUARE_FOOTAGE]), BLANK()),FILTER(DW_Listings,DW_Listings[LISTING_STATUS]="Active"&&DW_Listings[IS_PUBLISHED]="Y"))
+			
+			```
+		lineageTag: cdfcd867-63d5-45ce-a179-a69436930a3a
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 3_List_PSF_UW = ```
+			CALCULATE(DIVIDE(SUM(DW_Listings[UNDER_WRITTEN_RENT]), SUM(DW_Listings[SQUARE_FOOTAGE]), BLANK()),FILTER(DW_Listings,DW_Listings[LISTING_STATUS]="Active"&&DW_Listings[IS_PUBLISHED]="Y"))
+			
+			```
+		lineageTag: 89038f60-f8ce-4e44-8e65-716aaa5d3b53
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure '3_MI Concessions' = ```
+			calculate(average(DW_Listings[CONCESSIONAMOUNT]),DW_Listings[LISTING_STATUS] = "Leased")
+			
+			```
+		lineageTag: 1b813719-297a-4c2a-8d6d-8446e5e58002
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 3_PSF_UW = ```
+			CALCULATE(DIVIDE(SUM(DW_Properties[UNDER_WRITTEN_RENT]), SUM(DW_Properties[SQUARE_FOOTAGE]), BLANK()),DW_Properties[OCCUPANCY_STATUS]="Tenant Leased")
+			
+			```
+		lineageTag: 9078a14d-b179-47f8-a8de-44ecd6fbd7cf
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure '3_UW Rent' = ```
+			CALCULATE(AVERAGE(DW_Properties[UW_RENT_CURRENT]),DW_Properties[OCCUPANCY_STATUS]="Tenant Leased")
+			
+			```
+		lineageTag: 8f4362e7-a602-4047-af4f-b2bfacbf178b
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure '5_Blended Rent' = ```
+			CALCULATE(AVERAGE(DW_Properties[UNDER_WRITTEN_RENT]),DW_Properties[UNDER_WRITTEN_RENT]<>BLANK())
+			
+			```
+		lineageTag: 7557d2c1-90e3-41d8-9415-90d53418be2b
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure '5_Blended UW Trended Rent' = ```
+			CALCULATE(AVERAGE(DW_Properties[UNDER_WRITTEN_RENT]),DW_Properties[UNDER_WRITTEN_RENT]<>BLANK())
+			
+			```
+		lineageTag: d5588676-7201-4705-8dc9-20028b13a218
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 5_Collections_EOM = CALCULATE([0_Collections_Switch],FILTER(DW_Tenant_Charges,DW_Tenant_Charges[ACCOUNT_NUMBER]="4010"&&DW_Tenant_Charges[CREDITTYPEID]<>2&&ROUND(DW_Tenant_Charges[CHARGE_DATE_BOM],0)=(DATE(YEAR(EOMONTH(TODAY(),-1)),MONTH(EOMONTH(TODAY(),-1)),1))),FILTER(SEL_Collections_Type,SEL_Collections_Type[Value]="Net (x-Concessions)"))
+		lineageTag: a46bafdc-60d1-43ea-903c-e04170499287
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 5_Collections_MTD = CALCULATE([0_Collections_Switch],FILTER(DW_Tenant_Charges,DW_Tenant_Charges[ACCOUNT_NUMBER]="4010"&&DW_Tenant_Charges[CREDITTYPEID]<>2&&ROUND(DW_Tenant_Charges[CHARGE_DATE_BOM],0)=(DATE(YEAR(TODAY()),MONTH(TODAY()),1))),FILTER(SEL_Collections_Type,SEL_Collections_Type[Value]="Net (x-Concessions)"))
+		lineageTag: ea5d34de-40a6-4651-8339-d419f93bb8f9
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 2_FMI = CALCULATE(DISTINCTCOUNT(DW_Listings[PROPERTY_KEY]),FILTER(DW_Listings,DW_Listings[FMI_FLAG]=1&&DW_Listings[MOST_RECENT_LISTING]="Yes"&&DW_Listings[CURRENT_DEAL_STATUS]<>"Deal Won"&&DW_Listings[CURRENT_DEAL_STATUS]<>"Closed Won"))
+		formatString: 0
+		lineageTag: b3d5f0f0-ff48-458b-bf8b-8f11b2a77986
+
+	measure 1_Apps_Approved_7 = COALESCE(CALCULATE(DISTINCTCOUNT(DW_Deals[DEAL_KEY]),FILTER(DW_Deals,DW_Deals[PRIMARY_LEAD_ID]=BLANK()&&DW_Deals[APPLICATION_APPROVED_DATE]<>BLANK()&&DW_Deals[APPLICATION_SUBMIT_DATE]>=(TODAY()-7)&&DW_Deals[APPLICATION_SUBMIT_DATE]<=(TODAY()-1))),0)
+		formatString: 0
+		lineageTag: a5f6c717-6fca-4526-83e4-e99fc77eb260
+
+	measure 1_Apps_Approved_30 = COALESCE(CALCULATE(DISTINCTCOUNT(DW_Deals[DEAL_KEY]),FILTER(DW_Deals,DW_Deals[PRIMARY_LEAD_ID]=BLANK()&&DW_Deals[APPLICATION_APPROVED_DATE]<>BLANK()&&DW_Deals[APPLICATION_SUBMIT_DATE]>=(TODAY()-30)&&DW_Deals[APPLICATION_SUBMIT_DATE]<=(TODAY()-1))),0)
+		formatString: 0
+		lineageTag: 8d57ba92-d497-4a63-aacd-01399d96c947
+
+	measure 1_Apps_Approved_Total = COALESCE(CALCULATE(DISTINCTCOUNT(DW_Deals[DEAL_KEY]),FILTER(DW_Deals,DW_Deals[PRIMARY_LEAD_ID]=BLANK()&&DW_Deals[APPLICATION_APPROVED_DATE]<>BLANK()&&DW_Deals[APPLICATION_SUBMIT_DATE]<>BLANK())),0)
+		formatString: 0
+		lineageTag: 95001682-98c7-48b9-a905-d051abe25f13
+
+	measure 3_Leased_Deposit_Rent = ```
+			(CALCULATE(SUM(DW_Tenant[CURRENT_RENT]),FILTER(DW_Tenant,DW_Tenant[OCCUPANCY_STATUS]="Tenant Leased")) +  CALCULATE(SUM(DW_Listings[CURRENT_LIST_PRICE]),FILTER(DW_Listings,DW_Listings[FMI_FLAG]=1&&DW_Listings[CURRENT_DEAL_STATUS]<>"Closed Won"&&DW_Listings[CURRENT_DEAL_STATUS]<>"Deal Won"&&DW_Listings[MOST_RECENT_LISTING]="Yes"))) / (CALCULATE(DISTINCTCOUNT(DW_Tenant[TENANT_KEY]),FILTER(DW_Tenant,DW_Tenant[OCCUPANCY_STATUS]="Tenant Leased")) +  CALCULATE(DISTINCTCOUNT(DW_Listings[LISTING_KEY]),FILTER(DW_Listings,DW_Listings[FMI_FLAG]=1&&DW_Listings[CURRENT_DEAL_STATUS]<>"Closed Won"&&DW_Listings[CURRENT_DEAL_STATUS]<>"Deal Won"&&DW_Listings[MOST_RECENT_LISTING]="Yes")))
+			
+			```
+		formatString: 0
+		lineageTag: ba3abbad-a856-41aa-ba3c-f95315e91aec
+
+	measure '3_Leased_Deposit_UW Rent' = ```
+			(CALCULATE(SUM(DW_Tenant[UNDER_WRITTEN_RENT]),FILTER(DW_Tenant,DW_Tenant[OCCUPANCY_STATUS]="Tenant Leased")) +  CALCULATE(SUM(DW_Listings[UNDER_WRITTEN_RENT]),FILTER(DW_Listings,DW_Listings[FMI_FLAG]=1&&DW_Listings[CURRENT_DEAL_STATUS]<>"Closed Won"&&DW_Listings[CURRENT_DEAL_STATUS]<>"Deal Won"&&DW_Listings[MOST_RECENT_LISTING]="Yes"))) / (CALCULATE(DISTINCTCOUNT(DW_Tenant[TENANT_KEY]),FILTER(DW_Tenant,DW_Tenant[OCCUPANCY_STATUS]="Tenant Leased")) +  CALCULATE(DISTINCTCOUNT(DW_Listings[LISTING_KEY]),FILTER(DW_Listings,DW_Listings[FMI_FLAG]=1&&DW_Listings[CURRENT_DEAL_STATUS]<>"Closed Won"&&DW_Listings[CURRENT_DEAL_STATUS]<>"Deal Won"&&DW_Listings[MOST_RECENT_LISTING]="Yes")))
+			
+			```
+		formatString: 0
+		lineageTag: f246f1c5-cc2a-409c-b3ca-f460a7d8f387
+
+	measure 1_LTO_T90 = CALCULATE([0_RG],FILTER(LTO,LTO[N_LEASESTART]>(TODAY()-90)))
+		lineageTag: 55288192-189b-456d-8815-89adbc9b559d
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 1_LTO_T90_Release = CALCULATE([0_RG],FILTER(LTO,LTO[N_LEASESTART]>(TODAY()-90)&&LTO[TYPE]="Re-Lease"))
+		lineageTag: 96f44627-0f25-4171-9727-9e75392f6e2f
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 1_LTO_T90_Renewal = CALCULATE([0_RG],FILTER(LTO,LTO[N_LEASESTART]>(TODAY()-90)&&LTO[TYPE]="Renewal"))
+		lineageTag: bf1e6451-2df7-402b-aaf5-bac906cb9a84
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column SUBDIVISION
+		lineageTag: c1541fb5-e9e9-4830-b7dc-86070e1e12fd
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: DW_Properties[SUBDIVISION]
+
+		annotation SummarizationSetBy = Automatic
+
+	column FLOORPLAN
+		lineageTag: 77c2f1ed-91fd-4a16-b3ce-f3925b40027b
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: DW_Properties[FLOORPLAN]
+
+		annotation SummarizationSetBy = Automatic
+
+	column ORGANIZATION_NAME
+		lineageTag: 9f339cc5-03d1-4e94-bc12-f3037e141563
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: DW_Properties[ORGANIZATION_NAME]
+
+		annotation SummarizationSetBy = Automatic
+
+	column REGION_NAME
+		lineageTag: 8f2ce686-22bf-4017-a96f-b2754658f64a
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: DW_Properties[REGION_NAME]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 0_DRC = calculated
+		mode: import
+		source = SUMMARIZE(FILTER(DW_Properties,(DW_Properties[ORGANIZATION_NAME]="RB DRC"||DW_Properties[ORGANIZATION_NAME]="Hudson Oak"||DW_Properties[ORGANIZATION_NAME]="Rocklyn Homes"||DW_Properties[ORGANIZATION_NAME]="ROI Property Group"||DW_Properties[ORGANIZATION_NAME]="Newstar")&&DW_Properties[SUBDIVISION]<>BLANK()),DW_Properties[ORGANIZATION_NAME],DW_Properties[SUBDIVISION],DW_Properties[FLOORPLAN],DW_Properties[REGION_NAME])
+
+	annotation PBI_Id = c79c2fc130bb441fb20ac7acb8a8860e
+

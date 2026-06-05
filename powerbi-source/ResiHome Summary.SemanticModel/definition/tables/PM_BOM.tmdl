@@ -1,0 +1,288 @@
+table PM_BOM
+	lineageTag: 5af503f2-8317-44c2-a0bd-e7b42bd332e1
+
+	measure '0_Run Rate (90+ Spend)' = ```
+			(DIVIDE(SUM(PM_BOM[MM Ongoing Spend Post Lease+90]), SUM(PM_BOM[DAYS_POST_90_MTD]), BLANK())) * 365
+			
+			```
+		formatString: \$#,0;(\$#,0);\$#,0
+		lineageTag: 39ea6cbf-3722-4269-aef6-e28e8e01d7ce
+
+		changedProperty = FormatString
+
+	measure '0_Run Rate Monthly' = FORMAT(SUM(PM_BOM[MM Ongoing Spend Post Lease+90]), "$#,###") &" / " & FORMAT(SUM(PM_BOM[DAYS_POST_90_FULL]) * 1700/365, "$#,###")
+		lineageTag: 6fafbc22-ba7b-4113-82e5-a49030932c94
+
+	column BEG_OF_MONTH
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: f6bcf10a-8d5a-4484-b652-71d1e9dc65e4
+		summarizeBy: none
+		sourceColumn: BEG_OF_MONTH
+
+		variation Variation
+			isDefault
+			relationship: e2add70f-4dc9-4689-af9f-1881adc6639a
+			defaultHierarchy: LocalDateTable_9fd09431-f8c4-4490-ace0-6e5881f85f14.'Date Hierarchy'
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Property_Key = RELATED(DW_Properties[PROPERTY_KEY])
+		lineageTag: 0510f3a1-3554-452d-b86e-3a9f46874bd3
+		summarizeBy: count
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column '1_Occ_Status (DW)' = if(PM_BOM[BEG_OF_MONTH]>date(year(TODAY()),MONTH(TODAY()),1),CALCULATE(MIN(DW_Properties[OCCUPANCYSTATUSID]),FILTER(DW_Properties,DW_Properties[HBPM_PROPERTY_ID]=PM_BOM[HBPM_PropertyID])),PM_BOM[BEG_MONTH_VALUE])
+		lineageTag: 1ca920db-e228-4da7-b7ca-9422570de251
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 1_Move-In = CALCULATE(MAX(DW_Occupancy[MOVEIN]),FILTER(DW_Occupancy,DW_Occupancy[HBPM_PROPERTY_ID]=PM_BOM[HBPM_PropertyID]&&DW_Occupancy[MOVEIN]<=eomonth(PM_BOM[BEG_OF_MONTH],0)&&OR(DW_Occupancy[MOVEOUT]=BLANK(),DW_Occupancy[MOVEOUT]>=PM_BOM[BEG_OF_MONTH])))
+		formatString: Short Date
+		lineageTag: c10a59dc-b089-42cf-a08f-585f0476ff9a
+		summarizeBy: none
+
+		variation Variation
+			isDefault
+			relationship: 99996c9c-145b-46ad-8724-79b9f2ac8e35
+			defaultHierarchy: LocalDateTable_a5bca677-3493-41de-8da6-28e4df322a39.'Date Hierarchy'
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+	column 1_Move-Out = CALCULATE(Min(DW_Occupancy[MOVEOUT]),FILTER(DW_Occupancy,DW_Occupancy[PROPERTY_KEY]=PM_BOM[Property_Key]&&DW_Occupancy[MOVEOUT]<>BLANK()&&DW_Occupancy[MOVEOUT]>(PM_BOM[BEG_OF_MONTH]-14)&&DW_Occupancy[MOVEIN]<=eomonth(PM_BOM[BEG_OF_MONTH],0)))
+		formatString: Short Date
+		lineageTag: 6b8abe30-55ce-4e8c-877b-dfd200208251
+		summarizeBy: none
+
+		variation Variation
+			isDefault
+			relationship: bfba0b94-b611-4592-a65b-a657ebbc9922
+			defaultHierarchy: LocalDateTable_1abe006b-209c-4242-aff7-de398a372011.'Date Hierarchy'
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Days Occ' =
+			IF(PM_BOM[1_Move-In]=BLANK()||PM_BOM[BEG_OF_MONTH]>TODAY()||PM_BOM[1_Move-In]>TODAY()||PM_BOM[AfterValue]=BLANK(),BLANK(),
+			           IF(PM_BOM[1_Move-Out]<PM_BOM[1_Move-In]&&PM_BOM[1_Move-In]>=PM_BOM[BEG_OF_MONTH]&&PM_BOM[1_Move-In]<>BLANK()&&PM_BOM[1_Move-Out]<>BLANK(),(PM_BOM[1_Move-Out]-PM_BOM[BEG_OF_MONTH])+(EOMONTH(PM_BOM[BEG_OF_MONTH],0) - PM_BOM[1_Move-In])+1,
+			           IF(PM_BOM[1_Move-Out]<>BLANK(),MIN(EOMONTH(PM_BOM[BEG_OF_MONTH],0),PM_BOM[1_Move-Out]) - MAX(MAX(PM_BOM[1_Move-In],PM_BOM[BEG_OF_MONTH]),PM_BOM[Transfer Date]) +1,
+			           max(MIN(TODAY(),EOMONTH(PM_BOM[BEG_OF_MONTH],0)) - MAX(max(PM_BOM[1_Move-In],PM_BOM[BEG_OF_MONTH]),PM_BOM[Transfer Date]) +1,0))))
+		dataType: int64
+		formatString: 0
+		lineageTag: b7d86bd1-c098-4fae-82a0-778d45504899
+		summarizeBy: sum
+
+		changedProperty = DataType
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Owned Days' =
+			IF(PM_BOM[BEG_OF_MONTH]>TODAY()||PM_BOM[Transfer Date]>eomonth(PM_BOM[BEG_OF_MONTH],0),BLANK(),
+			             MIN(TODAY(),EOMONTH(PM_BOM[BEG_OF_MONTH],0)) - max(PM_BOM[BEG_OF_MONTH],PM_BOM[Transfer Date]) + 1)
+		dataType: int64
+		formatString: 0
+		lineageTag: 6e09916a-2b83-4259-9914-5ac959f68420
+		summarizeBy: sum
+
+		changedProperty = DataType
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Transfer Date' = COALESCE(RELATED(DW_Properties[Transfer_Date]),RELATED(DW_Properties[Purchase_Date]))
+		formatString: Short Date
+		lineageTag: d3cc1c57-a25b-4a71-b918-8a1d7d662ccd
+		summarizeBy: none
+
+		variation Variation
+			isDefault
+			relationship: 2febd0d1-1b84-4372-8c61-832c5505e1da
+			defaultHierarchy: LocalDateTable_f551f1bb-c957-47ff-a41c-1c957d730fb8.'Date Hierarchy'
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+	column HBPM_PROPERTYID
+		dataType: double
+		lineageTag: 418bf7af-9eb9-4dbf-840a-8ebec21a9921
+		summarizeBy: none
+		sourceColumn: HBPM_PROPERTYID
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ENTITYID
+		dataType: string
+		lineageTag: 2519eda9-dcfb-4802-a136-d5ff582a5353
+		summarizeBy: none
+		sourceColumn: ENTITYID
+
+		annotation SummarizationSetBy = Automatic
+
+	column AFTERVALUE
+		dataType: double
+		lineageTag: 72fb1463-3ed2-4c51-a69d-d8495e6b19ab
+		summarizeBy: sum
+		sourceColumn: AFTERVALUE
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column OCCUPANCY_STATUS
+		dataType: string
+		lineageTag: 9a55226a-47bb-4069-992d-8b1e91aa8c16
+		summarizeBy: none
+		sourceColumn: OCCUPANCY_STATUS
+
+		annotation SummarizationSetBy = Automatic
+
+	column 1_Rent_Charges = CALCULATE(COUNTROWS(DW_Tenant_Charges),FILTER(DW_Tenant_Charges,DW_Tenant_Charges[PROPERTY_KEY]=PM_BOM[Property_Key]&&DW_Tenant_Charges[CHARGE_DATE_BOM]=PM_BOM[BEG_OF_MONTH]&&OR(DW_Tenant_Charges[ACCOUNT_NUMBER]="4010",DW_Tenant_Charges[ACCOUNT_NUMBER]="4011")&&DW_Tenant_Charges[Charge_Amount]>0))
+		formatString: 0
+		lineageTag: 041dd4aa-92df-4ac2-b26e-724c31a42fb5
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	column PROP_KEY
+		dataType: double
+		lineageTag: 7b2a0e20-1467-4195-9f20-8fd677b64fcf
+		summarizeBy: sum
+		sourceColumn: PROP_KEY
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column CURRENT_RENT
+		dataType: double
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: d6ad9d93-e0e7-4fc1-b30d-03d53e87adeb
+		summarizeBy: sum
+		sourceColumn: CURRENT_RENT
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+	column FIRST_LEASE_PLUS_90
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: b9518457-1680-4f1d-9b56-4cce786ab410
+		summarizeBy: none
+		sourceColumn: FIRST_LEASE_PLUS_90
+
+		variation Variation
+			isDefault
+			relationship: 8b7ddd9c-7891-4604-a003-d872ca7cf5ee
+			defaultHierarchy: LocalDateTable_b2268354-89dc-48e0-bcea-b8317e218c77.'Date Hierarchy'
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column DAYS_POST_90_MTD
+		dataType: double
+		lineageTag: 786e329d-065f-4b54-a3dd-fbc741e67d37
+		summarizeBy: sum
+		sourceColumn: DAYS_POST_90_MTD
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column DAYS_POST_90_FULL
+		dataType: double
+		lineageTag: 235a643e-87a4-41e2-aae9-f170fc9f648c
+		summarizeBy: sum
+		sourceColumn: DAYS_POST_90_FULL
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column SOLD_DATE
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 5ed2859a-560b-4201-b812-1df4d30c6ab2
+		summarizeBy: none
+		sourceColumn: SOLD_DATE
+
+		variation Variation
+			isDefault
+			relationship: d004a4c6-1199-4657-ab6a-fd9149320e38
+			defaultHierarchy: LocalDateTable_1f78dac9-6ff4-4541-99dd-f6fdef065d71.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column 'MM Ongoing Spend Post Lease+90' =
+			CALCULATE(SUM(DW_WO[CLIENT_OWNER_RESPONSIBLE_AMOUNT]),FILTER(DW_WO,
+			DATE(YEAR(DW_WO[Closed Date_BOM]),MONTH(DW_WO[Closed Date_BOM]),1) = PM_BOM[BEG_OF_MONTH] &&
+			(DW_WO[BILL_TO] = "Owner" || DW_WO[CLIENT_OWNER_RESPONSIBLE_AMOUNT]>0 )&&
+			DW_WO[TICKET_TYPE] <> "PPI" &&
+			DW_WO[TICKET_TYPE] <> "Turnkey" &&
+			DW_WO[TICKET_TYPE] <> "Evictions" &&
+			DW_WO[TICKET_TYPE] <> "Dispositions" &&
+			DW_WO[VENDOR_ID] <> 12064 &&
+			DW_WO[VENDOR_ID] <> 21376 &&
+			DW_WO[ONGOING_90_DAY_SPEND] = 1 &&
+			(DW_WO[INSURANCE_CLAIM] <> "Y" ||DW_WO[INSURANCE_CLAIM]=BLANK()) &&
+			DW_WO[PROPERTY_KEY] = PM_BOM[PROP_KEY] ))
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: 0bba3623-ba13-40ce-b3b4-a516c3cf7952
+		summarizeBy: sum
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+	column BEG_MONTH_VALUE
+		dataType: double
+		lineageTag: 66b8b727-22a5-4f52-9c4e-77c155c960f4
+		summarizeBy: sum
+		sourceColumn: BEG_MONTH_VALUE
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column BEG_MONTH_OCC_STATUS
+		dataType: string
+		lineageTag: bcf9e264-7121-4e4a-a3c9-88a0eadb688f
+		summarizeBy: none
+		sourceColumn: BEG_MONTH_OCC_STATUS
+
+		annotation SummarizationSetBy = Automatic
+
+	partition PM_BOM-95094b65-bcfd-4b17-8994-70252fdb84a4 = m
+		mode: import
+		queryGroup: 'PM Other'
+		source =
+				let
+				    Source = Value.NativeQuery(Snowflake.Databases("ota12822.us-east-1.snowflakecomputing.com","DEVELOPER_WH",[Implementation="2.0"]){[Name="PROD_REPLICA"]}[Data], "/* =============================================================================#(lf)   PM BOM DATASET (Beginning-of-Month property occupancy + post-90 days)#(lf)   -----------------------------------------------------------------------------#(lf)   Grain:   One row per property x beginning-of-month (anchor: Prop_Calendar =#(lf)            DIM_PROPERTY cross-joined to a generated month spine from 2024-01).#(lf)   CTE chain: Calendar, Prop_Calendar, Prop_Hist (status-history UNION current#(lf)            status), BOM_Status (latest status as-of EOM and as-of BOM),#(lf)            RENT_HIST, RENT_TEMP -> final SELECT.#(lf)#(lf)   CLEANUP NOTES:#(lf)     No organization roll-up exists in this query (no ORGANIZATION_KEY /#(lf)     ORGANIZATION_NAME columns are produced), so NO org sync was applied. This#(lf)     pass is COSMETIC ONLY: header added, trailing semicolon removed; query#(lf)     logic is unchanged byte-for-byte.#(lf)     [FLAG]  The DIM_OWNER_ORGANIZATION O join (in Prop_Calendar and in the#(lf)             second leg of Prop_Hist) is referenced only in its own ON clause#(lf)             (O.ORGANIZATION_KEY = PUS.ORGANIZATION_KEY) and surfaces no column;#(lf)             the active org filter uses PUS.Organization_KEY. It is a one-row-#(lf)             per-key dimension LEFT JOIN, so it neither fans out nor filters and#(lf)             could be dropped, but is PRESERVED here to keep this a no-logic-#(lf)             change pass.#(lf)#(lf)   ORG SYNC IMPACT: none (no organization columns in this dataset).#(lf)   ============================================================================= */#(lf)#(lf)WITH Calendar AS (#(lf)    SELECT DATEADD('month', SEQ4(), DATE_FROM_PARTS(2024, 1, 1)) AS BEG_OF_MONTH#(lf)    FROM TABLE(GENERATOR(ROWCOUNT => 10000))#(lf)    WHERE BEG_OF_MONTH <= DATE_TRUNC('month', CURRENT_DATE())#(lf))#(lf)  --Select * from Calendar#(lf)--***************************************************************************#(lf)#(lf),Prop_Calendar AS (#(lf)  Select#(lf)   P.HBPM_PROPERTY_ID AS PropertyId#(lf)   ,P.PROPERTY_KEY AS PROP_KEY#(lf)   ,P.ENTITYID#(lf)   ,BEG_OF_MONTH#(lf)  FROM PROD_ANALYTICS.DBT_RESICAP.DIM_PROPERTY P#(lf)  LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.FCT_PROPERTY_UNIT_SUMMARY PUS ON PUS.PROPERTY_KEY  = P.PROPERTY_KEY #(lf)  LEFT JOIN PROD_REPLICA.HBAM_DBO.PROPERTIES HBAM ON HBAM.HBID = P.HBAM_PROPERTY_ID --*REPLCA DB*#(lf)  LEFT JOIN PROD_REPLICA.HBPM_DBO.PROPERTIES HBPM ON HBPM.PROPERTYID = P.HBPM_PROPERTY_ID --*REPLCA DB*#(lf)  LEFT JOIN PROD_REPLICA.HBPM_DBO.PROPERTYADDLINFOES PM_AI ON PM_AI.PROPERTYID  = HBPM.PROPERTYID AND PM_AI.""_FIVETRAN_DELETED"" = 'N' #(lf)  LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_OWNER_ORGANIZATION O ON O.ORGANIZATION_KEY = PUS.ORGANIZATION_KEY #(lf)  LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PROPERTY_UNIT PU ON PU.PROPERTY_UNIT_KEY = PUS.PROPERTY_UNIT_KEY#(lf)  LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PORTFOLIO PO ON PO.PORTFOLIO_KEY = PUS.PORTFOLIO_KEY #(lf)  CROSS JOIN Calendar#(lf)#(lf)  WHERE 1=1#(lf)#(tab)AND (HBAM.PROPERTYSTATUSID >9 OR HBAM.PROPERTYSTATUSID IS NULL) --out of bid#(lf)#(tab)AND P.PROPERTY_STATE ='Active'#(lf)#(tab)AND P.EntityID <> ''#(lf)#(tab)AND (HBAM.PROPERTYSTATUSID NOT IN (53,75) OR HBAM.PROPERTYSTATUSID IS NULL)#(lf)#(tab)AND PO.Portfolio_KEY NOT IN (223,598,147,102,109,28,603,169,602,170,58,54)#(lf)#(tab)AND PUS.Organization_KEY not IN (16,17)#(lf)#(tab)AND PO.IS_Active_AM = 'Y'#(lf)#(tab)AND PO.Current_Flag = 'Y'#(lf)#(tab)AND P.Current_Flag = 'Y'#(lf)#(tab)AND PU.Current_Flag = 'Y'#(lf)#(tab)AND PUS.Occupancy_Status NOT IN ('Not Managed')#(lf)#(tab)AND (HBPM.PROPERTYSTATEID = 26 OR HBPM.PROPERTYSTATEID IS NULL) #(lf)#(tab)AND P.HBMM_Property_ID IS NOT NULL )#(lf)  --Select * from Prop_Calendar#(lf)--***************************************************************************#(lf)#(lf),Prop_Hist AS (#(lf)  SELECT#(lf)   P.HBPM_PROPERTY_ID AS PropertyId#(lf)   ,P.PROPERTY_KEY  AS PROP_KEY#(lf)  ,FCT_PROP_UNIT_STATUS_HIST_KEY AS AuditLogId#(lf)  ,LM.LOOKUPMASTERID AS AfterValue#(lf)  ,NEW_OCCUPANCY_STATUS AS Occupancy_Status#(lf)  ,to_date(CHANGED_DATE_KEY::TEXT,'yyyymmdd') AS LogDateTime#(lf)  #(lf)  FROM PROD_ANALYTICS.DBT_RESICAP.FCT_PROP_UNIT_STATUS_HIST PSH#(lf)  LEFT JOIN PROD_REPLICA.HBPM_DBO.LOOKUPMASTERS LM ON LM.DESCRIPTION = PSH.NEW_OCCUPANCY_STATUS #(lf)  LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PROPERTY P ON P.PROPERTY_KEY = PSH.PROPERTY_KEY #(lf)  WHERE 1=1#(lf)#(lf)    AND P.PROPERTY_STATE ='Active'#(lf)    AND P.EntityID <> ''#(lf)    AND P.Current_Flag = 'Y'#(lf)    AND P.HBMM_Property_ID IS NOT NULL#(lf)#(lf)UNION ALL#(lf)#(lf)Select #(lf)   P.HBPM_PROPERTY_ID AS PropertyId#(lf)   ,P.Property_key AS PROP_KEY#(lf)  ,1 As AuditLogId#(lf)  ,LM.LOOKUPMASTERID AS OccupancyStatusId#(lf)  ,PUS.OCCUPANCY_STATUS#(lf)  ,P.Created_Date AS LogDateTime#(lf)  #(lf)  FROM PROD_ANALYTICS.DBT_RESICAP.DIM_PROPERTY P#(lf)  LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.FCT_PROPERTY_UNIT_SUMMARY PUS ON PUS.PROPERTY_KEY  = P.PROPERTY_KEY #(lf)  LEFT JOIN PROD_REPLICA.HBAM_DBO.PROPERTIES HBAM ON HBAM.HBID = P.HBAM_PROPERTY_ID --*REPLCA DB*#(lf)  LEFT JOIN PROD_REPLICA.HBPM_DBO.PROPERTIES HBPM ON HBPM.PROPERTYID = P.HBPM_PROPERTY_ID --*REPLCA DB*#(lf)  LEFT JOIN PROD_REPLICA.HBPM_DBO.PROPERTYADDLINFOES PM_AI ON PM_AI.PROPERTYID  = HBPM.PROPERTYID AND PM_AI.""_FIVETRAN_DELETED"" = 'N' #(lf)  LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_OWNER_ORGANIZATION O ON O.ORGANIZATION_KEY = PUS.ORGANIZATION_KEY #(lf)  LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PROPERTY_UNIT PU ON PU.PROPERTY_UNIT_KEY = PUS.PROPERTY_UNIT_KEY#(lf)  LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PORTFOLIO PO ON PO.PORTFOLIO_KEY = PUS.PORTFOLIO_KEY#(lf)  LEFT JOIN PROD_REPLICA.HBPM_DBO.LOOKUPMASTERS LM ON LM.DESCRIPTION = PUS.OCCUPANCY_STATUS #(lf)  #(lf)  LEFT JOIN (Select DISTINCT Property_Key FROM PROD_ANALYTICS.DBT_RESICAP.FCT_PROP_UNIT_STATUS_HIST PSH) AL  ON AL.Property_key = P.Property_Key#(lf) #(lf)  WHERE 1=1#(lf)#(tab)AND (HBAM.PROPERTYSTATUSID >9 OR HBAM.PROPERTYSTATUSID IS NULL) --out of bid#(lf)#(tab)AND P.PROPERTY_STATE ='Active'#(lf)#(tab)AND P.EntityID <> ''#(lf)#(tab)AND (HBAM.PROPERTYSTATUSID NOT IN (53,75) OR HBAM.PROPERTYSTATUSID IS NULL)#(lf)#(tab)AND PO.Portfolio_KEY NOT IN (223,598,147,102,109,28,603,169,602,170,58,54)#(lf)#(tab)AND PUS.Organization_KEY not IN (16,17)#(lf)#(tab)AND PO.IS_Active_AM = 'Y'#(lf)#(tab)AND PO.Current_Flag = 'Y'#(lf)#(tab)AND P.Current_Flag = 'Y'#(lf)#(tab)AND PU.Current_Flag = 'Y'#(lf)#(tab)AND PUS.Occupancy_Status NOT IN ('Not Managed')#(lf)#(tab)AND (HBPM.PROPERTYSTATEID = 26 OR HBPM.PROPERTYSTATEID IS NULL) #(lf)#(tab)AND P.HBMM_Property_ID IS NOT NULL#(lf)    AND AL.Property_Key is not null )#(lf)#(lf)--Select * from Prop_Hist#(lf)--WHERE PropertyId = 47719#(lf)--338866#(lf)--***************************************************************************#(lf)#(lf) ,BOM_Status AS (#(lf)   Select #(lf)   MAX(Prop_Hist.AuditLogID) AuditLogID#(lf)   ,MAX(Prop_Hist_2.AuditLogID) AuditLogID_2#(lf)   ,Prop_Calendar.PropertyId#(lf)   ,Prop_Calendar.PROP_KEY#(lf)   ,Prop_Calendar.EntityId#(lf)   ,Prop_Calendar.BEG_OF_MONTH#(lf)   From Prop_Calendar#(lf)   LEFT JOIN Prop_Hist ON Prop_Hist.PropertyId = Prop_Calendar.PropertyId#(lf)   #(tab)#(tab)#(tab)#(tab)     AND Prop_Hist.LogDateTime < DATEADD(day,1,Last_day(BEG_OF_MONTH))#(lf)   LEFT JOIN Prop_Hist AS Prop_Hist_2 ON Prop_Hist_2.PropertyId = Prop_Calendar.PropertyId#(lf)   #(tab)#(tab)#(tab)#(tab)     AND Prop_Hist_2.LogDateTime < BEG_OF_MONTH#(lf)   #(lf)   GROUP BY#(lf)   Prop_Calendar.PropertyId#(lf)  ,Prop_Calendar.PROP_KEY#(lf)  ,Prop_Calendar.EntityId#(lf)   ,Prop_Calendar.BEG_OF_MONTH)#(lf)   #(lf)  -- Select * from BOM_Status#(lf)   -- WHERE #(lf)--***************************************************************************#(lf) ,RENT_HIST AS (#(lf) #(lf) SELECT #(lf) PROPERTY_KEY#(lf) ,FCT_PROP_UNIT_RENT_HIST_KEY#(lf) ,RENT_CHANGED_DATE#(lf) ,RANK() OVER( PARTITION BY PROPERTY_KEY ORDER BY RENT_CHANGED_DATE DESC) CHANGED_RANK#(lf) ,CURRENT_RENT#(lf) #(lf) FROM PROD_ANALYTICS.DBT_RESICAP.FCT_PROP_UNIT_RENT_HIST#(lf) WHERE CURRENT_RENT IS NOT NULL )#(lf)--***************************************************************************#(tab)#(lf) ,RENT_TEMP AS (#(lf) Select #(lf)   BOM_Status.PropertyId AS HBPM_PropertyID#(lf)   ,BOM_Status.PROP_KEY#(lf)   ,BOM_Status.EntityId#(lf)   ,BOM_Status.BEG_OF_MONTH#(lf)   ,MAX(FCT_PROP_UNIT_RENT_HIST_KEY) FCT_PROP_UNIT_RENT_HIST_KEY#(lf)    FROM BOM_Status#(lf)    LEFT JOIN RENT_HIST ON RENT_HIST.PROPERTY_KEY = BOM_Status.PROP_KEY AND RENT_HIST.RENT_CHANGED_DATE <= DATEADD('day',1,LAST_DAY(BOM_Status.BEG_OF_MONTH,'month'))#(lf)    GROUP BY#(lf)    BOM_Status.PropertyId #(lf)   ,BOM_Status.PROP_KEY#(lf)   ,BOM_Status.EntityId#(lf)   ,BOM_Status.BEG_OF_MONTH#(lf) )#(lf)--***************************************************************************#(tab) #(lf) Select #(lf)   BOM_Status.PropertyId AS HBPM_PropertyID#(lf)   ,BOM_Status.PROP_KEY#(lf)   ,BOM_Status.EntityId#(lf)   ,BOM_Status.BEG_OF_MONTH#(lf)   ,Prop_Hist.AfterValue#(lf)   ,Prop_Hist.Occupancy_Status#(lf)   ,Prop_Hist_2.AfterValue AS BEG_MONTH_VALUE#(lf)   ,Prop_Hist_2.Occupancy_Status AS BEG_MONTH_OCC_STATUS#(lf)   #(lf)   ,to_Date( DATEADD('day',90,P.FIRST_LEASE_START_DATE_POST_RRQC)) FIRST_LEASE_PLUS_90#(lf)   #(lf)   ,CASE#(lf)   WHEN P.FIRST_LEASE_START_DATE_POST_RRQC IS NULL#(lf)   #(tab)#(tab)#(tab)OR to_Date( DATEADD('day',90,P.FIRST_LEASE_START_DATE_POST_RRQC)) >= LAST_DAY(BOM_Status.BEG_OF_MONTH)#(lf)   #(tab)#(tab)#(tab)THEN NULL#(lf)   WHEN GREATEST(BOM_Status.BEG_OF_MONTH, to_Date( DATEADD('day',90,P.FIRST_LEASE_START_DATE_POST_RRQC))) > DATEFROMPARTS(year(GETDATE()),MONTH(GETDATE()),DAY(GETDATE())) THEN NULL#(lf)   ELSE DATEDIFF('day',#(lf)   #(tab)#(tab)#(tab)#(tab)GREATEST(DATEADD('day',91,P.FIRST_LEASE_START_DATE_POST_RRQC),BOM_Status.BEG_OF_MONTH),#(lf)   #(tab)#(tab)#(tab)#(tab)LEAST(DATEFROMPARTS(year(GETDATE()),MONTH(GETDATE()),DAY(GETDATE())),LAST_DAY(BOM_Status.BEG_OF_MONTH))) + #(lf)   #(tab)#(tab)(CASE WHEN BOM_Status.BEG_OF_MONTH = date_trunc('month',GETDATE()) THEN 1 ELSE 1 END)#(lf)   END AS DAYS_POST_90_MTD#(lf)  #(lf)  ,CASE#(lf)   WHEN P.FIRST_LEASE_START_DATE_POST_RRQC IS NULL#(lf)   #(tab)#(tab)#(tab)OR to_Date( DATEADD('day',90,P.FIRST_LEASE_START_DATE_POST_RRQC)) >= LAST_DAY(BOM_Status.BEG_OF_MONTH)#(lf)   #(tab)#(tab)#(tab)THEN NULL#(lf)   WHEN GREATEST(BOM_Status.BEG_OF_MONTH, to_Date( DATEADD('day',90,P.FIRST_LEASE_START_DATE_POST_RRQC))) > DATEFROMPARTS(year(GETDATE()),MONTH(GETDATE()),DAY(GETDATE())) THEN NULL#(lf)   ELSE DATEDIFF('day',#(lf)   #(tab)#(tab)#(tab)#(tab)GREATEST(DATEADD('day',91,P.FIRST_LEASE_START_DATE_POST_RRQC),BOM_Status.BEG_OF_MONTH),#(lf)   #(tab)#(tab)#(tab)#(tab)LAST_DAY(BOM_Status.BEG_OF_MONTH)) + 1#(lf)   END AS DAYS_POST_90_FULL#(lf)   #(lf)   ,to_date(PROPERTY_SOLD_DATE_KEY::TEXT,'yyyymmdd') AS SOLD_DATE#(lf)      ,CURRENT_RENT#(lf)   #(lf)   from BOM_Status#(lf)   LEFT JOIN Prop_Hist ON Prop_Hist.PropertyId = BOM_Status.PropertyId AND Prop_Hist.AuditLogId = BOM_Status.AuditLogID#(lf)   LEFT JOIN Prop_Hist Prop_Hist_2 ON Prop_Hist_2.PropertyId = BOM_Status.PropertyId AND Prop_Hist_2.AuditLogId = BOM_Status.AuditLogID_2#(lf)   #(lf)   LEFT JOIN RENT_TEMP ON RENT_TEMP.PROP_KEY = BOM_Status.PROP_KEY AND RENT_TEMP.BEG_OF_MONTH = BOM_Status.BEG_OF_MONTH#(lf)   LEFT JOIN RENT_HIST ON RENT_HIST.FCT_PROP_UNIT_RENT_HIST_KEY = RENT_TEMP.FCT_PROP_UNIT_RENT_HIST_KEY#(lf)   LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PROPERTY P ON P.PROPERTY_KEY  = BOM_Status.PROP_KEY#(lf) #(lf)   WHERE 1=1#(lf)  -- AND BOM_Status.BEG_OF_MONTH = '2023-01-01'#(lf)  -- AND BOM_Status.EntityId = 'RP3OK00146'#(lf)  -- ORDER BY  DAYS_POST_90_MTD ASC#(lf)#(lf) --***************************************************************************#(lf)   #(lf) --  SELECT * FROM PROD_ANALYTICS.DBT_RESICAP.FCT_PROP_UNIT_STATUS_HIST", null, [EnableFolding=true]),
+				    #"Sorted Rows" = Table.Sort(Source,{{"BEG_OF_MONTH", Order.Ascending}})
+				in
+				    #"Sorted Rows"
+
+	annotation PBI_ResultType = Exception
+
+	annotation PBI_NavigationStepName = Navigation
+

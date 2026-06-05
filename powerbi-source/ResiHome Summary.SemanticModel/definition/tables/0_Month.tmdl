@@ -1,0 +1,479 @@
+table 0_Month
+	lineageTag: b12f5e0f-64b0-46b9-bff6-b7a297ef60fa
+
+	measure 01_HF_Monthly = CALCULATE(DISTINCTCOUNT(DW_Deals[EMAIL]),FILTER(DW_Deals,DW_Deals[HF (BOM)]<=Max('0_Month'[BEG_OF_MONTH])&&DW_Deals[HF (BOM)]>=Min('0_Month'[BEG_OF_MONTH])))
+		formatString: 0
+		lineageTag: 5c2ed474-c7f6-493a-bb7d-d446c811bcb2
+
+	measure '01_On Market List' = CALCULATE(COUNT(PM_Listings_BOM[PROPERTY_KEY]),FILTER(PM_Listings_BOM,PM_Listings_BOM[CALENDAR_DATE_BOM]>=MIN('0_Month'[BEG_OF_MONTH])&&PM_Listings_BOM[CALENDAR_DATE_BOM]<=MAX('0_Month'[BEG_OF_MONTH])))
+		formatString: #,0
+		lineageTag: 2cd39bed-ed98-46fd-9ac4-b31d63f572a3
+
+		changedProperty = FormatString
+
+	measure '0_Occupied #' = CALCULATE(DISTINCTCOUNT(PM_BOM[HBPM_PropertyID]),FILTER(PM_BOM,PM_BOM[BEG_OF_MONTH]<=MAX('0_Month'[BEG_OF_MONTH])&&PM_BOM[BEG_OF_MONTH]>=MIN('0_Month'[BEG_OF_MONTH])&&PM_BOM[1_Occ_Status (DW)]>=1479&&PM_BOM[1_Occ_Status (DW)]<=1481&&PM_BOM[Days Occ]>0&&OR(PM_BOM[1_Move-Out]=BLANK(),PM_BOM[1_Move-Out]>MAX('0_Month'[BEG_OF_MONTH]))))
+		formatString: 0
+		lineageTag: 60cfc071-023b-45f8-ae67-80e256a3106c
+
+		changedProperty = FormatString
+
+	measure '0_Occ_BOM %' =
+			CALCULATE([0_Occupied #] / [0_Stabilized],FILTER('0_Month','0_Month'[BEG_OF_MONTH]=MIN('0_Month'[BEG_OF_MONTH])))
+			
+			//[0_Ten Leased #]/[0_Owned]
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: f39ea571-7fd9-4a83-ba8a-7d4548818085
+
+		changedProperty = FormatString
+
+	measure 0_Stabilized = ```
+			CALCULATE(DISTINCTCOUNT(PM_BOM[HBPM_PropertyID]),filter(FILTER(PM_BOM,PM_BOM[BEG_OF_MONTH]<=MAX('0_Month'[BEG_OF_MONTH])&&PM_BOM[BEG_OF_MONTH]>=MIN('0_Month'[BEG_OF_MONTH])),
+			               -- AND(PM_PropStatus_BOM[Occ_Status (DW)]=1476,PM_PropStatus_BOM[Compliance]<>"Not Cleared to List")||
+			               -- ||AND(PM_PropStatus_BOM[Occ_Status (DW)]=1483,PM_PropStatus_BOM[Compliance]<>"Not Cleared to List")
+			               -- ||AND(PM_PropStatus_BOM[Occ_Status (DW)]=1489,PM_PropStatus_BOM[Compliance]<>"Not Cleared to List")
+			                  PM_BOM[1_Occ_Status (DW)]=1476
+			                ||PM_BOM[1_Occ_Status (DW)]=1483
+			                ||PM_BOM[1_Occ_Status (DW)]=1489
+			                ||PM_BOM[1_Occ_Status (DW)]=1477
+			                ||PM_BOM[1_Occ_Status (DW)]=1478
+			                ||PM_BOM[1_Occ_Status (DW)]=1479
+			                ||PM_BOM[1_Occ_Status (DW)]=1480
+			                ||PM_BOM[1_Occ_Status (DW)]=1481         
+			                ||PM_BOM[1_Occ_Status (DW)]=10000)
+			
+			)
+			```
+		formatString: 0
+		lineageTag: dacbba91-2e6d-4ff3-8370-ab749bf41ad9
+
+	measure '01_Lease_Vacant %' = ```
+			DIVIDE(
+			    COALESCE(([01_MoveIn Monthly]+[01_FMI Monthly]),0),
+			    [0_Vacant #],
+			    BLANK()
+			)
+			
+			```
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: 3384bd00-bb3d-4ef3-a912-f55fa1cd17d5
+
+		changedProperty = FormatString
+
+	measure '0_Renewal %' = CALCULATE(DW_Renewals[0_Active Renew %],FILTER(DW_Renewals,DW_Renewals[1_C_LeaseEnd(BOM)]<=MAX('0_Month'[BEG_OF_MONTH])&&DW_Renewals[1_C_LeaseEnd(BOM)]>=MIN('0_Month'[BEG_OF_MONTH])))
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: d5e123b5-a0a5-4f89-9123-0b4071e563e4
+
+		changedProperty = FormatString
+
+	measure '0_All Homes' = CALCULATE(COUNT(PM_BOM[HBPM_PropertyID]),FILTER(PM_BOM,PM_BOM[BEG_OF_MONTH]<=MAX('0_Month'[BEG_OF_MONTH]) && PM_BOM[BEG_OF_MONTH]>=MIN('0_Month'[BEG_OF_MONTH])&&PM_BOM[Occupancy_Status]<>BLANK())) / (DISTINCTCOUNT('0_Month'[BEG_OF_MONTH]))
+		formatString: #,0
+		lineageTag: a2a8621e-8346-4ff8-87e6-c8cd4a89d4f8
+
+		changedProperty = FormatString
+
+		annotation PBI_FormatHint = {"isDecimal":true}
+
+	measure '0_Collection %_Rent' = CALCULATE([0_Collections_Switch],FILTER(DW_Tenant_Charges,DW_Tenant_Charges[CHARGE_DATE_BOM]>=min('0_Month'[BEG_OF_MONTH])&&DW_Tenant_Charges[CHARGE_DATE_BOM]<=max('0_Month'[BEG_OF_MONTH])&&DW_Tenant_Charges[ACCOUNT_NUMBER]="4010"&&DW_Tenant_Charges[CREDITTYPEID]<>2),FILTER('0_Days','0_Days'[Max Day]=1),FILTER(SEL_Collections_Type,SEL_Collections_Type[Value]="Net (x-Concessions)"))
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: c9b22ee7-67c8-412a-909f-6bec3d1d0858
+
+		changedProperty = FormatString
+
+	measure '0_Blended Spread %' = ```
+			
+			(
+			CALCULATE(SUM(DW_Renewals[N_AMOUNT]),FILTER(DW_Renewals,DW_Renewals[Lease Eligibility]="Eligible"&&DW_Renewals[N_AMOUNT]<>BLANK()&&DW_Renewals[1_C_LeaseEnd(BOM)]>=MIN('0_Month'[BEG_OF_MONTH])&&DW_Renewals[1_C_LeaseEnd(BOM)]<=MAX('0_Month'[BEG_OF_MONTH]))) +
+			
+			CALCULATE(SUM(DW_Turns[N_INITIAL_RENT]),FILTER(DW_Turns,DW_Turns[O_CURRENT_RENT]<>BLANK()&&COALESCE(DW_Turns[N_INITIAL_RENT],DW_Turns[N_CURRENT_RENT])<>BLANK()&&DW_Turns[N_Lease_FROM (BOM)]>=MIN('0_Month'[BEG_OF_MONTH])&&DW_Turns[N_Lease_FROM (BOM)]<=MAX('0_Month'[BEG_OF_MONTH])&& DW_Turns[Lease Type]="Tenant")) 
+			)
+			
+			/
+			
+			(
+			CALCULATE(SUM(DW_Renewals[C_AMOUNT]),FILTER(DW_Renewals,DW_Renewals[Lease Eligibility]="Eligible"&&DW_Renewals[N_AMOUNT]<>BLANK()&&DW_Renewals[1_C_LeaseEnd(BOM)]>=MIN('0_Month'[BEG_OF_MONTH])&&DW_Renewals[1_C_LeaseEnd(BOM)]<=MAX('0_Month'[BEG_OF_MONTH]))) +
+			CALCULATE(SUM(DW_Turns[O_CURRENT_RENT]),FILTER(DW_Turns,DW_Turns[O_CURRENT_RENT]<>BLANK()&&COALESCE(DW_Turns[N_INITIAL_RENT],DW_Turns[N_CURRENT_RENT])<>BLANK()&&DW_Turns[N_Lease_FROM (BOM)]>=MIN('0_Month'[BEG_OF_MONTH])&&DW_Turns[N_Lease_FROM (BOM)]<=MAX('0_Month'[BEG_OF_MONTH])&& DW_Turns[Lease Type]="Tenant")))
+			
+			
+			+ If((
+			CALCULATE(SUM(DW_Renewals[N_AMOUNT]),FILTER(DW_Renewals,DW_Renewals[Lease Eligibility]="Eligible"&&DW_Renewals[N_AMOUNT]<>BLANK()&&DW_Renewals[1_C_LeaseEnd(BOM)]>=MIN('0_Month'[BEG_OF_MONTH])&&DW_Renewals[1_C_LeaseEnd(BOM)]<=MAX('0_Month'[BEG_OF_MONTH]))) +
+			CALCULATE(SUM(DW_Turns[N_INITIAL_RENT]),FILTER(DW_Turns,DW_Turns[O_CURRENT_RENT]<>BLANK()&&COALESCE(DW_Turns[N_INITIAL_RENT],DW_Turns[N_CURRENT_RENT])<>BLANK()&&DW_Turns[N_Lease_FROM (BOM)]<=MAX('0_Month'[BEG_OF_MONTH])&&DW_Turns[N_Lease_FROM (BOM)]>=MIN('0_Month'[BEG_OF_MONTH])&& DW_Turns[Lease Type]="Tenant")))=BLANK(),BLANK(),-1)
+			
+			
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 4e357a3d-2c28-4aaf-9a17-284e156d9a47
+
+		changedProperty = FormatString
+
+	measure '0_Turnover %' = ```
+			DIVIDE(
+			    [01_MoveOut_Forecast],
+			    [0_Occupied #],
+			    BLANK()
+			)
+			
+			```
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: 726c11b4-7cfa-4434-8012-6987e42ec57b
+
+		changedProperty = FormatString
+
+	measure '0_Days Occ' = ```
+			CALCULATE(DIVIDE(SUM(PM_BOM[Days Occ]), SUM(PM_BOM[Owned Days]), BLANK()),FILTER(PM_BOM,PM_BOM[BEG_OF_MONTH]>=MIN('0_Month'[BEG_OF_MONTH])&&PM_BOM[BEG_OF_MONTH]<=MAX('0_Month'[BEG_OF_MONTH])))
+			
+			```
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: c220c39f-2761-443e-abc3-c2cf43e96f43
+
+		changedProperty = FormatString
+
+	measure 0_Retention = 1 -'0_Month'[0_Turnover %]
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 1fe00417-b0ec-4917-b0d5-bb186630176f
+
+		changedProperty = FormatString
+
+	measure '01_MoveIn Monthly' = CALCULATE(DISTINCTCOUNT(DW_MoveOut[TENANT_KEY]),FILTER(DW_MoveOut,DW_MoveOut[MOVEIN_BOM]<=Max('0_Month'[BEG_OF_MONTH])&&DW_MoveOut[MOVEIN_BOM]>=MIN('0_Month'[BEG_OF_MONTH])))
+		formatString: 0
+		lineageTag: ff1fce3b-8f53-4f7a-a7d4-006b012eca9d
+
+	measure '0_FMI #' = CALCULATE(DISTINCTCOUNT(PM_BOM[HBPM_PropertyID]),FILTER(PM_BOM,PM_BOM[BEG_OF_MONTH]<=MAX('0_Month'[BEG_OF_MONTH])&&PM_BOM[BEG_OF_MONTH]>=MIN('0_Month'[BEG_OF_MONTH])&&PM_BOM[1_Occ_Status (DW)]=1478))
+		formatString: 0
+		lineageTag: c0325dc2-11c7-4076-a7ba-df51d6cd3fbe
+
+	measure 02_Leads = CALCULATE(DISTINCTCOUNT(DW_Leads[LEAD_KEY]),FILTER(DW_Leads,DW_Leads[1_Lead_INTERESTED (BOM)]>=MIN('0_Month'[BEG_OF_MONTH])&&DW_Leads[1_Lead_INTERESTED (BOM)]<=MAX('0_Month'[BEG_OF_MONTH])&&DW_Leads[PRIMARY_LEAD_ID]=BLANK()))
+		formatString: #,0
+		lineageTag: 65e6f4fc-695e-4c5f-a133-2d32556badff
+
+		changedProperty = FormatString
+
+	measure 02_Leads_Applied = CALCULATE(DISTINCTCOUNT(DW_Deals[EMAIL]),FILTER(DW_Deals,DW_Deals[App Submit (BOM)]>=MIN('0_Month'[BEG_OF_MONTH])&&DW_Deals[App Submit (BOM)]<=MAX('0_Month'[BEG_OF_MONTH])&&DW_Deals[APPLICATION_SUBMIT_DATE]<>BLANK()))
+		formatString: #,0
+		lineageTag: 5bd22f75-6db5-4b18-9539-3392eb856e19
+
+		changedProperty = FormatString
+
+	measure 02_Leads_Applied_App = CALCULATE(DISTINCTCOUNT(DW_Deals[EMAIL]),FILTER(DW_Deals,DATE(YEAR(DW_Deals[APPLICATION_APPROVED_DATE]),MONTH(DW_Deals[APPLICATION_APPROVED_DATE]),1)>=MIN('0_Month'[BEG_OF_MONTH])&&DATE(YEAR(DW_Deals[APPLICATION_APPROVED_DATE]),MONTH(DW_Deals[APPLICATION_APPROVED_DATE]),1)<=MAX('0_Month'[BEG_OF_MONTH])&&DW_Deals[APPLICATION_SUBMIT_DATE]<>BLANK()&&DW_Deals[APPLICATION_APPROVED_DATE]<>BLANK()))
+		formatString: 0
+		lineageTag: d9eb5c97-22ad-4b9a-877c-3de9cc32c6c0
+
+	measure 02_Leads_HF = CALCULATE(DISTINCTCOUNT(DW_Deals[EMAIL]),FILTER(DW_Deals,DW_Deals[HF (BOM)]>=MIN('0_Month'[BEG_OF_MONTH])&&DW_Deals[HF (BOM)]<=MAX('0_Month'[BEG_OF_MONTH])&&DW_Deals[HF Date]<>BLANK()))
+		formatString: 0
+		lineageTag: 26f57999-bebb-4981-96d6-13c0a387e151
+
+	measure 02_Leads_MI = CALCULATE(DISTINCTCOUNT(DW_Deals[EMAIL]),FILTER(DW_Deals,DATE(YEAR(COALESCE(DW_Deals[CONVERT_TO_RESIDENT_DATE],DW_Deals[EXPECTED_MOVE_IN_DATE])),MONTH(COALESCE(DW_Deals[CONVERT_TO_RESIDENT_DATE],DW_Deals[EXPECTED_MOVE_IN_DATE])),1)>=MIN('0_Month'[BEG_OF_MONTH])&&DATE(YEAR(COALESCE(DW_Deals[CONVERT_TO_RESIDENT_DATE],DW_Deals[EXPECTED_MOVE_IN_DATE])),MONTH(COALESCE(DW_Deals[CONVERT_TO_RESIDENT_DATE],DW_Deals[EXPECTED_MOVE_IN_DATE])),1)<=MAX('0_Month'[BEG_OF_MONTH])&&DW_Deals[HF Date]<>BLANK()&&OR(DW_Deals[CONVERT_TO_RESIDENT_DATE]<>BLANK(),DW_Deals[EXPECTED_MOVE_IN_DATE]>=TODAY())))
+		formatString: 0
+		lineageTag: ede7c056-ee51-4fcc-a867-b5d62dede39c
+
+	measure 03_Apps:Leads = ```
+			DIVIDE(
+			    COALESCE([02_Leads_Applied],0),
+			    [02_Leads],
+			    BLANK()
+			)
+			
+			```
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: 7e0cf2f2-7cc2-4088-8c68-0b6b0f02c553
+
+		changedProperty = FormatString
+
+	measure 03_MI:Apps = ```
+			DIVIDE(
+			    COALESCE([02_Leads_MI],0),
+			    [02_Leads_Applied],
+			    BLANK()
+			)
+			
+			```
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: b64397c4-e242-4f17-9fee-9cbcb66b4a68
+
+		changedProperty = FormatString
+
+	measure 03_MI:Leads = ```
+			DIVIDE(
+			    COALESCE([02_Leads_MI],0),
+			    [02_Leads],
+			    BLANK()
+			)
+			
+			```
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: 1287c840-f359-4f14-aa3a-452d1fa90813
+
+		changedProperty = FormatString
+
+	measure '04_EOM Collections' = CALCULATE([0_Collection_Day_Net],FILTER(DW_Tenant_Charges,DW_Tenant_Charges[CHARGE_DATE_BOM]>=min('0_Month'[BEG_OF_MONTH])&&DW_Tenant_Charges[CHARGE_DATE_BOM]<=max('0_Month'[BEG_OF_MONTH])&&DW_Tenant_Charges[ACCOUNT_NUMBER]="4010"&&DW_Tenant_Charges[CREDITTYPEID]<>2),FILTER('0_Days','0_Days'[Max Day]=1),FILTER(SEL_Collections_Type,SEL_Collections_Type[Value]="Net (x-Concessions)"))
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: bad8f7e9-36ce-4068-ba2a-9396f227dbb7
+
+	measure 03_Appr:Apps = ```
+			DIVIDE(
+			    IF([02_Leads_Applied]>0,COALESCE([02_Leads_Applied_App],
+			    [02_Leads_Applied],0),
+			    BLANK()
+			),BLANK())
+			
+			```
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: 13efaff5-ad4f-42c7-96f0-bc53b1757c18
+
+		changedProperty = FormatString
+
+	measure 0_Avg_Rent = CALCULATE(AVERAGE(PM_BOM[CURRENT_RENT]),FILTER(PM_BOM,PM_BOM[BEG_OF_MONTH]<=MAX('0_Month'[BEG_OF_MONTH])&&PM_BOM[BEG_OF_MONTH]>=MIN('0_Month'[BEG_OF_MONTH])))
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: 47eb5935-527b-4ec5-ba1d-8feba4597741
+
+		changedProperty = FormatString
+
+	measure 0_Active_Listings = ```
+			CALCULATE(DISTINCTCOUNT(DW_Listings[PROPERTY_KEY]),DW_Listings[LISTING_STATUS]="Active")
+			
+			```
+		formatString: #,0
+		lineageTag: 4d566e87-7941-46bf-b349-85d7763f257c
+
+		changedProperty = FormatString
+
+	measure 03_HF:MI = ```
+			DIVIDE(
+			    COALESCE([02_Leads_MI],0),
+			    [02_Leads_HF],
+			    BLANK()
+			)
+			
+			```
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: ec433969-f9b0-4202-95c6-632ef924d5c1
+
+	measure '04_90+ Spend' = CALCULATE([0_Run Rate (90+ Spend)],FILTER(PM_BOM,PM_BOM[BEG_OF_MONTH] >= MIN('0_Month'[BEG_OF_MONTH]) && PM_BOM[BEG_OF_MONTH] <= MAX('0_Month'[BEG_OF_MONTH])))
+		formatString: \$#,0;(\$#,0);\$#,0
+		lineageTag: e78132e7-70ce-4564-96c7-206e9c48600d
+
+	measure '04_Net Turn Cost' =
+			CALCULATE(AVERAGE(DW_Turns[1_Net Turn Cost_Collected]),FILTER(DW_Turns,DW_Turns[1_Turn Status]="Turn Completed"
+			--&&DW_Turns[1_Turn Type]="Regular"
+			&&DW_Turns[TURN_COMPLETED_BOM] >= MIN('0_Month'[BEG_OF_MONTH]) &&DW_Turns[TURN_COMPLETED_BOM]  <= MAX('0_Month'[BEG_OF_MONTH])))
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: 44ceaa54-4daa-4b8e-9ec9-0aa7be88578c
+
+	measure 04_Renewal = CALCULATE(DW_Renewals[0_R_Renewal %],FILTER(DW_Renewals,DW_Renewals[1_Lease Type]="Tenant Leased"&&DW_Renewals[1_C_LeaseEnd(BOM)]<=MAX('0_Month'[BEG_OF_MONTH])&&DW_Renewals[1_C_LeaseEnd(BOM)]>=MIN('0_Month'[BEG_OF_MONTH])))
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: c726ecb7-9a74-4112-b29e-523f840379bf
+
+	measure '04_Cycle Time' = CALCULATE(AVERAGE(DW_WO[1_DIQ/CycleTime]),FILTER(DW_WO,DW_WO[WORKORDER_STATUS]="Closed"&&DW_WO[Closed Date_BOM]>=MIN('0_Month'[BEG_OF_MONTH])&&DW_WO[Closed Date_BOM]<=max('0_Month'[BEG_OF_MONTH])))
+		lineageTag: 0097b43f-6009-4040-90c9-12996d88f221
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 02_HF_PullThru = ```
+			DIVIDE(
+			    [01_HF_Monthly],
+			    [01_On Market List],
+			    BLANK()
+			)
+			
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: fef68067-c5cc-4b7f-b27e-15c246b1f62b
+
+	measure 05_Turn_MO-Scope = CALCULATE(AVERAGE(DW_Turns[Days_MoveOut_Scope]),FILTER(DW_Turns,EOMONTH(DW_Turns[HC_SCOPE_COMPLETED_DATE],0)=MIN('0_Month'[END_OF_MONTH])))
+		lineageTag: 59070055-c55b-4e0e-9cbd-f7d7ee0c82f8
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 05_Turn_Scope-Tkt = CALCULATE(AVERAGE(DW_Turns[Days_Scope_TKT_Created]),FILTER(DW_Turns,EOMONTH(DW_Turns[TKT_CREATED_MIN],0)=MIN('0_Month'[END_OF_MONTH])))
+		lineageTag: 09c5cef2-c102-46eb-afd5-f0ed805c2bad
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure '05_Turn_Tkt Created-Closed' = CALCULATE(AVERAGE(DW_Turns[Days_TKT_Created_TKT_Closed]),FILTER(DW_Turns,EOMONTH(DW_Turns[TKT_CLOSED_MAX],0)=MIN('0_Month'[END_OF_MONTH])))
+		lineageTag: c8cee7a5-dcf3-4bea-b2ac-79a467dc87fb
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure '05_Turn_Tkt Closed - QC' = CALCULATE(AVERAGE(DW_Turns[Days_TKT_Closed_QC]),FILTER(DW_Turns,EOMONTH(DW_Turns[HC_TURN_COMPLETED_DATE],0)=MIN('0_Month'[END_OF_MONTH])))
+		lineageTag: 12e84658-666f-4fe7-bd63-d0babd29c883
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure '05_Turn_Tkt MO-QC' = CALCULATE(AVERAGE(DW_Turns[Days_MoveOut_Closed_QC]),FILTER(DW_Turns,EOMONTH(DW_Turns[HC_TURN_COMPLETED_DATE],0)=MIN('0_Month'[END_OF_MONTH])))
+		lineageTag: f99b6d5c-d1a5-47e1-ae97-473020542977
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure '05_Turn_Tkt MO-List' = CALCULATE(AVERAGE(DW_Turns[Days_MoveOut_List]),FILTER(DW_Turns,EOMONTH(DW_Turns[N_LISTING_DATE],0)=MIN('0_Month'[END_OF_MONTH])))
+		lineageTag: 295cfe0c-e53f-499b-96ad-ef00132e18d9
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure '01_FMI Monthly' = CALCULATE(DISTINCTCOUNT(DW_Listings[RENT_LIST_HIST_ID]),FILTER(DW_Listings,DW_Listings[LEASE_START_DATE_BOM]>=MIN('0_Month'[BEG_OF_MONTH])&&DW_Listings[LEASE_START_DATE_BOM]<=MAX('0_Month'[BEG_OF_MONTH])&&DW_Listings[CURRENT_DEAL_STATUS]<>"Deal Won"&&DW_Listings[CURRENT_DEAL_STATUS]<>"Closed Won"&&DW_Listings[MOST_RECENT_LISTING]="Yes"&&DW_Listings[FMI_FLAG]=1))
+		formatString: 0
+		lineageTag: 3766ecaf-beed-49cd-867d-7a32eab7a978
+
+	measure 01_MI_Combined = COALESCE([01_MoveIn Monthly] + [01_FMI Monthly],0)
+		formatString: 0
+		lineageTag: 044d7872-0fab-4a42-9ca3-ee1aed3029e3
+
+	measure 01_MoveOut_Forecast = CALCULATE(DISTINCTCOUNT(DW_MoveOut[TENANT_KEY]),FILTER(DW_MoveOut,DW_MoveOut[MOVEOUT_BOM]<=MAX('0_Month'[BEG_OF_MONTH])&&DW_MoveOut[MOVEOUT_BOM]>=MIN('0_Month'[BEG_OF_MONTH]))) + CALCULATE(DISTINCTCOUNT(DW_MoveOut[TENANT_KEY]),FILTER(DW_MoveOut,DW_MoveOut[MOVEOUT]=BLANK()&&DW_MoveOut[1_Renewal Result]<>"Pending"&&DW_MoveOut[EVICITON_AMOD_FLAG]=0&&DW_MoveOut[STRATEGY_NAME]<>"Repair/Sell"&&DW_MoveOut[MOVE_OUT_FORECAST_BOM]<=MAX('0_Month'[BEG_OF_MONTH])&&DW_MoveOut[MOVE_OUT_FORECAST_BOM]>=MIN('0_Month'[BEG_OF_MONTH])))
+		formatString: 0
+		lineageTag: 0163a27a-da76-42fe-b92c-5677710aef24
+
+	measure 01_Forecasted_Net_Occupancy = COALESCE([01_MI_Combined] - [01_MoveOut_Forecast],0)
+		formatString: #,0
+		lineageTag: 8c27e397-863d-4554-8c80-0302c17050a6
+
+	measure '0_Eviction %' = CALCULATE(DW_Renewals[0_Eviction Exposure],FILTER(DW_Renewals,DW_Renewals[1_C_LeaseEnd(BOM)]>=MIN('0_Month'[BEG_OF_MONTH])&&DW_Renewals[1_C_LeaseEnd(BOM)]<=MAX('0_Month'[BEG_OF_MONTH])))
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 5510900e-860a-4b0b-8a64-1c8092451397
+
+	measure '0_Vacant #' = ```
+			CALCULATE(COUNT(PM_BOM[HBPM_PropertyID]),FILTER(PM_BOM,AND(PM_BOM[BEG_OF_MONTH]<=MAX('0_Month'[BEG_OF_MONTH])&&PM_BOM[BEG_OF_MONTH]>=MIN('0_Month'[BEG_OF_MONTH]),
+			PM_BOM[1_Occ_Status (DW)]= 1476 || 
+			PM_BOM[1_Occ_Status (DW)]= 1477 ||
+			PM_BOM[1_Occ_Status (DW)]= 1478 ||
+			PM_BOM[1_Occ_Status (DW)]= 1483 ||
+			PM_BOM[1_Occ_Status (DW)]= 1489 ||
+			PM_BOM[1_Occ_Status (DW)]= 10000)))
+			```
+		formatString: #,0
+		lineageTag: fa374c44-7e01-4666-b04d-bff4de6a8d56
+
+	measure '01_Lease_Listings %' = ```
+			DIVIDE(
+			    COALESCE(([01_MoveIn Monthly]+[01_FMI Monthly]),0),
+			    [01_On Market List],
+			    BLANK()
+			)
+			
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 315b01b0-b168-4280-bf79-26575e8e5016
+
+	measure '0_Occ_EOM %' = ```
+			IFERROR(CALCULATE(([0_Occupied #]+[01_Forecasted_Net_Occupancy])/[0_Stabilized],FILTER('0_Month','0_Month'[BEG_OF_MONTH]=MAX('0_Month'[BEG_OF_MONTH]))),BLANK())
+			
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 96f4fa29-3ba4-44cc-9c16-3118f3858b9b
+
+	measure '01_Lease %' =
+			DIVIDE(
+			    COALESCE(([01_MoveIn Monthly]+[01_FMI Monthly]),0),
+			    [0_Vacant #],
+			    BLANK()
+			)
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 7fb0a84f-08ac-4400-bb1c-fe66766bd963
+
+	measure 04_Renewal_Rent_Growth = CALCULATE([0_Rent Growth],FILTER(DW_Renewals,DW_Renewals[1_C_LeaseEnd(BOM)]>=MIN('0_Month'[BEG_OF_MONTH])&&DW_Renewals[1_C_LeaseEnd(BOM)]<=MAX('0_Month'[BEG_OF_MONTH])))
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: d2c836ab-242a-4898-ae2a-bbdf1074beb5
+
+	measure 0_Renewal_Actual = CALCULATE([0_Active Renew %],FILTER(DW_Renewals,DW_Renewals[Lease Eligibility]="Eligible"&&DW_Renewals[1_C_LeaseEnd(BOM)]<=MAX('0_Month'[BEG_OF_MONTH])&&DW_Renewals[1_C_LeaseEnd(BOM)]>=MIN('0_Month'[BEG_OF_MONTH])))
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: bd631718-7132-4cba-8508-3c6a78f014d4
+
+	measure '0_Release Growth' = ```
+			CALCULATE([0_Turn_Rent Growth],FILTER(DW_Turns,DW_Turns[O_CURRENT_RENT]<>BLANK()&&COALESCE(DW_Turns[N_INITIAL_RENT],DW_Turns[N_CURRENT_RENT])<>BLANK()&&DW_Turns[N_Lease_FROM (BOM)]<=MAX('0_Month'[BEG_OF_MONTH])&&DW_Turns[N_Lease_FROM (BOM)]>=MIN('0_Month'[BEG_OF_MONTH])&& DW_Turns[Lease Type]="Tenant")) 
+			```
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: a544fc42-509d-4ef0-8657-bf3169217666
+
+	measure 01_HF_Monthly_Rent = CALCULATE(AVERAGE(DW_Deals[CURRENTLISTPRICE]),FILTER(DW_Deals,DW_Deals[HF (BOM)]<>BLANK()&&DW_Deals[HF (BOM)]<=Max('0_Month'[BEG_OF_MONTH])&&DW_Deals[HF (BOM)]>=Min('0_Month'[BEG_OF_MONTH])))
+		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
+		lineageTag: 81cea726-af9e-4bfd-855d-d5e84f35e14b
+
+	measure '04_Interal Maintenance' = CALCULATE(SUM(DW_WO[CLIENT_INVOICE_AMOUNT]),FILTER(DW_WO,DW_WO[WORKORDER_STATUS]="Closed"&&DW_WO[IS_INTERNAL_VENDOR]="Y"&&DW_WO[Closed Date_BOM]>=MIN('0_Month'[BEG_OF_MONTH])&&DW_WO[Closed Date_BOM]<=MAX('0_Month'[BEG_OF_MONTH])))
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: 9109e3df-a17f-48a9-8a56-9b7ac90ede9f
+
+	measure 04_IM_Goal = DISTINCTCOUNT(DW_Properties[POD])*2*2000*4
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: 639e4277-a213-413d-85b2-2125f0defd05
+
+	measure 0_Occ_EOM_2 =
+			IFERROR(CALCULATE(([0_Occupied #] + [01_Forecasted_Net_Occupancy]+ CALCULATE( DISTINCTCOUNT(DW_Listings[RENT_LIST_HIST_ID]), FILTER( DW_Listings, DW_Listings[LEASE_START_DATE_BOM] >= EOMONTH(MIN('0_Month'[BEG_OF_MONTH]), 0) + 1 && DW_Listings[LEASE_START_DATE_BOM] <= EOMONTH(MIN('0_Month'[BEG_OF_MONTH]), 1) && DW_Listings[CURRENT_DEAL_STATUS] <> "Deal Won" && DW_Listings[CURRENT_DEAL_STATUS] <> "Closed Won" && DW_Listings[MOST_RECENT_LISTING] = "Yes" && DW_Listings[FMI_FLAG] = 1 ) )
+			-CALCULATE( DISTINCTCOUNT(DW_MoveOut[TENANT_KEY]), DW_MoveOut[MOVEOUT] = BLANK(), DW_MoveOut[1_Renewal Result] <> "Pending", DW_MoveOut[EVICITON_AMOD_FLAG] = 0, DW_MoveOut[STRATEGY_NAME] <> "Repair/Sell", DW_MoveOut[MOVE_OUT_FORECAST_BOM] >= EOMONTH(MIN('0_Month'[BEG_OF_MONTH]), 0) + 1, DW_MoveOut[MOVE_OUT_FORECAST_BOM] <= EOMONTH(MIN('0_Month'[BEG_OF_MONTH]), 1)))
+			
+			/[0_Stabilized],FILTER('0_Month','0_Month'[BEG_OF_MONTH]=MAX('0_Month'[BEG_OF_MONTH]))),BLANK())
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: 35ce5e92-1cb7-4d05-9d94-bd3e06a441fb
+
+	column END_OF_MONTH = EOMONTH('0_Month'[BEG_OF_MONTH],0)
+		formatString: Short Date
+		lineageTag: 1ffa22ab-2aba-4f19-b822-13b9b2c0a235
+		summarizeBy: none
+
+		variation Variation
+			isDefault
+			relationship: 43ae1bdc-2b5b-47ae-8a1a-757a32972b99
+			defaultHierarchy: LocalDateTable_dc4996c4-d9fb-4a08-898d-a5d2d64e04ed.'Date Hierarchy'
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Next Month' = ```
+			'0_Month'[END_OF_MONTH] +1 
+			```
+		formatString: Short Date
+		lineageTag: fc04fa31-fcfb-4540-a58b-ee69019e8f14
+		summarizeBy: none
+
+		variation Variation
+			isDefault
+			relationship: 7647d6d4-b6de-4d85-b326-0fda9b74e44b
+			defaultHierarchy: LocalDateTable_912d9d0b-9952-47fa-9c7d-f514b64efe4b.'Date Hierarchy'
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+	column BEG_OF_MONTH
+		formatString: mmmm yyyy
+		lineageTag: b5add0df-2788-4dd4-8ca4-5f29ad5febd9
+		summarizeBy: none
+		sourceColumn: [Date]
+
+		variation Variation
+			isDefault
+			relationship: 2846f26e-00a0-4be8-aaac-0fc8f61fab62
+			defaultHierarchy: LocalDateTable_f5394fe9-afc2-419c-a66f-c652cbb3b25a.'Date Hierarchy'
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isDateTimeCustom":true}
+
+	column Title = "Portfolio Metrics - "&FORMAT('0_Month'[BEG_OF_MONTH],"MMM")&" "&'0_Month'[BEG_OF_MONTH].[Year]
+		lineageTag: c90f9c8b-f359-4256-b264-508efd655512
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Monthly Days' = min('0_Month'[END_OF_MONTH],TODAY()) - '0_Month'[BEG_OF_MONTH] + 1
+		dataType: int64
+		formatString: 0
+		lineageTag: 5d275524-770f-4e26-8f92-dbf2c1b2c04d
+		summarizeBy: sum
+
+		changedProperty = DataType
+
+		annotation SummarizationSetBy = Automatic
+
+	column Rank = RANK.EQ('0_Month'[BEG_OF_MONTH],'0_Month'[BEG_OF_MONTH],DESC)
+		formatString: 0
+		lineageTag: cbe11089-2f54-4d60-84a8-eadd3f480e5b
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 0_Month-5caa8aa0-a5eb-45f3-9200-c2937f3f5ae2 = calculated
+		mode: import
+		source = FILTER(CALENDAR(date(YEAR(TODAY())-2,MONTH(TODAY()),1),date(YEAR(TODAY()),MONTH(TODAY()),1)),DAY([Date])=1)
+
+	annotation PBI_Id = 71f887b6f6a1422fa939a9286153c24e
+

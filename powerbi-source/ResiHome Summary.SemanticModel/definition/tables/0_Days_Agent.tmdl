@@ -1,0 +1,236 @@
+table 0_Days_Agent
+	lineageTag: e64734e4-14f6-4ccc-ac9d-4a1b4d789bd8
+
+	measure 00_Leads_C = CALCULATE(DISTINCTCOUNT(DW_Leads[LEAD_KEY]),FILTER(DW_Leads,DW_Leads[PRIMARY_LEAD_ID]=BLANK()&&DW_Leads[LEAD_CREATED_DATE]>=MIN('0_Days_Agent'[Date])&&DW_Leads[LEAD_CREATED_DATE]<=Max('0_Days_Agent'[Date])))
+		formatString: #,0
+		lineageTag: fc2d2ad4-6a3d-44cf-b2c3-74415ab4191d
+
+	measure 00_Apps_Sub = CALCULATE(DISTINCTCOUNT(DW_Deals[EMAIL]),FILTER(DW_Deals,DW_Deals[PRIMARY_LEAD_ID]=BLANK()&&DW_Deals[APPLICATION_SUBMIT_DATE]>=MIN('0_Days_Agent'[Date])&&DW_Deals[APPLICATION_SUBMIT_DATE]<=Max('0_Days_Agent'[Date])))
+		formatString: #,0
+		lineageTag: 901bb6ee-45a2-40a8-ba21-ca41d5fce09e
+
+	measure 00_HF = CALCULATE(DISTINCTCOUNT(DW_Deals[EMAIL]),FILTER(DW_Deals,DW_Deals[PRIMARY_LEAD_ID]=BLANK()&&DW_Deals[HF Date]>=MIN('0_Days_Agent'[Date])&&DW_Deals[HF Date]<=Max('0_Days_Agent'[Date])))
+		formatString: #,0
+		lineageTag: e4248eab-a975-430e-86b4-fe702139e86e
+
+	measure 00_App_Per_Lead = ```
+			DIVIDE(
+			    [00_Apps_Sub],
+			    [00_Leads_C],
+			    BLANK()
+			)
+			
+			```
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: b50b5c0d-e9e1-428f-b458-cc80556d3539
+
+	measure 00_MI = CALCULATE(DISTINCTCOUNT(DW_Deals[EMAIL]),FILTER(DW_Deals,DW_Deals[PRIMARY_LEAD_ID]=BLANK()&&DW_Deals[CONVERT_TO_RESIDENT_DATE]>=MIN('0_Days_Agent'[BOM])&&DW_Deals[CONVERT_TO_RESIDENT_DATE]<=TODAY()&&DW_Deals[CONVERT_TO_RESIDENT_DATE]<=Max('0_Days_Agent'[Date])&&DW_Deals[CURRENT_DEAL_STATUS]="Closed Won"))
+		formatString: 0
+		lineageTag: c7518161-3f17-45c3-b37e-0250ebb27fe7
+
+	measure 00_Approval:MI =
+			CALCULATE(DISTINCTCOUNT(DW_Deals[EMAIL]),FILTER(DW_Deals,DW_Deals[CURRENT_DEAL_STATUS]<>"Closed Lost"&&DW_Deals[CURRENT_DEAL_STATUS]<>"Deal Lost"&&DW_Deals[CURRENT_DEAL_STATUS]<>"Rejected"&&DW_Deals[APPLICATION_APPROVED_DATE]<>BLANK()&&DW_Deals[APPLICATION_SUBMIT_DATE]<>BLANK()&&DW_Deals[APP_STAGE]<>"Under Review"&&DW_Deals[PRIMARY_LEAD_ID]=BLANK()&&DW_Deals[APPLICATION_STARTED_DATE]>=MIN('0_Days_Agent'[Date])&&DW_Deals[APPLICATION_STARTED_DATE]<=Max('0_Days_Agent'[Date])))
+			 /
+			  CALCULATE(DISTINCTCOUNT(DW_Deals[EMAIL]),FILTER(DW_Deals,DW_Deals[APPLICATION_APPROVED_DATE]<>BLANK()&&DW_Deals[APPLICATION_SUBMIT_DATE]<>BLANK()&&DW_Deals[APP_STAGE]<>"Under Review"&&DW_Deals[PRIMARY_LEAD_ID]=BLANK()&&DW_Deals[APPLICATION_STARTED_DATE]>=MIN('0_Days_Agent'[Date])&&DW_Deals[APPLICATION_STARTED_DATE]<=Max('0_Days_Agent'[Date])))
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: e899ea67-cbe3-4433-afca-45b4b703f6b7
+
+	measure 00_MI_Per_Lead = ```
+			DIVIDE(
+			    [00_MI],
+			    [00_Leads_C],
+			    BLANK()
+			)
+			
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: d38fc17b-0424-4f9b-9e51-9fe80f882e93
+
+	measure 00_Apps_Started = CALCULATE(DISTINCTCOUNT(DW_Deals[EMAIL]),FILTER(DW_Deals,DW_Deals[PRIMARY_LEAD_ID]=BLANK()&&DW_Deals[APPLICATION_STARTED_DATE]>=MIN('0_Days_Agent'[Date])&&DW_Deals[APPLICATION_STARTED_DATE]<=Max('0_Days_Agent'[Date])))
+		formatString: #,0
+		lineageTag: 3d872743-ae83-447f-b276-86b1c07ff7dd
+
+	measure '00_App Completion' = ```
+			DIVIDE(
+			    [00_Apps_Sub],
+			    [00_Apps_Started],
+			    BLANK()
+			)
+			
+			```
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: a7808d7c-8779-4753-b297-a6939b624c2b
+
+	measure 00_Approval =
+			CALCULATE(DISTINCTCOUNT(DW_Deals[EMAIL]),FILTER(DW_Deals,DW_Deals[APPLICATION_APPROVED_DATE]<>BLANK()&&DW_Deals[APPLICATION_SUBMIT_DATE]<>BLANK()&&DW_Deals[APP_STAGE]<>"Under Review"&&DW_Deals[PRIMARY_LEAD_ID]=BLANK()&&DW_Deals[APPLICATION_SUBMIT_DATE]>=MIN('0_Days_Agent'[Date])&&DW_Deals[APPLICATION_SUBMIT_DATE]<=Max('0_Days_Agent'[Date])))
+			 /
+			  CALCULATE(DISTINCTCOUNT(DW_Deals[EMAIL]),FILTER(DW_Deals,DW_Deals[APPLICATION_SUBMIT_DATE]<>BLANK()&&DW_Deals[APP_STAGE]<>"Under Review"&&DW_Deals[PRIMARY_LEAD_ID]=BLANK()&&DW_Deals[APPLICATION_SUBMIT_DATE]>=MIN('0_Days_Agent'[Date])&&DW_Deals[APPLICATION_SUBMIT_DATE]<=Max('0_Days_Agent'[Date])))
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: 617ce35e-2777-4aa9-98e0-48a4d3a7fa35
+
+	measure '00_Avg Listings' = ```
+			(CALCULATE(DISTINCTCOUNT(PM_Listings_BOM[PROPERTY_KEY]),FILTER(PM_Listings_BOM,PM_Listings_BOM[CALENDAR_DATE_BOM]=MIN('0_Days_Agent'[BOM]))) + 
+			CALCULATE(DISTINCTCOUNT(PM_Listings_BOM[PROPERTY_KEY]),FILTER(PM_Listings_BOM,EOMONTH(PM_Listings_BOM[CALENDAR_DATE_BOM],-2)+1=MAX('0_Days_Agent'[BOM]))))
+			/2
+			```
+		lineageTag: 9f26fab2-3909-4087-ba64-19a5889e7b6a
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 00_Leads/Day = [00_Leads_C]/[00_Avg Listings]/CALCULATE(DISTINCTCOUNT('0_Days_Agent'[Date]),FILTER('0_Days_Agent',[PRIOR_CHECK]=1))
+		formatString: 0
+		lineageTag: 49ae6ffb-47e7-406b-8d10-7063f1e400a4
+
+		annotation PBI_FormatHint = {"isDecimal":true}
+
+	measure '00_Implied Days' = ```
+			DIVIDE(
+			    (1/(.82*[00_Approval]*[00_App_Per_Lead])),
+			    [00_Leads/Day],
+			    BLANK()
+			)
+			
+			```
+		lineageTag: 3982a9e0-3a31-41bb-bb1f-c79c602dbd71
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column CONTACT_OWNER
+		dataType: string
+		lineageTag: 40cb504b-7366-465f-8798-1b49f2fab59b
+		summarizeBy: none
+		sourceColumn: CONTACT_OWNER
+
+		annotation SummarizationSetBy = Automatic
+
+	column Day
+		dataType: double
+		lineageTag: 0f33f9ad-63e3-4341-83a6-f0bc5f5bb700
+		summarizeBy: sum
+		sourceColumn: Day
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Month-Year
+		dataType: string
+		lineageTag: cea6d859-b0b2-48c1-93a8-06ea839bdb75
+		summarizeBy: none
+		sourceColumn: Month-Year
+
+		annotation SummarizationSetBy = Automatic
+
+	column Month_No
+		dataType: double
+		lineageTag: 0c11cc39-9e75-445b-aeb2-5d09db17e240
+		summarizeBy: sum
+		sourceColumn: Month_No
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Date
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: fc296bc5-1bbf-4ba1-923f-f8c74421733e
+		summarizeBy: none
+		sourceColumn: Date
+
+		variation Variation
+			isDefault
+			relationship: cb30723f-b816-4989-ba4a-22844451c97c
+			defaultHierarchy: LocalDateTable_e0a2d11b-0e83-41f5-ac39-f01c325b4da8.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column 'Month Filter'
+		dataType: string
+		lineageTag: a0716f72-0fe2-4d6f-8794-f6814b2ac8e4
+		summarizeBy: none
+		sourceColumn: Month Filter
+
+		annotation SummarizationSetBy = Automatic
+
+	column SORT_BY
+		dataType: double
+		lineageTag: 3f884fa8-e697-4ba1-a7c8-7a7af70105e4
+		summarizeBy: sum
+		sourceColumn: SORT_BY
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column BOM
+		dataType: dateTime
+		formatString: mmmm yyyy
+		lineageTag: 9b3ab223-28fa-49c8-a07d-aae2f7aebb04
+		summarizeBy: none
+		sourceColumn: BOM
+
+		variation Variation
+			isDefault
+			relationship: 82df5142-2f9d-4ed5-987e-f5cd9d127229
+			defaultHierarchy: LocalDateTable_d6421bc0-684b-4fae-a345-90e52cacf137.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+		annotation PBI_FormatHint = {"isDateTimeCustom":true}
+
+	column 1_Days_in_Month = IF(EOMONTH(TODAY(),-1)+1='0_Days_Agent'[BOM],TODAY()-'0_Days_Agent'[BOM],EOMONTH('0_Days_Agent'[BOM],0)-'0_Days_Agent'[BOM])+1
+		dataType: int64
+		formatString: 0
+		lineageTag: 7b6fe4e4-f2a8-441d-b068-4b1176b8585a
+		summarizeBy: sum
+
+		changedProperty = DataType
+
+		annotation SummarizationSetBy = Automatic
+
+	column PRIOR_CHECK
+		dataType: double
+		lineageTag: f0708e9b-2d32-4150-bc7a-024f536b4b80
+		summarizeBy: sum
+		sourceColumn: PRIOR_CHECK
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Month
+		dataType: string
+		lineageTag: 3e1e9aae-5a2f-404e-ad54-53798c982957
+		summarizeBy: none
+		sourceColumn: Month
+
+		annotation SummarizationSetBy = Automatic
+
+	column DATE_CHECK
+		dataType: string
+		lineageTag: 58a57645-e318-45cf-8967-a0104c023141
+		summarizeBy: none
+		sourceColumn: DATE_CHECK
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 0_Days_Agent = m
+		mode: import
+		queryGroup: Calendar
+		source =
+				let
+				    Source = Value.NativeQuery(Snowflake.Databases("ota12822.us-east-1.snowflakecomputing.com","DEVELOPER_WH",[Implementation="2.0"]){[Name="PROD_REPLICA"]}[Data], "WITH#(lf)#(lf)-- Generate one row per day (1-31) x month from Jan 2024 through current month#(lf)Months AS (#(lf)    SELECT DATEADD('month', SEQ4(), DATE_FROM_PARTS(2024, 1, 1)) AS BOM#(lf)    FROM TABLE(GENERATOR(ROWCOUNT => 10000))#(lf)    WHERE BOM <= DATE_TRUNC('month', CURRENT_DATE())#(lf)),#(lf)#(lf)Days AS (#(lf)    SELECT column1 AS Day#(lf)    FROM VALUES (1),(2),(3),(4),(5),(6),(7),(8),(9),(10),#(lf)                (11),(12),(13),(14),(15),(16),(17),(18),(19),(20),#(lf)                (21),(22),(23),(24),(25),(26),(27),(28),(29),(30),(31)#(lf)),#(lf)#(lf)DAYS_TEMP AS (#(lf)    SELECT#(lf)         d.Day                                                                      AS ""Day""#(lf)        ,CASE MONTH(m.BOM)#(lf)            WHEN 1  THEN 'Jan' WHEN 2  THEN 'Feb' WHEN 3  THEN 'Mar'#(lf)            WHEN 4  THEN 'Apr' WHEN 5  THEN 'May' WHEN 6  THEN 'Jun'#(lf)            WHEN 7  THEN 'Jul' WHEN 8  THEN 'Aug' WHEN 9  THEN 'Sep'#(lf)            WHEN 10 THEN 'Oct' WHEN 11 THEN 'Nov' WHEN 12 THEN 'Dec'#(lf)         END                                                                        AS ""Month""#(lf)        ,CASE MONTH(m.BOM)#(lf)            WHEN 1  THEN 'Jan' WHEN 2  THEN 'Feb' WHEN 3  THEN 'Mar'#(lf)            WHEN 4  THEN 'Apr' WHEN 5  THEN 'May' WHEN 6  THEN 'Jun'#(lf)            WHEN 7  THEN 'Jul' WHEN 8  THEN 'Aug' WHEN 9  THEN 'Sep'#(lf)            WHEN 10 THEN 'Oct' WHEN 11 THEN 'Nov' WHEN 12 THEN 'Dec'#(lf)         END || '-' || RIGHT(YEAR(m.BOM)::VARCHAR, 2)                              AS ""Month-Year""#(lf)        ,MONTH(m.BOM)                                                               AS ""Month_No""#(lf)        ,DATEFROMPARTS(YEAR(m.BOM), MONTH(m.BOM), d.Day)                           AS ""Date""#(lf)        ,CASE#(lf)            WHEN m.BOM = DATE_TRUNC('month', CURRENT_DATE())                       THEN 'Current Month'#(lf)            WHEN m.BOM = DATE_TRUNC('month', DATEADD('month', -1, CURRENT_DATE())) THEN 'Last Month'#(lf)            WHEN m.BOM = DATE_TRUNC('month', DATEADD('month', -2, CURRENT_DATE())) THEN 'T-2 Month'#(lf)            WHEN m.BOM = DATE_TRUNC('month', DATEADD('month', -3, CURRENT_DATE())) THEN 'T-3 Month'#(lf)            ELSE NULL#(lf)         END                                                                        AS ""Month Filter""#(lf)    FROM Months m#(lf)    CROSS JOIN Days d#(lf)),#(lf)#(lf)CALENDAR AS (#(lf)    SELECT#(lf)         *#(lf)        ,RANK() OVER (ORDER BY ""Date"" DESC) AS SORT_BY#(lf)        ,DATE_TRUNC('month', ""Date"")        AS BOM#(lf)    FROM DAYS_TEMP#(lf)),#(lf)#(lf)--********************************************************************************************#(lf)CONTACT_OWNER_TEMP AS (#(lf)    SELECT DISTINCT DEAL_OWNER    AS CONTACT_OWNER FROM ""PROD_ANALYTICS"".""DBT_RESICAP"".""DIM_DEAL""#(lf)    UNION ALL#(lf)    SELECT DISTINCT CONTACT_OWNER AS CONTACT_OWNER FROM ""PROD_ANALYTICS"".""DBT_RESICAP"".""DIM_LEAD""#(lf)),#(lf)#(lf)CONTACT_OWNER AS (#(lf)    SELECT DISTINCT INITCAP(CONTACT_OWNER) AS CONTACT_OWNER#(lf)    FROM CONTACT_OWNER_TEMP#(lf)    ORDER BY CONTACT_OWNER ASC#(lf))#(lf)--********************************************************************************************#(lf)#(lf)SELECT *#(lf)    ,CASE WHEN ""Month_No"" = MONTH(CALENDAR.""Date"") THEN 'KEEP' ELSE 'REMOVE' END AS DATE_CHECK#(lf)    ,CASE WHEN ""Date"" <= GETDATE() THEN 1 ELSE 0 END                              AS PRIOR_CHECK#(lf)FROM CONTACT_OWNER#(lf)CROSS JOIN CALENDAR", null, [EnableFolding=true]),
+				    #"Filtered Rows" = Table.SelectRows(Source, each ([DATE_CHECK] = "KEEP") and ([CONTACT_OWNER] <> null and [CONTACT_OWNER] <> " ")),
+				    #"Sorted Rows" = Table.Sort(#"Filtered Rows",{{"Date", Order.Ascending}})
+				in
+				    #"Sorted Rows"
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

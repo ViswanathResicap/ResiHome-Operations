@@ -1,0 +1,123 @@
+table PM_Listings_BOM
+	lineageTag: 4e0abf14-2dc9-4bb4-b1ee-8e4a104e0f83
+
+	column PROPERTY_KEY
+		dataType: double
+		lineageTag: 87f627f8-333e-4a26-96ae-c128bf81f401
+		summarizeBy: none
+		sourceColumn: PROPERTY_KEY
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column PROPERTYID
+		dataType: double
+		lineageTag: 53518e2d-4469-443c-b151-33dcb1478b4e
+		summarizeBy: count
+		sourceColumn: PROPERTYID
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ENTITYID
+		dataType: string
+		lineageTag: 1eeb823a-9bb2-4622-992d-b094fe4bf6a6
+		summarizeBy: none
+		sourceColumn: ENTITYID
+
+		annotation SummarizationSetBy = Automatic
+
+	column CALENDAR_DATE
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: a76f6806-fdfc-4484-9ea4-abe474081af0
+		summarizeBy: none
+		sourceColumn: CALENDAR_DATE
+
+		variation Variation
+			isDefault
+			relationship: 1b2c901f-6d1a-485c-950b-44f554e38cd1
+			defaultHierarchy: LocalDateTable_fe9e18ec-62ac-4549-973b-f6c872697cf1.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column CALENDAR_DATE_BOM
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: e43ead6e-9522-4b61-b127-11aaa194bd59
+		summarizeBy: none
+		sourceColumn: CALENDAR_DATE_BOM
+
+		variation Variation
+			isDefault
+			relationship: e72f6211-c023-4161-8b12-82aa238d0c10
+			defaultHierarchy: LocalDateTable_ee42491d-599e-4caa-bdba-4261a6fba24e.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column DAY_IN_MONTH
+		dataType: double
+		lineageTag: 58d32811-996d-4105-9603-5e952178eddf
+		summarizeBy: sum
+		sourceColumn: DAY_IN_MONTH
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column PROPERTY_LISTING_ID
+		dataType: double
+		lineageTag: 9780435d-0161-4760-9dc4-830a8d6d58a1
+		summarizeBy: count
+		sourceColumn: PROPERTY_LISTING_ID
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column LISTING_STATUS
+		dataType: string
+		lineageTag: edd0d94f-a225-4812-9d4f-4cd85b773ee0
+		summarizeBy: none
+		sourceColumn: LISTING_STATUS
+
+		annotation SummarizationSetBy = Automatic
+
+	column ACTIVE_LISTING
+		dataType: double
+		lineageTag: 4ef89a93-6a08-4030-8fdd-6aa68206d2bf
+		summarizeBy: sum
+		sourceColumn: ACTIVE_LISTING
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column LEASING_AGENT
+		dataType: string
+		lineageTag: f8859c9c-817a-426a-a6c4-826567a0150a
+		summarizeBy: none
+		sourceColumn: LEASING_AGENT
+
+		annotation SummarizationSetBy = Automatic
+
+	partition PM_Listings_BOM-1846d131-b9c4-481c-b1b5-5f408a71e04d = m
+		mode: import
+		queryGroup: 'PM Other'
+		source =
+				let
+				    Source = Value.NativeQuery(Snowflake.Databases("ota12822.us-east-1.snowflakecomputing.com","DEVELOPER_WH",[Implementation="2.0"]){[Name="PROD_REPLICA"]}[Data], "/* =============================================================================#(lf)   PM LISTINGS BOM DATASET (active listings by calendar day, BOM snapshot)#(lf)   -----------------------------------------------------------------------------#(lf)   Grain:   One row per property x calendar day where the listing was active and#(lf)            DAY_IN_MONTH = 1 (final output: SELECT * FROM LISTINGS_BY_DAY with#(lf)            ACTIVE_LISTING = 1 AND DAY_IN_MONTH = 1).#(lf)   CTE chain: CALENDAR (DIM_CALENDAR), Prop_Calendar, LIST_TEMP_PRE (latest#(lf)            status/new listing event as-of each calendar date), LIST_TEMP,#(lf)            LISTINGS_BY_DAY -> final SELECT.#(lf)#(lf)   CLEANUP NOTES:#(lf)     No organization roll-up exists in this query (no ORGANIZATION_KEY /#(lf)     ORGANIZATION_NAME columns are produced), so NO org sync was applied. This#(lf)     pass is COSMETIC ONLY: header added, trailing semicolon removed; query#(lf)     logic is unchanged byte-for-byte.#(lf)     [FLAG]  The DIM_OWNER_ORGANIZATION O join (in Prop_Calendar) is referenced#(lf)             only in its own ON clause and surfaces no column; the active org#(lf)             filter uses PUS.Organization_KEY. One-row-per-key dimension LEFT#(lf)             JOIN, so droppable, but PRESERVED to keep this a no-logic-change#(lf)             pass.#(lf)#(lf)   ORG SYNC IMPACT: none (no organization columns in this dataset).#(lf)   ============================================================================= */#(lf)#(lf)WITH CALENDAR AS (#(lf)SELECT #(lf)CALENDAR_DATE#(lf),DATE_TRUNC('month',CALENDAR_DATE) AS CALENDAR_DATE_BOM#(lf),DAY_IN_MONTH#(lf)FROM #(lf)PROD_ANALYTICS.DBT_RESICAP.DIM_CALENDAR#(lf)WHERE 1=1#(lf)AND CALENDAR_DATE >= '2024-01-01'#(lf)AND CALENDAR_DATE <= DATE_TRUNC('month',DATEADD('month',1,GETDATE()))#(lf))#(lf)--***************************************************************************#(lf)#(lf),Prop_Calendar AS (#(lf)  Select   P.PROPERTY_KEY  #(lf)   ,P.HBPM_PROPERTY_ID AS PropertyId#(lf)   ,P.ENTITYID#(lf)   ,Calendar.CALENDAR_DATE#(lf)   ,Calendar.CALENDAR_DATE_BOM#(lf)   ,Calendar.DAY_IN_MONTH#(lf)  FROM PROD_ANALYTICS.DBT_RESICAP.DIM_PROPERTY P#(lf)  LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.FCT_PROPERTY_UNIT_SUMMARY PUS ON PUS.PROPERTY_KEY  = P.PROPERTY_KEY #(lf)  LEFT JOIN PROD_REPLICA.HBAM_DBO.PROPERTIES HBAM ON HBAM.HBID = P.HBAM_PROPERTY_ID --*REPLCA DB*#(lf)  LEFT JOIN PROD_REPLICA.HBPM_DBO.PROPERTIES HBPM ON HBPM.PROPERTYID = P.HBPM_PROPERTY_ID --*REPLCA DB*#(lf)  LEFT JOIN PROD_REPLICA.HBPM_DBO.PROPERTYADDLINFOES PM_AI ON PM_AI.PROPERTYID  = HBPM.PROPERTYID AND PM_AI.""_FIVETRAN_DELETED"" = 'N' #(lf)  LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_OWNER_ORGANIZATION O ON O.ORGANIZATION_KEY = PUS.ORGANIZATION_KEY #(lf)  LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PROPERTY_UNIT PU ON PU.PROPERTY_UNIT_KEY = PUS.PROPERTY_UNIT_KEY#(lf)  LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PORTFOLIO PO ON PO.PORTFOLIO_KEY = PUS.PORTFOLIO_KEY #(lf)  CROSS JOIN Calendar#(lf)#(lf)WHERE 1=1#(lf)AND (HBAM.PROPERTYSTATUSID >9 OR HBAM.PROPERTYSTATUSID IS NULL) --out of bid#(lf)AND P.PROPERTY_STATE ='Active'#(lf)AND P.EntityID <> ''#(lf)AND (HBAM.PROPERTYSTATUSID NOT IN (53,75) OR HBAM.PROPERTYSTATUSID IS NULL)#(lf)AND PO.Portfolio_KEY NOT IN (223,598,147,102,109,28,603,169,602,170,58,54)#(lf)AND PUS.Organization_KEY not IN (16,17)#(lf)AND PO.IS_Active_AM = 'Y'#(lf)AND PO.Current_Flag = 'Y'#(lf)AND P.Current_Flag = 'Y'#(lf)AND PU.Current_Flag = 'Y'#(lf)AND PUS.Occupancy_Status NOT IN ('Not Managed')#(lf)AND (HBPM.PROPERTYSTATEID = 26 OR HBPM.PROPERTYSTATEID IS NULL) #(lf)AND P.HBMM_Property_ID IS NOT NULL#(lf)AND P.Property_Key NOT IN (166418,57201,23237,166851)#(lf))#(lf) -- Select * from Prop_Calendar#(lf)--***************************************************************************#(lf)#(lf),LIST_TEMP_PRE AS (#(lf)   Select #(lf)   MAX(CHANGED_DATE_TIME) LH_CHANGED_KEY#(lf)   ,LH.PROPERTY_LISTING_ID AS RENT_LIST_HIST_KEY#(lf)   ,RANK() OVER(PARTITION BY PC.PROPERTY_KEY, PC.CALENDAR_DATE ORDER BY LH.PROPERTY_LISTING_ID DESC) AS LIST_RANK#(lf)   ,PC.PROPERTY_KEY  #(lf)   ,PC.PropertyId#(lf)   ,PC.ENTITYID#(lf)   ,PC.CALENDAR_DATE#(lf)   ,PC.CALENDAR_DATE_BOM#(lf)   ,PC.DAY_IN_MONTH#(lf)   From Prop_Calendar PC#(lf)   LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.FCT_PROP_LIST_STATUS_PRICE_HIST LH#(lf)   #(tab)#(tab)ON LH.PROPERTY_KEY = PC.Property_Key#(lf)   #(tab)#(tab)AND LH.CHANGED_DATE_TIME < CALENDAR_DATE#(lf)   #(tab)#(tab)AND LH.INDEX_CHANGE_TYPE IN ('Status','New')#(lf)   #(lf)   GROUP BY#(lf)   PC.PROPERTY_KEY  #(lf)   ,LH.PROPERTY_LISTING_ID#(lf)   ,PC.PropertyId#(lf)   ,PC.ENTITYID#(lf)   ,PC.CALENDAR_DATE#(lf)   ,PC.CALENDAR_DATE_BOM#(lf)   ,PC.DAY_IN_MONTH#(lf)   #(lf)   QUALIFY  #(lf)   LIST_RANK =1#(lf)   )#(lf)   #(lf) --***************************************************************************  #(lf),LIST_TEMP AS (#(lf)  #(lf)  #(lf)  Select#(lf)  LTP.* #(lf)  ,LH.FCT_PROP_LIST_STATUS_PRICE_HIST_KEY AS LH_KEY#(lf)  #(lf)  From LIST_TEMP_PRE LTP#(lf)  LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.FCT_PROP_LIST_STATUS_PRICE_HIST LH#(lf)        ON LH.PROPERTY_KEY = LTP.Property_Key#(lf)   #(tab)#(tab)AND LH.CHANGED_DATE_TIME = LTP.LH_CHANGED_KEY#(lf)   #(tab)#(tab)AND LH.INDEX_CHANGE_TYPE IN ('Status','New')#(lf)   #(lf)   #(lf)   --WHERE ltp.entityid = 'RP2AL00020'#(lf)  )#(lf)--***************************************************************************#(lf),LISTINGS_BY_DAY AS (#(lf)   Select #(lf)    LIST_TEMP.PROPERTY_KEY  #(lf)   ,LIST_TEMP.PropertyId#(lf)   ,LIST_TEMP.ENTITYID#(lf)   ,LIST_TEMP.CALENDAR_DATE#(lf)   ,LIST_TEMP.CALENDAR_DATE_BOM#(lf)   ,LIST_TEMP.DAY_IN_MONTH#(lf)   #(lf)   ,LH.PROPERTY_LISTING_ID#(lf)   ,LH.LISTING_STATUS#(lf)   ,CASE WHEN LH.LISTING_STATUS ='Active' AND LH.LISTING_STATE ='Active' AND LH.IS_PUBLISHED = 'Y'  THEN 1 ELSE NULL END AS ACTIVE_LISTING#(lf)   ,RLH.LEASING_AGENT #(lf)   #(lf)   from LIST_TEMP#(lf)   LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.FCT_PROP_LIST_STATUS_PRICE_HIST LH#(lf)   #(tab)ON LH.FCT_PROP_LIST_STATUS_PRICE_HIST_KEY = LIST_TEMP.LH_KEY #(lf)   LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.FCT_PROP_RENTAL_LISTING_HIST RLH ON RLH.RENT_LIST_HIST_ID = LH.PROPERTY_LISTING_ID #(lf))#(lf)   Select *#(lf)   from LISTINGS_BY_DAY #(lf)  WHERE 1=1#(lf) --AND  CALENDAR_DATE = '2023-01-01'#(lf) -- AND EntityID LIKE 'R%'#(lf) -- AND EntityID NOT LIKE 'RB%'#(lf)  AND ACTIVE_LISTING = 1#(lf)  AND DAY_IN_MONTH  = 1#(lf)--***************************************************************************#(lf)#(lf)  /*#(lf)   SELECT #(lf)CALENDAR_DATE#(lf),SUM(ACTIVE_LISTING) ACTIVE_LISTINGS#(lf)FROM LISTINGS_BY_DAY#(lf)GROUP BY#(lf)CALENDAR_DATE#(lf)*/", null, [EnableFolding=true]),
+				    #"Sorted Rows" = Table.Sort(Source,{{"CALENDAR_DATE", Order.Ascending}})
+				in
+				    #"Sorted Rows"
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

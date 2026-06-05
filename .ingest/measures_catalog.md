@@ -1,11 +1,134 @@
 # DAX measures (from mirrored tables)
 
+## 0_DRC  (46 measures)
+
+- **1_Active Listings** = `CALCULATE(COUNT(DW_Listings[PROPERTY_KEY]),FILTER(DW_Listings,DW_Listings[LISTING_STATUS]="Active"&&DW_Listings[IS_PUBLISHED]="Y"))`
+- **1_Active Pre-Listings** = `COALESCE(CALCULATE(COUNT(DW_Listings[PROPERTY_KEY]),FILTER(DW_Listings,DW_Listings[LISTING_STATUS]="Active"&&DW_Listings[IS_PUBLISHED]="Y"&&DW_Listings[PM_MIR]<>BLANK()&&DW_Listings[PM_MIR]>=TODAY())),0)`
+- **1_Apps_30** = `COALESCE(CALCULATE(DISTINCTCOUNT(DW_Deals[DEAL_KEY]),FILTER(DW_Deals,DW_Deals[PRIMARY_LEAD_ID]=BLANK()&&DW_Deals[APPLICATION_SUBMIT_DATE]>=(TODAY()-30)&&DW_Deals[APPLICATION_SUBMIT_DATE]<=(TODAY()-1))),0)`
+- **1_Apps_7** = `COALESCE(CALCULATE(DISTINCTCOUNT(DW_Deals[DEAL_KEY]),FILTER(DW_Deals,DW_Deals[PRIMARY_LEAD_ID]=BLANK()&&DW_Deals[APPLICATION_SUBMIT_DATE]>=(TODAY()-7)&&DW_Deals[APPLICATION_SUBMIT_DATE]<=(TODAY()-1))),0)`
+- **1_Apps_S_30** = `COALESCE(CALCULATE(DISTINCTCOUNT(DW_Deals[DEAL_KEY]),FILTER(DW_Deals,DW_Deals[PRIMARY_LEAD_ID]=BLANK()&&DW_Deals[APPLICATION_STARTED_DATE]>=(TODAY()-30)&&DW_Deals[APPLICATION_STARTED_DATE]<=(TODAY()-1))),0)`
+- **1_Apps_S_7** = `COALESCE(CALCULATE(DISTINCTCOUNT(DW_Deals[DEAL_KEY]),FILTER(DW_Deals,DW_Deals[PRIMARY_LEAD_ID]=BLANK()&&DW_Deals[APPLICATION_STARTED_DATE]>=(TODAY()-7)&&DW_Deals[APPLICATION_STARTED_DATE]<=(TODAY()-1))),0)`
+- **1_Apps_S_Total** = `COALESCE(CALCULATE(DISTINCTCOUNT(DW_Deals[DEAL_KEY]),FILTER(DW_Deals,DW_Deals[PRIMARY_LEAD_ID]=BLANK()&&DW_Deals[APPLICATION_STARTED_DATE]<>BLANK())),0)`
+- **1_Apps_Total** = `COALESCE(CALCULATE(DISTINCTCOUNT(DW_Deals[DEAL_KEY]),FILTER(DW_Deals,DW_Deals[PRIMARY_LEAD_ID]=BLANK()&&DW_Deals[APPLICATION_SUBMIT_DATE]<>BLANK())),0)`
+- **1_Deposit Taken** = `COALESCE(CALCULATE(COUNT(DW_Listings[PROPERTY_KEY]),FILTER(DW_Listings,DW_Listings[FMI_FLAG]=1&&DW_Listings[CURRENT_DEAL_STATUS]<>"Closed Won"&&DW_Listings[CURRENT_DEAL_STATUS]<>"Deal Won"&&DW_Listings[MOST_RECENT_LISTING]="Yes")),0)`
+- **1_HF_30** = `COALESCE(CALCULATE(DISTINCTCOUNT(DW_Deals[DEAL_KEY]),FILTER(DW_Deals,DW_Deals[PRIMARY_LEAD_ID]=BLANK()&&DW_Deals[CURRENT_DEAL_STATUS]<>"Closed Lost"&&DW_Deals[HF Date]>=(TODAY()-30)&&DW_Deals[HF Date]<=(TODAY()-1))),0)`
+- **1_HF_7** = `COALESCE(CALCULATE(DISTINCTCOUNT(DW_Deals[DEAL_KEY]),FILTER(DW_Deals,DW_Deals[PRIMARY_LEAD_ID]=BLANK()&&DW_Deals[CURRENT_DEAL_STATUS]<>"Closed Lost"&&DW_Deals[HF Date]>=(TODAY()-7)&&DW_Deals[HF Date]<=(TODAY()-1))),0)`
+- **1_HF_Total** = `COALESCE(CALCULATE(DISTINCTCOUNT(DW_Deals[DEAL_KEY]),FILTER(DW_Deals,DW_Deals[PRIMARY_LEAD_ID]=BLANK()&&DW_Deals[CURRENT_DEAL_STATUS]<>"Closed Lost"&&DW_Deals[HF Date]<>BLANK())),0)`
+- **1_Leads L30** = `COALESCE(CALCULATE(DISTINCTCOUNT(DW_Leads[LEAD_KEY]),FILTER(DW_Leads,DW_Leads[PRIMARY_LEAD_ID]=BLANK()&&DW_Leads[LEAD_CREATED_DATE]>=(TODAY()-30)&&DW_Leads[LEAD_CREATED_DATE]<=(TODAY()-1))),0)`
+- **1_Leads L7** = `COALESCE(CALCULATE(DISTINCTCOUNT(DW_Leads[LEAD_KEY]),FILTER(DW_Leads,DW_Leads[PRIMARY_LEAD_ID]=BLANK()&&DW_Leads[LEAD_CREATED_DATE]>=(TODAY()-7)&&DW_Leads[LEAD_CREATED_DATE]<=(TODAY()-1))),0)`
+- **1_Leads_Total** = ```` COALESCE(CALCULATE(DISTINCTCOUNT(DW_Leads[LEAD_KEY]),DW_Leads[PRIMARY_LEAD_ID]=BLANK()),0) ````
+- **1_MI_30** = `COALESCE(CALCULATE(DISTINCTCOUNT(DW_MoveOut[TENANT_KEY]),FILTER(DW_MoveOut,DW_MoveOut[LEASE_FROM_DATE]>=(TODAY()-30)&&DW_MoveOut[LEASE_FROM_DATE]<=(TODAY()-1))),0)`
+- **1_MI_7** = `COALESCE(CALCULATE(DISTINCTCOUNT(DW_MoveOut[TENANT_KEY]),FILTER(DW_MoveOut,DW_MoveOut[LEASE_FROM_DATE]>=(TODAY()-7)&&DW_MoveOut[LEASE_FROM_DATE]<=(TODAY()-1))),0)`
+- **1_MI_Total** = `COALESCE(CALCULATE(COUNT(DW_Tenant[TENANT_KEY])),0)`
+- **1_Open_Apps** = `COALESCE(CALCULATE(DISTINCTCOUNT(DW_Deals[DEAL_KEY]),FILTER(DW_Deals,DW_Deals[PRIMARY_LEAD_ID]=BLANK()&&OR(OR(DW_Deals[CURRENT_DEAL_STATUS]="Under Review",DW_Deals[CURRENT_DEAL_STATUS]="Conditional Approval"),DW_Deals[CURRENT_DEAL_STATUS]="Full Approval")&&DW_Deals[APP_STAGE]<>"Pending Denial")),0)`
+- **2_Leased** = `COALESCE(CALCULATE(COUNT(DW_Properties[PROPERTY_KEY]),FILTER(DW_Properties,DW_Properties[OCCUPANCY_STATUS]="Tenant Leased"||DW_Properties[OCCUPANCY_STATUS]="Trustee Leased")),0)`
+- **2_MI Ready** = `COALESCE(CALCULATE(COUNT('DW_Off Market'[PROPERTY_KEY]),FILTER('DW_Off Market',COALESCE('DW_Off Market'[DRC_CO_DATE],'DW_Off Market'[2_AM_QC_Result_Date])<>BLANK())),0)`
+- **2_Total Homes** = `COALESCE(CALCULATE(COUNT(DW_Properties[PROPERTY_KEY])),0)`
+- **3_ PSF** = ```` CALCULATE(DIVIDE(SUM(DW_Properties[CURRENT_RENT]), SUM(DW_Properties[SQUARE_FOOTAGE]), BLANK()),DW_Properties[OCCUPANCY_STATUS]="Tenant Leased") ````
+- **3_In Place Rent** = ```` CALCULATE(AVERAGE(DW_Tenant[CURRENT_RENT]),DW_Tenant[OCCUPANCY_STATUS]="Tenant Leased") ````
+- **3_List_Price** = `CALCULATE(AVERAGE(DW_Listings[CURRENT_LIST_PRICE]),FILTER(DW_Listings,DW_Listings[LISTING_STATUS]="Active"&&DW_Listings[IS_PUBLISHED]="Y"))`
+- **3_List_Price (Deposit)** = `CALCULATE(AVERAGE(DW_Listings[CURRENT_LIST_PRICE]),FILTER(DW_Listings,DW_Listings[FMI_FLAG]=1&&DW_Listings[CURRENT_DEAL_STATUS]<>"Closed Won"&&DW_Listings[CURRENT_DEAL_STATUS]<>"Deal Won"&&DW_Listings[MOST_RECENT_LISTING]="Yes"))`
+- **3_List_Price_UW** = `CALCULATE(AVERAGE(DW_Listings[UNDER_WRITTEN_RENT]),FILTER(DW_Listings,DW_Listings[LISTING_STATUS]="Active"&&DW_Listings[IS_PUBLISHED]="Y"))`
+- **3_List_Price_UW (Deposit)** = `CALCULATE(AVERAGE(DW_Listings[UNDER_WRITTEN_RENT]),FILTER(DW_Listings,DW_Listings[FMI_FLAG]=1&&DW_Listings[CURRENT_DEAL_STATUS]<>"Closed Won"&&DW_Listings[CURRENT_DEAL_STATUS]<>"Deal Won"&&DW_Listings[MOST_RECENT_LISTING]="Yes"))`
+- **3_List_PSF** = ```` CALCULATE(DIVIDE(SUM(DW_Listings[CURRENT_LIST_PRICE]), SUM(DW_Listings[SQUARE_FOOTAGE]), BLANK()),FILTER(DW_Listings,DW_Listings[LISTING_STATUS]="Active"&&DW_Listings[IS_PUBLISHED]="Y")) ````
+- **3_List_PSF_UW** = ```` CALCULATE(DIVIDE(SUM(DW_Listings[UNDER_WRITTEN_RENT]), SUM(DW_Listings[SQUARE_FOOTAGE]), BLANK()),FILTER(DW_Listings,DW_Listings[LISTING_STATUS]="Active"&&DW_Listings[IS_PUBLISHED]="Y")) ````
+- **3_MI Concessions** = ```` calculate(average(DW_Listings[CONCESSIONAMOUNT]),DW_Listings[LISTING_STATUS] = "Leased") ````
+- **3_PSF_UW** = ```` CALCULATE(DIVIDE(SUM(DW_Properties[UNDER_WRITTEN_RENT]), SUM(DW_Properties[SQUARE_FOOTAGE]), BLANK()),DW_Properties[OCCUPANCY_STATUS]="Tenant Leased") ````
+- **3_UW Rent** = ```` CALCULATE(AVERAGE(DW_Properties[UW_RENT_CURRENT]),DW_Properties[OCCUPANCY_STATUS]="Tenant Leased") ````
+- **5_Blended Rent** = ```` CALCULATE(AVERAGE(DW_Properties[UNDER_WRITTEN_RENT]),DW_Properties[UNDER_WRITTEN_RENT]<>BLANK()) ````
+- **5_Blended UW Trended Rent** = ```` CALCULATE(AVERAGE(DW_Properties[UNDER_WRITTEN_RENT]),DW_Properties[UNDER_WRITTEN_RENT]<>BLANK()) ````
+- **5_Collections_EOM** = `CALCULATE([0_Collections_Switch],FILTER(DW_Tenant_Charges,DW_Tenant_Charges[ACCOUNT_NUMBER]="4010"&&DW_Tenant_Charges[CREDITTYPEID]<>2&&ROUND(DW_Tenant_Charges[CHARGE_DATE_BOM],0)=(DATE(YEAR(EOMONTH(TODAY(),-1)),MONTH(EOMONTH(TODAY(),-1)),1))),FILTER(SEL_Collections_Type,SEL_Collections_Type[Value]="Net (x-Concessions)"))`
+- **5_Collections_MTD** = `CALCULATE([0_Collections_Switch],FILTER(DW_Tenant_Charges,DW_Tenant_Charges[ACCOUNT_NUMBER]="4010"&&DW_Tenant_Charges[CREDITTYPEID]<>2&&ROUND(DW_Tenant_Charges[CHARGE_DATE_BOM],0)=(DATE(YEAR(TODAY()),MONTH(TODAY()),1))),FILTER(SEL_Collections_Type,SEL_Collections_Type[Value]="Net (x-Concessions)"))`
+- **2_FMI** = `CALCULATE(DISTINCTCOUNT(DW_Listings[PROPERTY_KEY]),FILTER(DW_Listings,DW_Listings[FMI_FLAG]=1&&DW_Listings[MOST_RECENT_LISTING]="Yes"&&DW_Listings[CURRENT_DEAL_STATUS]<>"Deal Won"&&DW_Listings[CURRENT_DEAL_STATUS]<>"Closed Won"))`
+- **1_Apps_Approved_7** = `COALESCE(CALCULATE(DISTINCTCOUNT(DW_Deals[DEAL_KEY]),FILTER(DW_Deals,DW_Deals[PRIMARY_LEAD_ID]=BLANK()&&DW_Deals[APPLICATION_APPROVED_DATE]<>BLANK()&&DW_Deals[APPLICATION_SUBMIT_DATE]>=(TODAY()-7)&&DW_Deals[APPLICATION_SUBMIT_DATE]<=(TODAY()-1))),0)`
+- **1_Apps_Approved_30** = `COALESCE(CALCULATE(DISTINCTCOUNT(DW_Deals[DEAL_KEY]),FILTER(DW_Deals,DW_Deals[PRIMARY_LEAD_ID]=BLANK()&&DW_Deals[APPLICATION_APPROVED_DATE]<>BLANK()&&DW_Deals[APPLICATION_SUBMIT_DATE]>=(TODAY()-30)&&DW_Deals[APPLICATION_SUBMIT_DATE]<=(TODAY()-1))),0)`
+- **1_Apps_Approved_Total** = `COALESCE(CALCULATE(DISTINCTCOUNT(DW_Deals[DEAL_KEY]),FILTER(DW_Deals,DW_Deals[PRIMARY_LEAD_ID]=BLANK()&&DW_Deals[APPLICATION_APPROVED_DATE]<>BLANK()&&DW_Deals[APPLICATION_SUBMIT_DATE]<>BLANK())),0)`
+- **3_Leased_Deposit_Rent** = ```` (CALCULATE(SUM(DW_Tenant[CURRENT_RENT]),FILTER(DW_Tenant,DW_Tenant[OCCUPANCY_STATUS]="Tenant Leased")) +  CALCULATE(SUM(DW_Listings[CURRENT_LIST_PRICE]),FILTER(DW_Listings,DW_Listings[FMI_FLAG]=1&&DW_Listings[CURRENT_DEAL_STATUS]<>"Closed Won"&&DW_Listings[CURRENT_DEAL_STATUS]<>"Deal Won"&&DW_Listings[MOST_RECENT_LISTING]="Yes"))) / (CALCULATE(DISTINCTCOUNT(DW_Tenant[TENANT_KEY]),FILTER(DW_Tenant,DW_Tenant[OCCUPANCY_STATUS]="Tenant Leased")) +  CALCULATE(DISTINCTCOUNT(DW_Listings[LISTING_KEY]),FILTER(DW_Listings,DW_Listings[FMI_FLAG]=1&&DW_Listings[CURRENT_DEAL_STATUS]<>"Closed Won"&&DW_Li …[truncated]`
+- **3_Leased_Deposit_UW Rent** = ```` (CALCULATE(SUM(DW_Tenant[UNDER_WRITTEN_RENT]),FILTER(DW_Tenant,DW_Tenant[OCCUPANCY_STATUS]="Tenant Leased")) +  CALCULATE(SUM(DW_Listings[UNDER_WRITTEN_RENT]),FILTER(DW_Listings,DW_Listings[FMI_FLAG]=1&&DW_Listings[CURRENT_DEAL_STATUS]<>"Closed Won"&&DW_Listings[CURRENT_DEAL_STATUS]<>"Deal Won"&&DW_Listings[MOST_RECENT_LISTING]="Yes"))) / (CALCULATE(DISTINCTCOUNT(DW_Tenant[TENANT_KEY]),FILTER(DW_Tenant,DW_Tenant[OCCUPANCY_STATUS]="Tenant Leased")) +  CALCULATE(DISTINCTCOUNT(DW_Listings[LISTING_KEY]),FILTER(DW_Listings,DW_Listings[FMI_FLAG]=1&&DW_Listings[CURRENT_DEAL_STATUS]<>"Closed Won"& …[truncated]`
+- **1_LTO_T90** = `CALCULATE([0_RG],FILTER(LTO,LTO[N_LEASESTART]>(TODAY()-90)))`
+- **1_LTO_T90_Release** = `CALCULATE([0_RG],FILTER(LTO,LTO[N_LEASESTART]>(TODAY()-90)&&LTO[TYPE]="Re-Lease"))`
+- **1_LTO_T90_Renewal** = `CALCULATE([0_RG],FILTER(LTO,LTO[N_LEASESTART]>(TODAY()-90)&&LTO[TYPE]="Renewal"))`
+
 ## 0_Days  (4 measures)
 
 - **0_Collection_Day_Previous** = `MIN(CALCULATE(SUM(DW_Tenant_Receipts[PAID_AMOUNT]), FILTER(DW_Tenant_Receipts, DW_Tenant_Receipts[CHARGE_DATE].[Day]<=MAX('0_Days'[Day]) &&DATE(DW_Tenant_Receipts[CHARGE_DATE_BOM].[Year],DW_Tenant_Receipts[CHARGE_DATE_BOM].[MonthNo]+1,1) = FIRSTNONBLANK('0_Days'[Date],'0_Days'[Date]) &&OR( DW_Tenant_Receipts[RECEIVED_DATE].[Day]<=MAX('0_Days'[Day])&& DATE(DW_Tenant_Receipts[RECEIVED_DATE_BOM].[Year],DW_Tenant_Receipts[RECEIVED_DATE_BOM].[MonthNo]+1,1) = FIRSTNONBLANK('0_Days'[Date],'0_Days'[Date]),DW_Tenant_Receipts[RECEIVED_DATE]<=DW_Tenant_Receipts[CHARGE_DATE]))) / CALCULATE(SUM(DW_Tenant_C …[truncated]`
 - **0_Collection vs LM** = `IF([0_Collection_Day_Net]<>BLANK()&&[0_Collection_Day_Previous]<>BLANK(),[0_Collection_Day_Net]-[0_Collection_Day_Previous],BLANK())`
 - **0_Concessions_Day** = `IF(and(MAX('0_Days'[Day])>DAY(TODAY()),FIRSTNONBLANK('0_Days'[Month_No],'0_Days'[Month_No])=MONTH(TODAY())), BLANK(), CALCULATE(SUM(DW_Tenant_Receipts[PAID_AMOUNT]), FILTER(DW_Tenant_Receipts, DW_Tenant_Receipts[CREDITTYPEID] = 1 &&DW_Tenant_Receipts[CHARGE_DATE].[Day]<=MAX('0_Days'[Day]) &&DW_Tenant_Receipts[CHARGE_DATE_BOM]=FIRSTNONBLANK('0_Days'[Date],'0_Days'[Date]) )) )`
 - **0_Collection_Day_Net** = `IF( AND( MAX('0_Days'[Day]) > DAY(TODAY()), FIRSTNONBLANK('0_Days'[Month_No], '0_Days'[Month_No]) = MONTH(TODAY()) && YEAR(FIRSTNONBLANK('0_Days'[Date], '0_Days'[Date])) = YEAR(TODAY()) ), BLANK(), MIN((CALCULATE(SUM(DW_Tenant_Receipts[PAID_AMOUNT]), FILTER(DW_Tenant_Receipts, DW_Tenant_Receipts[CHARGE_DATE].[Day] <= MAX('0_Days'[Day]) && DW_Tenant_Receipts[CHARGE_DATE_BOM] = FIRSTNONBLANK('0_Days'[Date],'0_Days'[Date]) && OR(DW_Tenant_Receipts[RECEIVED_DATE].[Day] <= MAX('0_Days'[Day]) && DW_Tenant_Receipts[RECEIVED_DATE_BOM] = FIRSTNONBLANK('0_Days'[Date],'0_Days'[Date]), DW_Tenant_Receipts[ …[truncated]`
+
+## 0_Days_Agent  (13 measures)
+
+- **00_Leads_C** = `CALCULATE(DISTINCTCOUNT(DW_Leads[LEAD_KEY]),FILTER(DW_Leads,DW_Leads[PRIMARY_LEAD_ID]=BLANK()&&DW_Leads[LEAD_CREATED_DATE]>=MIN('0_Days_Agent'[Date])&&DW_Leads[LEAD_CREATED_DATE]<=Max('0_Days_Agent'[Date])))`
+- **00_Apps_Sub** = `CALCULATE(DISTINCTCOUNT(DW_Deals[EMAIL]),FILTER(DW_Deals,DW_Deals[PRIMARY_LEAD_ID]=BLANK()&&DW_Deals[APPLICATION_SUBMIT_DATE]>=MIN('0_Days_Agent'[Date])&&DW_Deals[APPLICATION_SUBMIT_DATE]<=Max('0_Days_Agent'[Date])))`
+- **00_HF** = `CALCULATE(DISTINCTCOUNT(DW_Deals[EMAIL]),FILTER(DW_Deals,DW_Deals[PRIMARY_LEAD_ID]=BLANK()&&DW_Deals[HF Date]>=MIN('0_Days_Agent'[Date])&&DW_Deals[HF Date]<=Max('0_Days_Agent'[Date])))`
+- **00_App_Per_Lead** = ```` DIVIDE( [00_Apps_Sub], [00_Leads_C], BLANK() ) ````
+- **00_MI** = `CALCULATE(DISTINCTCOUNT(DW_Deals[EMAIL]),FILTER(DW_Deals,DW_Deals[PRIMARY_LEAD_ID]=BLANK()&&DW_Deals[CONVERT_TO_RESIDENT_DATE]>=MIN('0_Days_Agent'[BOM])&&DW_Deals[CONVERT_TO_RESIDENT_DATE]<=TODAY()&&DW_Deals[CONVERT_TO_RESIDENT_DATE]<=Max('0_Days_Agent'[Date])&&DW_Deals[CURRENT_DEAL_STATUS]="Closed Won"))`
+- **00_Approval:MI** = `CALCULATE(DISTINCTCOUNT(DW_Deals[EMAIL]),FILTER(DW_Deals,DW_Deals[CURRENT_DEAL_STATUS]<>"Closed Lost"&&DW_Deals[CURRENT_DEAL_STATUS]<>"Deal Lost"&&DW_Deals[CURRENT_DEAL_STATUS]<>"Rejected"&&DW_Deals[APPLICATION_APPROVED_DATE]<>BLANK()&&DW_Deals[APPLICATION_SUBMIT_DATE]<>BLANK()&&DW_Deals[APP_STAGE]<>"Under Review"&&DW_Deals[PRIMARY_LEAD_ID]=BLANK()&&DW_Deals[APPLICATION_STARTED_DATE]>=MIN('0_Days_Agent'[Date])&&DW_Deals[APPLICATION_STARTED_DATE]<=Max('0_Days_Agent'[Date]))) / CALCULATE(DISTINCTCOUNT(DW_Deals[EMAIL]),FILTER(DW_Deals,DW_Deals[APPLICATION_APPROVED_DATE]<>BLANK()&&DW_Deals[APPLICA …[truncated]`
+- **00_MI_Per_Lead** = ```` DIVIDE( [00_MI], [00_Leads_C], BLANK() ) ````
+- **00_Apps_Started** = `CALCULATE(DISTINCTCOUNT(DW_Deals[EMAIL]),FILTER(DW_Deals,DW_Deals[PRIMARY_LEAD_ID]=BLANK()&&DW_Deals[APPLICATION_STARTED_DATE]>=MIN('0_Days_Agent'[Date])&&DW_Deals[APPLICATION_STARTED_DATE]<=Max('0_Days_Agent'[Date])))`
+- **00_App Completion** = ```` DIVIDE( [00_Apps_Sub], [00_Apps_Started], BLANK() ) ````
+- **00_Approval** = `CALCULATE(DISTINCTCOUNT(DW_Deals[EMAIL]),FILTER(DW_Deals,DW_Deals[APPLICATION_APPROVED_DATE]<>BLANK()&&DW_Deals[APPLICATION_SUBMIT_DATE]<>BLANK()&&DW_Deals[APP_STAGE]<>"Under Review"&&DW_Deals[PRIMARY_LEAD_ID]=BLANK()&&DW_Deals[APPLICATION_SUBMIT_DATE]>=MIN('0_Days_Agent'[Date])&&DW_Deals[APPLICATION_SUBMIT_DATE]<=Max('0_Days_Agent'[Date]))) / CALCULATE(DISTINCTCOUNT(DW_Deals[EMAIL]),FILTER(DW_Deals,DW_Deals[APPLICATION_SUBMIT_DATE]<>BLANK()&&DW_Deals[APP_STAGE]<>"Under Review"&&DW_Deals[PRIMARY_LEAD_ID]=BLANK()&&DW_Deals[APPLICATION_SUBMIT_DATE]>=MIN('0_Days_Agent'[Date])&&DW_Deals[APPLICATIO …[truncated]`
+- **00_Avg Listings** = ```` (CALCULATE(DISTINCTCOUNT(PM_Listings_BOM[PROPERTY_KEY]),FILTER(PM_Listings_BOM,PM_Listings_BOM[CALENDAR_DATE_BOM]=MIN('0_Days_Agent'[BOM]))) + CALCULATE(DISTINCTCOUNT(PM_Listings_BOM[PROPERTY_KEY]),FILTER(PM_Listings_BOM,EOMONTH(PM_Listings_BOM[CALENDAR_DATE_BOM],-2)+1=MAX('0_Days_Agent'[BOM])))) /2 ````
+- **00_Leads/Day** = `[00_Leads_C]/[00_Avg Listings]/CALCULATE(DISTINCTCOUNT('0_Days_Agent'[Date]),FILTER('0_Days_Agent',[PRIOR_CHECK]=1))`
+- **00_Implied Days** = ```` DIVIDE( (1/(.82*[00_Approval]*[00_App_Per_Lead])), [00_Leads/Day], BLANK() ) ````
+
+## 0_Month  (55 measures)
+
+- **01_HF_Monthly** = `CALCULATE(DISTINCTCOUNT(DW_Deals[EMAIL]),FILTER(DW_Deals,DW_Deals[HF (BOM)]<=Max('0_Month'[BEG_OF_MONTH])&&DW_Deals[HF (BOM)]>=Min('0_Month'[BEG_OF_MONTH])))`
+- **01_On Market List** = `CALCULATE(COUNT(PM_Listings_BOM[PROPERTY_KEY]),FILTER(PM_Listings_BOM,PM_Listings_BOM[CALENDAR_DATE_BOM]>=MIN('0_Month'[BEG_OF_MONTH])&&PM_Listings_BOM[CALENDAR_DATE_BOM]<=MAX('0_Month'[BEG_OF_MONTH])))`
+- **0_Occupied #** = `CALCULATE(DISTINCTCOUNT(PM_BOM[HBPM_PropertyID]),FILTER(PM_BOM,PM_BOM[BEG_OF_MONTH]<=MAX('0_Month'[BEG_OF_MONTH])&&PM_BOM[BEG_OF_MONTH]>=MIN('0_Month'[BEG_OF_MONTH])&&PM_BOM[1_Occ_Status (DW)]>=1479&&PM_BOM[1_Occ_Status (DW)]<=1481&&PM_BOM[Days Occ]>0&&OR(PM_BOM[1_Move-Out]=BLANK(),PM_BOM[1_Move-Out]>MAX('0_Month'[BEG_OF_MONTH]))))`
+- **0_Occ_BOM %** = `CALCULATE([0_Occupied #] / [0_Stabilized],FILTER('0_Month','0_Month'[BEG_OF_MONTH]=MIN('0_Month'[BEG_OF_MONTH]))) //[0_Ten Leased #]/[0_Owned]`
+- **0_Stabilized** = ```` CALCULATE(DISTINCTCOUNT(PM_BOM[HBPM_PropertyID]),filter(FILTER(PM_BOM,PM_BOM[BEG_OF_MONTH]<=MAX('0_Month'[BEG_OF_MONTH])&&PM_BOM[BEG_OF_MONTH]>=MIN('0_Month'[BEG_OF_MONTH])), -- AND(PM_PropStatus_BOM[Occ_Status (DW)]=1476,PM_PropStatus_BOM[Compliance]<>"Not Cleared to List")|| -- ||AND(PM_PropStatus_BOM[Occ_Status (DW)]=1483,PM_PropStatus_BOM[Compliance]<>"Not Cleared to List") -- ||AND(PM_PropStatus_BOM[Occ_Status (DW)]=1489,PM_PropStatus_BOM[Compliance]<>"Not Cleared to List") PM_BOM[1_Occ_Status (DW)]=1476 ||PM_BOM[1_Occ_Status (DW)]=1483 ||PM_BOM[1_Occ_Status (DW)]=1489 ||PM_BOM[1_Occ_ …[truncated]`
+- **01_Lease_Vacant %** = ```` DIVIDE( COALESCE(([01_MoveIn Monthly]+[01_FMI Monthly]),0), [0_Vacant #], BLANK() ) ````
+- **0_Renewal %** = `CALCULATE(DW_Renewals[0_Active Renew %],FILTER(DW_Renewals,DW_Renewals[1_C_LeaseEnd(BOM)]<=MAX('0_Month'[BEG_OF_MONTH])&&DW_Renewals[1_C_LeaseEnd(BOM)]>=MIN('0_Month'[BEG_OF_MONTH])))`
+- **0_All Homes** = `CALCULATE(COUNT(PM_BOM[HBPM_PropertyID]),FILTER(PM_BOM,PM_BOM[BEG_OF_MONTH]<=MAX('0_Month'[BEG_OF_MONTH]) && PM_BOM[BEG_OF_MONTH]>=MIN('0_Month'[BEG_OF_MONTH])&&PM_BOM[Occupancy_Status]<>BLANK())) / (DISTINCTCOUNT('0_Month'[BEG_OF_MONTH]))`
+- **0_Collection %_Rent** = `CALCULATE([0_Collections_Switch],FILTER(DW_Tenant_Charges,DW_Tenant_Charges[CHARGE_DATE_BOM]>=min('0_Month'[BEG_OF_MONTH])&&DW_Tenant_Charges[CHARGE_DATE_BOM]<=max('0_Month'[BEG_OF_MONTH])&&DW_Tenant_Charges[ACCOUNT_NUMBER]="4010"&&DW_Tenant_Charges[CREDITTYPEID]<>2),FILTER('0_Days','0_Days'[Max Day]=1),FILTER(SEL_Collections_Type,SEL_Collections_Type[Value]="Net (x-Concessions)"))`
+- **0_Blended Spread %** = ```` ( CALCULATE(SUM(DW_Renewals[N_AMOUNT]),FILTER(DW_Renewals,DW_Renewals[Lease Eligibility]="Eligible"&&DW_Renewals[N_AMOUNT]<>BLANK()&&DW_Renewals[1_C_LeaseEnd(BOM)]>=MIN('0_Month'[BEG_OF_MONTH])&&DW_Renewals[1_C_LeaseEnd(BOM)]<=MAX('0_Month'[BEG_OF_MONTH]))) + CALCULATE(SUM(DW_Turns[N_INITIAL_RENT]),FILTER(DW_Turns,DW_Turns[O_CURRENT_RENT]<>BLANK()&&COALESCE(DW_Turns[N_INITIAL_RENT],DW_Turns[N_CURRENT_RENT])<>BLANK()&&DW_Turns[N_Lease_FROM (BOM)]>=MIN('0_Month'[BEG_OF_MONTH])&&DW_Turns[N_Lease_FROM (BOM)]<=MAX('0_Month'[BEG_OF_MONTH])&& DW_Turns[Lease Type]="Tenant")) ) / ( CALCULATE(SUM(DW …[truncated]`
+- **0_Turnover %** = ```` DIVIDE( [01_MoveOut_Forecast], [0_Occupied #], BLANK() ) ````
+- **0_Days Occ** = ```` CALCULATE(DIVIDE(SUM(PM_BOM[Days Occ]), SUM(PM_BOM[Owned Days]), BLANK()),FILTER(PM_BOM,PM_BOM[BEG_OF_MONTH]>=MIN('0_Month'[BEG_OF_MONTH])&&PM_BOM[BEG_OF_MONTH]<=MAX('0_Month'[BEG_OF_MONTH]))) ````
+- **0_Retention** = `1 -'0_Month'[0_Turnover %]`
+- **01_MoveIn Monthly** = `CALCULATE(DISTINCTCOUNT(DW_MoveOut[TENANT_KEY]),FILTER(DW_MoveOut,DW_MoveOut[MOVEIN_BOM]<=Max('0_Month'[BEG_OF_MONTH])&&DW_MoveOut[MOVEIN_BOM]>=MIN('0_Month'[BEG_OF_MONTH])))`
+- **0_FMI #** = `CALCULATE(DISTINCTCOUNT(PM_BOM[HBPM_PropertyID]),FILTER(PM_BOM,PM_BOM[BEG_OF_MONTH]<=MAX('0_Month'[BEG_OF_MONTH])&&PM_BOM[BEG_OF_MONTH]>=MIN('0_Month'[BEG_OF_MONTH])&&PM_BOM[1_Occ_Status (DW)]=1478))`
+- **02_Leads** = `CALCULATE(DISTINCTCOUNT(DW_Leads[LEAD_KEY]),FILTER(DW_Leads,DW_Leads[1_Lead_INTERESTED (BOM)]>=MIN('0_Month'[BEG_OF_MONTH])&&DW_Leads[1_Lead_INTERESTED (BOM)]<=MAX('0_Month'[BEG_OF_MONTH])&&DW_Leads[PRIMARY_LEAD_ID]=BLANK()))`
+- **02_Leads_Applied** = `CALCULATE(DISTINCTCOUNT(DW_Deals[EMAIL]),FILTER(DW_Deals,DW_Deals[App Submit (BOM)]>=MIN('0_Month'[BEG_OF_MONTH])&&DW_Deals[App Submit (BOM)]<=MAX('0_Month'[BEG_OF_MONTH])&&DW_Deals[APPLICATION_SUBMIT_DATE]<>BLANK()))`
+- **02_Leads_Applied_App** = `CALCULATE(DISTINCTCOUNT(DW_Deals[EMAIL]),FILTER(DW_Deals,DATE(YEAR(DW_Deals[APPLICATION_APPROVED_DATE]),MONTH(DW_Deals[APPLICATION_APPROVED_DATE]),1)>=MIN('0_Month'[BEG_OF_MONTH])&&DATE(YEAR(DW_Deals[APPLICATION_APPROVED_DATE]),MONTH(DW_Deals[APPLICATION_APPROVED_DATE]),1)<=MAX('0_Month'[BEG_OF_MONTH])&&DW_Deals[APPLICATION_SUBMIT_DATE]<>BLANK()&&DW_Deals[APPLICATION_APPROVED_DATE]<>BLANK()))`
+- **02_Leads_HF** = `CALCULATE(DISTINCTCOUNT(DW_Deals[EMAIL]),FILTER(DW_Deals,DW_Deals[HF (BOM)]>=MIN('0_Month'[BEG_OF_MONTH])&&DW_Deals[HF (BOM)]<=MAX('0_Month'[BEG_OF_MONTH])&&DW_Deals[HF Date]<>BLANK()))`
+- **02_Leads_MI** = `CALCULATE(DISTINCTCOUNT(DW_Deals[EMAIL]),FILTER(DW_Deals,DATE(YEAR(COALESCE(DW_Deals[CONVERT_TO_RESIDENT_DATE],DW_Deals[EXPECTED_MOVE_IN_DATE])),MONTH(COALESCE(DW_Deals[CONVERT_TO_RESIDENT_DATE],DW_Deals[EXPECTED_MOVE_IN_DATE])),1)>=MIN('0_Month'[BEG_OF_MONTH])&&DATE(YEAR(COALESCE(DW_Deals[CONVERT_TO_RESIDENT_DATE],DW_Deals[EXPECTED_MOVE_IN_DATE])),MONTH(COALESCE(DW_Deals[CONVERT_TO_RESIDENT_DATE],DW_Deals[EXPECTED_MOVE_IN_DATE])),1)<=MAX('0_Month'[BEG_OF_MONTH])&&DW_Deals[HF Date]<>BLANK()&&OR(DW_Deals[CONVERT_TO_RESIDENT_DATE]<>BLANK(),DW_Deals[EXPECTED_MOVE_IN_DATE]>=TODAY())))`
+- **03_Apps:Leads** = ```` DIVIDE( COALESCE([02_Leads_Applied],0), [02_Leads], BLANK() ) ````
+- **03_MI:Apps** = ```` DIVIDE( COALESCE([02_Leads_MI],0), [02_Leads_Applied], BLANK() ) ````
+- **03_MI:Leads** = ```` DIVIDE( COALESCE([02_Leads_MI],0), [02_Leads], BLANK() ) ````
+- **04_EOM Collections** = `CALCULATE([0_Collection_Day_Net],FILTER(DW_Tenant_Charges,DW_Tenant_Charges[CHARGE_DATE_BOM]>=min('0_Month'[BEG_OF_MONTH])&&DW_Tenant_Charges[CHARGE_DATE_BOM]<=max('0_Month'[BEG_OF_MONTH])&&DW_Tenant_Charges[ACCOUNT_NUMBER]="4010"&&DW_Tenant_Charges[CREDITTYPEID]<>2),FILTER('0_Days','0_Days'[Max Day]=1),FILTER(SEL_Collections_Type,SEL_Collections_Type[Value]="Net (x-Concessions)"))`
+- **03_Appr:Apps** = ```` DIVIDE( IF([02_Leads_Applied]>0,COALESCE([02_Leads_Applied_App], [02_Leads_Applied],0), BLANK() ),BLANK()) ````
+- **0_Avg_Rent** = `CALCULATE(AVERAGE(PM_BOM[CURRENT_RENT]),FILTER(PM_BOM,PM_BOM[BEG_OF_MONTH]<=MAX('0_Month'[BEG_OF_MONTH])&&PM_BOM[BEG_OF_MONTH]>=MIN('0_Month'[BEG_OF_MONTH])))`
+- **0_Active_Listings** = ```` CALCULATE(DISTINCTCOUNT(DW_Listings[PROPERTY_KEY]),DW_Listings[LISTING_STATUS]="Active") ````
+- **03_HF:MI** = ```` DIVIDE( COALESCE([02_Leads_MI],0), [02_Leads_HF], BLANK() ) ````
+- **04_90+ Spend** = `CALCULATE([0_Run Rate (90+ Spend)],FILTER(PM_BOM,PM_BOM[BEG_OF_MONTH] >= MIN('0_Month'[BEG_OF_MONTH]) && PM_BOM[BEG_OF_MONTH] <= MAX('0_Month'[BEG_OF_MONTH])))`
+- **04_Net Turn Cost** = `CALCULATE(AVERAGE(DW_Turns[1_Net Turn Cost_Collected]),FILTER(DW_Turns,DW_Turns[1_Turn Status]="Turn Completed" --&&DW_Turns[1_Turn Type]="Regular" &&DW_Turns[TURN_COMPLETED_BOM] >= MIN('0_Month'[BEG_OF_MONTH]) &&DW_Turns[TURN_COMPLETED_BOM]  <= MAX('0_Month'[BEG_OF_MONTH])))`
+- **04_Renewal** = `CALCULATE(DW_Renewals[0_R_Renewal %],FILTER(DW_Renewals,DW_Renewals[1_Lease Type]="Tenant Leased"&&DW_Renewals[1_C_LeaseEnd(BOM)]<=MAX('0_Month'[BEG_OF_MONTH])&&DW_Renewals[1_C_LeaseEnd(BOM)]>=MIN('0_Month'[BEG_OF_MONTH])))`
+- **04_Cycle Time** = `CALCULATE(AVERAGE(DW_WO[1_DIQ/CycleTime]),FILTER(DW_WO,DW_WO[WORKORDER_STATUS]="Closed"&&DW_WO[Closed Date_BOM]>=MIN('0_Month'[BEG_OF_MONTH])&&DW_WO[Closed Date_BOM]<=max('0_Month'[BEG_OF_MONTH])))`
+- **02_HF_PullThru** = ```` DIVIDE( [01_HF_Monthly], [01_On Market List], BLANK() ) ````
+- **05_Turn_MO-Scope** = `CALCULATE(AVERAGE(DW_Turns[Days_MoveOut_Scope]),FILTER(DW_Turns,EOMONTH(DW_Turns[HC_SCOPE_COMPLETED_DATE],0)=MIN('0_Month'[END_OF_MONTH])))`
+- **05_Turn_Scope-Tkt** = `CALCULATE(AVERAGE(DW_Turns[Days_Scope_TKT_Created]),FILTER(DW_Turns,EOMONTH(DW_Turns[TKT_CREATED_MIN],0)=MIN('0_Month'[END_OF_MONTH])))`
+- **05_Turn_Tkt Created-Closed** = `CALCULATE(AVERAGE(DW_Turns[Days_TKT_Created_TKT_Closed]),FILTER(DW_Turns,EOMONTH(DW_Turns[TKT_CLOSED_MAX],0)=MIN('0_Month'[END_OF_MONTH])))`
+- **05_Turn_Tkt Closed - QC** = `CALCULATE(AVERAGE(DW_Turns[Days_TKT_Closed_QC]),FILTER(DW_Turns,EOMONTH(DW_Turns[HC_TURN_COMPLETED_DATE],0)=MIN('0_Month'[END_OF_MONTH])))`
+- **05_Turn_Tkt MO-QC** = `CALCULATE(AVERAGE(DW_Turns[Days_MoveOut_Closed_QC]),FILTER(DW_Turns,EOMONTH(DW_Turns[HC_TURN_COMPLETED_DATE],0)=MIN('0_Month'[END_OF_MONTH])))`
+- **05_Turn_Tkt MO-List** = `CALCULATE(AVERAGE(DW_Turns[Days_MoveOut_List]),FILTER(DW_Turns,EOMONTH(DW_Turns[N_LISTING_DATE],0)=MIN('0_Month'[END_OF_MONTH])))`
+- **01_FMI Monthly** = `CALCULATE(DISTINCTCOUNT(DW_Listings[RENT_LIST_HIST_ID]),FILTER(DW_Listings,DW_Listings[LEASE_START_DATE_BOM]>=MIN('0_Month'[BEG_OF_MONTH])&&DW_Listings[LEASE_START_DATE_BOM]<=MAX('0_Month'[BEG_OF_MONTH])&&DW_Listings[CURRENT_DEAL_STATUS]<>"Deal Won"&&DW_Listings[CURRENT_DEAL_STATUS]<>"Closed Won"&&DW_Listings[MOST_RECENT_LISTING]="Yes"&&DW_Listings[FMI_FLAG]=1))`
+- **01_MI_Combined** = `COALESCE([01_MoveIn Monthly] + [01_FMI Monthly],0)`
+- **01_MoveOut_Forecast** = `CALCULATE(DISTINCTCOUNT(DW_MoveOut[TENANT_KEY]),FILTER(DW_MoveOut,DW_MoveOut[MOVEOUT_BOM]<=MAX('0_Month'[BEG_OF_MONTH])&&DW_MoveOut[MOVEOUT_BOM]>=MIN('0_Month'[BEG_OF_MONTH]))) + CALCULATE(DISTINCTCOUNT(DW_MoveOut[TENANT_KEY]),FILTER(DW_MoveOut,DW_MoveOut[MOVEOUT]=BLANK()&&DW_MoveOut[1_Renewal Result]<>"Pending"&&DW_MoveOut[EVICITON_AMOD_FLAG]=0&&DW_MoveOut[STRATEGY_NAME]<>"Repair/Sell"&&DW_MoveOut[MOVE_OUT_FORECAST_BOM]<=MAX('0_Month'[BEG_OF_MONTH])&&DW_MoveOut[MOVE_OUT_FORECAST_BOM]>=MIN('0_Month'[BEG_OF_MONTH])))`
+- **01_Forecasted_Net_Occupancy** = `COALESCE([01_MI_Combined] - [01_MoveOut_Forecast],0)`
+- **0_Eviction %** = `CALCULATE(DW_Renewals[0_Eviction Exposure],FILTER(DW_Renewals,DW_Renewals[1_C_LeaseEnd(BOM)]>=MIN('0_Month'[BEG_OF_MONTH])&&DW_Renewals[1_C_LeaseEnd(BOM)]<=MAX('0_Month'[BEG_OF_MONTH])))`
+- **0_Vacant #** = ```` CALCULATE(COUNT(PM_BOM[HBPM_PropertyID]),FILTER(PM_BOM,AND(PM_BOM[BEG_OF_MONTH]<=MAX('0_Month'[BEG_OF_MONTH])&&PM_BOM[BEG_OF_MONTH]>=MIN('0_Month'[BEG_OF_MONTH]), PM_BOM[1_Occ_Status (DW)]= 1476 || PM_BOM[1_Occ_Status (DW)]= 1477 || PM_BOM[1_Occ_Status (DW)]= 1478 || PM_BOM[1_Occ_Status (DW)]= 1483 || PM_BOM[1_Occ_Status (DW)]= 1489 || PM_BOM[1_Occ_Status (DW)]= 10000))) ````
+- **01_Lease_Listings %** = ```` DIVIDE( COALESCE(([01_MoveIn Monthly]+[01_FMI Monthly]),0), [01_On Market List], BLANK() ) ````
+- **0_Occ_EOM %** = ```` IFERROR(CALCULATE(([0_Occupied #]+[01_Forecasted_Net_Occupancy])/[0_Stabilized],FILTER('0_Month','0_Month'[BEG_OF_MONTH]=MAX('0_Month'[BEG_OF_MONTH]))),BLANK()) ````
+- **01_Lease %** = `DIVIDE( COALESCE(([01_MoveIn Monthly]+[01_FMI Monthly]),0), [0_Vacant #], BLANK() )`
+- **04_Renewal_Rent_Growth** = `CALCULATE([0_Rent Growth],FILTER(DW_Renewals,DW_Renewals[1_C_LeaseEnd(BOM)]>=MIN('0_Month'[BEG_OF_MONTH])&&DW_Renewals[1_C_LeaseEnd(BOM)]<=MAX('0_Month'[BEG_OF_MONTH])))`
+- **0_Renewal_Actual** = `CALCULATE([0_Active Renew %],FILTER(DW_Renewals,DW_Renewals[Lease Eligibility]="Eligible"&&DW_Renewals[1_C_LeaseEnd(BOM)]<=MAX('0_Month'[BEG_OF_MONTH])&&DW_Renewals[1_C_LeaseEnd(BOM)]>=MIN('0_Month'[BEG_OF_MONTH])))`
+- **0_Release Growth** = ```` CALCULATE([0_Turn_Rent Growth],FILTER(DW_Turns,DW_Turns[O_CURRENT_RENT]<>BLANK()&&COALESCE(DW_Turns[N_INITIAL_RENT],DW_Turns[N_CURRENT_RENT])<>BLANK()&&DW_Turns[N_Lease_FROM (BOM)]<=MAX('0_Month'[BEG_OF_MONTH])&&DW_Turns[N_Lease_FROM (BOM)]>=MIN('0_Month'[BEG_OF_MONTH])&& DW_Turns[Lease Type]="Tenant")) ````
+- **01_HF_Monthly_Rent** = `CALCULATE(AVERAGE(DW_Deals[CURRENTLISTPRICE]),FILTER(DW_Deals,DW_Deals[HF (BOM)]<>BLANK()&&DW_Deals[HF (BOM)]<=Max('0_Month'[BEG_OF_MONTH])&&DW_Deals[HF (BOM)]>=Min('0_Month'[BEG_OF_MONTH])))`
+- **04_Interal Maintenance** = `CALCULATE(SUM(DW_WO[CLIENT_INVOICE_AMOUNT]),FILTER(DW_WO,DW_WO[WORKORDER_STATUS]="Closed"&&DW_WO[IS_INTERNAL_VENDOR]="Y"&&DW_WO[Closed Date_BOM]>=MIN('0_Month'[BEG_OF_MONTH])&&DW_WO[Closed Date_BOM]<=MAX('0_Month'[BEG_OF_MONTH])))`
+- **04_IM_Goal** = `DISTINCTCOUNT(DW_Properties[POD])*2*2000*4`
+- **0_Occ_EOM_2** = `IFERROR(CALCULATE(([0_Occupied #] + [01_Forecasted_Net_Occupancy]+ CALCULATE( DISTINCTCOUNT(DW_Listings[RENT_LIST_HIST_ID]), FILTER( DW_Listings, DW_Listings[LEASE_START_DATE_BOM] >= EOMONTH(MIN('0_Month'[BEG_OF_MONTH]), 0) + 1 && DW_Listings[LEASE_START_DATE_BOM] <= EOMONTH(MIN('0_Month'[BEG_OF_MONTH]), 1) && DW_Listings[CURRENT_DEAL_STATUS] <> "Deal Won" && DW_Listings[CURRENT_DEAL_STATUS] <> "Closed Won" && DW_Listings[MOST_RECENT_LISTING] = "Yes" && DW_Listings[FMI_FLAG] = 1 ) ) -CALCULATE( DISTINCTCOUNT(DW_MoveOut[TENANT_KEY]), DW_MoveOut[MOVEOUT] = BLANK(), DW_MoveOut[1_Renewal Result] < …[truncated]`
 
 ## DW_Deals  (9 measures)
 
@@ -18,6 +141,10 @@
 - **0_HF_Gross** = `CALCULATE(DISTINCTCOUNT(DW_Deals[EMAIL]))`
 - **0_Approval** = ```` CALCULATE(DISTINCTCOUNT(DW_Deals[EMAIL]),FILTER(DW_Deals,DW_Deals[APPLICATION_APPROVED_DATE]<>BLANK()&&DW_Deals[APPLICATION_SUBMIT_DATE]<>BLANK()&&DW_Deals[APP_STAGE]<>"Under Review"&&DW_Deals[PRIMARY_LEAD_ID]=BLANK())) / CALCULATE(DISTINCTCOUNT(DW_Deals[EMAIL]),FILTER(DW_Deals,DW_Deals[APPLICATION_SUBMIT_DATE]<>BLANK()&&DW_Deals[APP_STAGE]<>"Under Review"&&DW_Deals[PRIMARY_LEAD_ID]=BLANK())) ````
 - **0_App_IP** = `CALCULATE(DISTINCTCOUNT(DW_Deals[EMAIL]),FILTER(DW_Deals,DW_Deals[APP_STAGE]="Aplication Started"&&DW_Deals[DAYS_SINCE_APP_SUBMIT]<=30))`
+
+## DW_Inspections  (1 measures)
+
+- **0_Inspection_Count** = ```` DISTINCTCOUNT(DW_Inspections[INSPECTION_ID]) + 0 ````
 
 ## DW_Leads  (3 measures)
 
@@ -138,8 +265,13 @@
 - **0_NLS** = `IF(ISFILTERED(LTO[ENTITYID]),FIRSTNONBLANK(LTO[N_LEASESTART],LTO[N_LEASESTART]),BLANK())`
 - **0_RG** = ```` IF( SUM(LTO[N_AMOUNT])<>BLANK()&&SUM(LTO[N_AMOUNT])<>BLANK(), (DIVIDE(SUM(LTO[N_AMOUNT]), SUM(LTO[C_AMOUNT]), BLANK())) -1, BLANK()) ````
 
+## PM_BOM  (2 measures)
+
+- **0_Run Rate (90+ Spend)** = ```` (DIVIDE(SUM(PM_BOM[MM Ongoing Spend Post Lease+90]), SUM(PM_BOM[DAYS_POST_90_MTD]), BLANK())) * 365 ````
+- **0_Run Rate Monthly** = `FORMAT(SUM(PM_BOM[MM Ongoing Spend Post Lease+90]), "$#,###") &" / " & FORMAT(SUM(PM_BOM[DAYS_POST_90_FULL]) * 1700/365, "$#,###")`
+
 ## SEL_WO_CHART  (1 measures)
 
 - **0_Value** = `VAR Choice = SELECTEDVALUE(SEL_WO_CHART[Value]) return IF(Choice="Count",[0_TKT_Count],IF(Choice="Invoice Amount",SUM(DW_WO[CLIENT_INVOICE_AMOUNT]),BLANK()))`
 
-_Total: 94 measures across mirrored tables._
+_Total: 211 measures across mirrored tables._
