@@ -1,0 +1,22 @@
+table SEL_LeaseType
+	lineageTag: f37beb65-acdb-435f-86f9-08537d81e7bb
+
+	column 'Lease Type'
+		dataType: string
+		lineageTag: d479a26a-c6ce-468d-be51-0a5b41a5dbf8
+		summarizeBy: none
+		sourceColumn: Lease Type
+
+		annotation SummarizationSetBy = Automatic
+
+	partition SEL_LeaseType-b3681273-1887-4ce9-93a1-c7ff191e7bfc = m
+		mode: import
+		queryGroup: Inputs
+		source =
+				let
+				    Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("i45WCknNS8wrUfBJTSxOTVGK1QGKFJUWl6SmwoViAQ==", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [#"Lease Type" = _t])
+				in
+				    Source
+
+	annotation PBI_ResultType = Table
+
