@@ -1,0 +1,78 @@
+table PM_PropStatus_ALL
+	lineageTag: 00c8d31b-b577-4813-9080-9e91e3921a1d
+
+	column PROPERTYID
+		dataType: double
+		lineageTag: 656e482f-5d63-4186-85de-3bf52a742fe4
+		summarizeBy: count
+		sourceColumn: PROPERTYID
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column AUDITLOGID
+		dataType: double
+		lineageTag: bba47970-ce44-4337-8a94-badd2e33b042
+		summarizeBy: count
+		sourceColumn: AUDITLOGID
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column AFTERVALUE
+		dataType: double
+		lineageTag: 8f07b067-394b-4562-a1c0-f5be692a8824
+		summarizeBy: sum
+		sourceColumn: AFTERVALUE
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column OCCUPANCY_STATUS
+		dataType: string
+		lineageTag: ebcc98f5-2a59-41ab-bab6-cf0287edeac5
+		summarizeBy: none
+		sourceColumn: OCCUPANCY_STATUS
+
+		annotation SummarizationSetBy = Automatic
+
+	column LOGDATETIME
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 018003c1-7424-4945-8cb5-1252c9d0eb4c
+		summarizeBy: none
+		sourceColumn: LOGDATETIME
+
+		variation Variation
+			isDefault
+			relationship: eed41df9-6731-47da-ae2f-2ac40c35e4a9
+			defaultHierarchy: LocalDateTable_eedf87e1-a38e-414d-870f-236afa477302.'Date Hierarchy'
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column ADDRESS
+		dataType: string
+		lineageTag: bed03fdf-d850-41af-8a60-11a7ada8e60d
+		summarizeBy: none
+		sourceColumn: ADDRESS
+
+		annotation SummarizationSetBy = Automatic
+
+	partition PM_PropStatus_ALL-775d1235-c813-4be0-a2b2-30620fe9bd8f = m
+		mode: import
+		queryGroup: 'PM Other'
+		source =
+				let
+				    Source = Value.NativeQuery(Snowflake.Databases("ota12822.us-east-1.snowflakecomputing.com","DEVELOPER_WH"){[Name="PROD_REPLICA"]}[Data], "SELECT DISTINCT#(lf)#(tab)  P.HBPM_PROPERTY_ID AS PropertyId#(lf)          ,P.Address#(lf) #(tab)  , FCT_PROP_UNIT_STATUS_HIST_KEY AS AuditLogId#(lf)#(tab) ,LM.LOOKUPMASTERID AS AfterValue#(lf)#(tab) ,NEW_OCCUPANCY_STATUS AS Occupancy_Status#(lf)#(tab) ,to_date(CHANGED_DATE_KEY::TEXT,'yyyymmdd') AS LogDateTime#(lf)#(tab)  FROM PROD_ANALYTICS.DBT_RESICAP.FCT_PROP_UNIT_STATUS_HIST PSH#(lf)#(tab)  LEFT JOIN PROD_REPLICA.HBPM_DBO.LOOKUPMASTERS LM ON LM.DESCRIPTION = PSH.NEW_OCCUPANCY_STATUS   AND LM.TYPEID = 6#(lf)#(tab)  LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PROPERTY P ON P.PROPERTY_KEY = PSH.PROPERTY_KEY #(lf)#(tab)  WHERE 1=1#(lf)#(tab)#(lf)#(tab)   AND P.PROPERTY_STATE ='Active'#(lf)#(tab)   AND P.EntityID <> ''#(lf)#(tab)   --AND P.Current_Flag = 'Y'#(lf)#(tab)   AND P.HBMM_Property_ID IS NOT NULL#(lf)#(tab)  #(lf)#(tab)  ORDER BY LogDateTime DESC", null, [EnableFolding=true])
+				in
+				    Source
+
+	annotation PBI_ResultType = Table
+

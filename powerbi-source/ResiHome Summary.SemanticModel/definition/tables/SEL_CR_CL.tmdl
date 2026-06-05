@@ -1,0 +1,25 @@
+table SEL_CR_CL
+	lineageTag: 5cd0269d-161b-492a-b21c-143309ab21e6
+
+	column 'Date Filter'
+		dataType: string
+		lineageTag: 37c16201-026c-46b2-a9ee-211921d1fc6e
+		summarizeBy: none
+		sourceColumn: Date Filter
+
+		annotation SummarizationSetBy = Automatic
+
+	partition SEL_CR_CL = m
+		mode: import
+		queryGroup: Inputs
+		source =
+				let
+				    Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("i45WCk9NzVaK1YlW8s3PK8kAs1wSK5ViYwE=", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [#"Date Filter" = _t]),
+				    #"Changed Type" = Table.TransformColumnTypes(Source,{{"Date Filter", type text}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

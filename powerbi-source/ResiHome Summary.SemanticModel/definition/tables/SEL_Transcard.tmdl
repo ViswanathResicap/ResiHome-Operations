@@ -1,0 +1,104 @@
+table SEL_Transcard
+	lineageTag: d74d0fea-6b82-49b1-b6b5-5b8e6d2cc957
+
+	column PORTFOLIO_KEY
+		dataType: int64
+		formatString: 0
+		lineageTag: 27085d14-3557-41eb-9d48-aa926c9abbe8
+		summarizeBy: none
+		sourceColumn: PORTFOLIO_KEY
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Name - SMART - Enroll'
+		dataType: string
+		lineageTag: a62f16b1-eb62-4630-b3e6-32f89d9acaf3
+		summarizeBy: none
+		sourceColumn: Name - SMART - Enroll
+
+		annotation SummarizationSetBy = Automatic
+
+	column GBID
+		dataType: int64
+		formatString: 0
+		lineageTag: 150511f1-7ed1-49bb-9209-5273f52df3a5
+		summarizeBy: none
+		sourceColumn: GBID
+
+		annotation SummarizationSetBy = Automatic
+
+	column DDA
+		dataType: string
+		lineageTag: 91238b3c-2fae-4efe-950a-e1e6565f7038
+		summarizeBy: none
+		sourceColumn: DDA
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Template ID'
+		dataType: int64
+		formatString: 0
+		lineageTag: b6105120-2377-4f12-a5e7-60e0c0363c57
+		summarizeBy: none
+		sourceColumn: Template ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Synovus Template ID'
+		dataType: string
+		lineageTag: 629228df-0b48-4234-a04e-088787790bb5
+		summarizeBy: none
+		sourceColumn: Synovus Template ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Bank Account Last 4'
+		dataType: int64
+		formatString: 0
+		lineageTag: bee49a7e-ad8c-454c-a99f-6a41b02f7b5a
+		summarizeBy: none
+		sourceColumn: Bank Account Last 4
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'SAGE Bank ID'
+		dataType: string
+		lineageTag: b1c002c9-81e1-468f-a750-65d8d70304e3
+		summarizeBy: none
+		sourceColumn: SAGE Bank ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Rents Account'
+		dataType: int64
+		formatString: 0
+		lineageTag: cd17a172-63db-4516-a510-d21865894fec
+		summarizeBy: none
+		sourceColumn: Rents Account
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Acc Ref ID'
+		dataType: string
+		lineageTag: 5e504456-faeb-4d3a-89c2-95b6a940fb60
+		summarizeBy: none
+		sourceColumn: Acc Ref ID
+
+		annotation SummarizationSetBy = Automatic
+
+	partition SEL_Transcard = m
+		mode: import
+		queryGroup: Inputs
+		source =
+				let
+				    Source = Csv.Document(Web.Contents("https://docs.google.com/spreadsheets/d/e/2PACX-1vQsx5I2GisoHTCTJHib2YZF7g144Xqnbh-6xlC_fPU-vZ-NRPe0CwckF_4xltgNOgMvijHbUIGZkByt/pub?gid=0&single=true&output=csv"),[Delimiter=",", Columns=13, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"PORTFOLIO_KEY", Int64.Type}, {"Name - SMART - Enroll", type text}, {"GBID", Int64.Type}, {"DDA", type text}, {"Acc Ref ID", type text}, {"Template ID", Int64.Type}, {"Synovus Template ID", type text}, {"Bank Account Last 4", Int64.Type}, {"SAGE Bank ID", type text}, {"Rents Account", Int64.Type}, {"", type text}, {"_1", type text}, {"_2", type text}}),
+				    #"Removed Columns" = Table.RemoveColumns(#"Changed Type",{"", "_1", "_2"})
+				in
+				    #"Removed Columns"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

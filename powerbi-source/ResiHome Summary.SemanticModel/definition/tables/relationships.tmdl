@@ -1,0 +1,1912 @@
+relationship 658e839f-c741-41b7-be23-f207e8ca88df
+	fromColumn: DW_Leads.PROPERTY_KEY
+	toColumn: DW_Properties.PROPERTY_KEY
+
+relationship 90db0bd4-6386-47c1-a899-2060d58bd42b
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Properties.Transfer_Date
+	toColumn: LocalDateTable_df187989-4788-481c-8657-b2f70f752cb3.Date
+
+relationship a3a98c66-014f-4b6b-a80c-5ae1ad7d7daf
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Properties.Purchase_Date
+	toColumn: LocalDateTable_d9e3ea47-3cf6-4770-a4b0-342502f88091.Date
+
+relationship a0ae5a68-304b-4751-b2ac-690b4949c333
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Properties.LEASE_SIGNED_DATE
+	toColumn: LocalDateTable_9f5cc7c9-a0cd-4cfd-9522-3fa194d062b0.Date
+
+relationship 642f36be-8705-42a4-89ee-eced297e898b
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Properties.LEASE_FROM_DATE
+	toColumn: LocalDateTable_866e1e27-2f90-4bf6-932d-08b0883e8e64.Date
+
+relationship c2166a38-6016-4be2-99b8-1c9b6249a059
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Properties.LEASE_TO_DATE
+	toColumn: LocalDateTable_ffae1454-bb0e-4188-b0e8-1b2dbe91e8dc.Date
+
+relationship 7acaf9a5-724c-459e-ad7a-1479ad16dee3
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Properties.LISTINGDATE
+	toColumn: LocalDateTable_922523bc-3509-48b5-9444-c1ea7a641b4c.Date
+
+relationship efe6a6ff-49c2-46cb-84c5-072e80b63778
+	crossFilteringBehavior: bothDirections
+	fromColumn: DW_Tenant_Charges.PROPERTY_KEY
+	toColumn: DW_Properties.PROPERTY_KEY
+
+relationship 379d7e09-7e67-4f3d-9f77-c3f1f5a6752d
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Tenant_Receipts.RECEIVED_DATE
+	toColumn: LocalDateTable_fa30f1aa-57ac-4acb-b8b8-7e654f264662.Date
+
+relationship 4621ddb5-5273-42d9-bff8-70bae41978ce
+	fromColumn: DW_Tenant_Receipts.RECEIVABLE_ID
+	toColumn: DW_Tenant_Charges.RECEIVABLE_ID
+
+relationship 1efbb1ff-b833-4267-93be-d902cc2ad004
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Tenant_Charges.LEASE_FROM_DATE
+	toColumn: LocalDateTable_d764b4eb-eb65-4950-b459-de3aeb27393a.Date
+
+relationship ca0a2a7f-cc2a-43df-b406-493eaad87e36
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Tenant_Charges.LEASE_TO_DATE
+	toColumn: LocalDateTable_19a6a6f3-e1ee-40f6-8de9-2f559e286a6b.Date
+
+relationship e0559aba-db1a-45ad-92ea-669e15020888
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Properties.RRQCPASSDATE
+	toColumn: LocalDateTable_e8289d65-a6f4-4eda-8e12-e446f8674fc0.Date
+
+relationship 3f10912e-b46d-49d4-bec4-1c07a070ceff
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Deals.LEASE_START_DATE
+	toColumn: LocalDateTable_3a883a06-133d-4083-ae7b-9a655a6deae9.Date
+
+relationship e5bddb87-46c5-4813-bc2c-a60711ac2c81
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Deals.LEASE_END_DATE
+	toColumn: LocalDateTable_e5c81c20-4d8f-4cf3-a2c5-06dc43ab7d4d.Date
+
+relationship 51bd86e0-953c-4c8e-8f72-2de374c16a64
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Deals.LEASE_SIGNED_DATE
+	toColumn: LocalDateTable_60c319b9-3e53-4e3c-b9b0-2f8e2b9c5d14.Date
+
+relationship ce4deeb5-9e9a-4c23-9aca-cd42e5aff899
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Deals.'HF Date'
+	toColumn: LocalDateTable_cabb251f-2030-4f03-a863-419331aa30e8.Date
+
+relationship 42854af8-8420-4d2e-8b32-e37d1c65d7bc
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Renewals.MOVEIN
+	toColumn: LocalDateTable_c92a41be-d695-42c8-9585-4ecf287ef59c.Date
+
+relationship f100b427-0c76-4390-8bba-dcb32577c211
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Renewals.MOVEOUT
+	toColumn: LocalDateTable_6980b369-1cce-41af-aa11-5c6d48bf32b2.Date
+
+relationship 7eee20e6-6b7a-45c2-b705-29e363918dff
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Renewals.NOTICEDATE
+	toColumn: LocalDateTable_edc3a2bf-1c3b-4b8f-8d7e-0121efffba3d.Date
+
+relationship 529271da-b61e-477c-91ba-6d4ecf59e390
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Renewals.C_CREATED
+	toColumn: LocalDateTable_984cf9b2-cc89-45f7-8280-bfcabd00b5dc.Date
+
+relationship cd004cb8-2c77-49a9-835d-94c4118b48bd
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Renewals.C_LEASESIGNED
+	toColumn: LocalDateTable_3724e8ec-c34e-4685-aa71-719da85dfcb5.Date
+
+relationship e680532b-0634-4c88-80f3-b5cb39239b93
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Renewals.C_LEASESTART
+	toColumn: LocalDateTable_d992aa6d-9280-412e-94c1-4f1877cfdaa1.Date
+
+relationship 8829cca5-8554-4639-bb00-107cec130597
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Renewals.C_LEASEEND
+	toColumn: LocalDateTable_0a2ae059-e588-4533-b1f2-e8c89bf6c325.Date
+
+relationship 15b53a8b-9f12-45ad-9a2a-d626ca2f319d
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Renewals.N_CREATED
+	toColumn: LocalDateTable_dc488288-2335-433e-b641-5c8cb998aece.Date
+
+relationship b70f0cac-bb4d-4c4f-ad9a-ad05973372e2
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Renewals.N_LEASESIGNED
+	toColumn: LocalDateTable_cf965017-9f57-493b-b2dd-fe2d2b543e6a.Date
+
+relationship c9e82b6d-b569-48d2-afc7-d83f94c2ee3d
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Renewals.N_LEASESTART
+	toColumn: LocalDateTable_75f8ca07-8f15-4e49-9372-0cde430a4eab.Date
+
+relationship 4d305673-a9d7-494a-9792-fc654203162d
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Renewals.N_LEASEEND
+	toColumn: LocalDateTable_07a35436-02ed-4927-a573-e2172221ff5d.Date
+
+relationship 017f892d-f8ca-4cab-9783-947846ce0da5
+	fromColumn: DW_Renewals.PROPERTY_KEY
+	toColumn: DW_Properties.PROPERTY_KEY
+
+relationship 7de8e5ad-d374-434c-af54-9f8926c580e1
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Tenant.CURRENT_LEASE_EXPIRATION_DATE
+	toColumn: LocalDateTable_e30f6565-80f2-40b8-b6e4-97730b6d6130.Date
+
+relationship 0843638f-859c-49b2-b168-6ea019a08428
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Tenant.DOB
+	toColumn: LocalDateTable_ad7b4b49-8798-49a8-9ddd-4b9b70bc1412.Date
+
+relationship bffe6fcf-657f-41e8-8c8a-9e026de8ca29
+	isActive: false
+	fromColumn: DW_Tenant_Charges.TENANT_KEY
+	toColumn: DW_Tenant.TENANT_KEY
+
+relationship 0b779a19-08a2-495d-9aa6-d779f728a9bb
+	fromColumn: DW_Deals.PROPERTY_KEY
+	toColumn: DW_Properties.PROPERTY_KEY
+
+relationship cc535e39-2f45-4b6c-9f40-6e670fc2d95f
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Properties.OFFMARKETDATE
+	toColumn: LocalDateTable_b712ecbb-de12-4220-9db0-03a6e8062697.Date
+
+relationship 41d43205-aa4d-4578-acd6-99c105da813f
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Tenant.MOVEIN
+	toColumn: LocalDateTable_9b3fd1e9-980d-4c27-beff-323b7f7902d4.Date
+
+relationship 94ffcc03-c3d1-40bc-aae8-81cf85b0ca39
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Tenant.MOVEOUT
+	toColumn: LocalDateTable_67696742-a09f-4848-9743-02c13fff5b1e.Date
+
+relationship b3071dbd-013f-45c9-9d9d-08572a94edb2
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Tenant.ANTICIPATEDMOVEOUTDATE
+	toColumn: LocalDateTable_d031e732-1e2c-4912-8f80-3a7749bf7e1c.Date
+
+relationship 0f6d84e7-ed4b-4794-bbc2-64c80c7ddcba
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Properties.Sold_Date
+	toColumn: LocalDateTable_63dca596-6a50-4fc5-8cbe-127764699a2a.Date
+
+relationship 6db91f65-19b3-4c9d-8f89-fa0f50c84a17
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Properties.TENANT_MOVE_OUT_DATE
+	toColumn: LocalDateTable_2d7dc6b2-8da4-429e-9c21-fa55220a33d8.Date
+
+relationship f88c26fa-9481-480f-a2fb-61e5d81b4ede
+	fromColumn: DW_Turns.PROPERTY_KEY
+	toColumn: DW_Properties.PROPERTY_KEY
+
+relationship ec918768-55ef-4130-8a64-ba8dfe51c0ca
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_WO.TICKET_CREATED_DATE
+	toColumn: LocalDateTable_725d269b-186f-42c4-899c-e8dfe839e270.Date
+
+relationship c6b4b0cb-919a-4d49-b74b-7ea729e7ddfc
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_WO.WO_CREATED_DATE
+	toColumn: LocalDateTable_cf71d9e8-bab4-4d36-afa7-e9a30328d49d.Date
+
+relationship 0ec2fa74-451e-455c-94c2-e5e9f1941fb6
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_WO.NOTE_CREATED_DATE
+	toColumn: LocalDateTable_dda87617-5c45-415a-9aaf-efb42b723c00.Date
+
+relationship e0456d2e-7d8e-4dcc-904f-7920fabc4ab6
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_WO.WO_MODIFIED_DATE
+	toColumn: LocalDateTable_1fad1d4b-5da5-42ac-a2ad-cfe7a3742594.Date
+
+relationship 9caf178c-e22b-42f9-9cc3-498e53281a82
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_WO.WO_REQUESTED_DATE
+	toColumn: LocalDateTable_47c922dc-8650-450e-9b6e-215a5929a7c0.Date
+
+relationship d2588c38-e20e-4467-938c-e0ba0c7fc4b9
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_WO.WO_ACCEPTED_DATE
+	toColumn: LocalDateTable_4459429d-6656-4237-93af-fa1c5bf40c98.Date
+
+relationship 8dbd6d38-59cf-4a90-bb55-6a6c73ffaea8
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_WO.WO_ESTIMATED_DATE
+	toColumn: LocalDateTable_23e8d0e7-9721-4cd2-87d5-c5361bfe8431.Date
+
+relationship b7886666-5bff-4a6f-b666-925a352dc12b
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_WO.WO_AWAITING_OWNER_APPROVAL_DATE
+	toColumn: LocalDateTable_b0bd71fd-e842-43eb-a150-9990f48e51ed.Date
+
+relationship 34b794e3-56c6-4549-995b-c7ec6cc66729
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_WO.SENT_FOR_OWNER_APVL_DATE
+	toColumn: LocalDateTable_33f717a8-a056-4358-b66f-f9babac8b114.Date
+
+relationship b4bb9ce0-d609-4df4-9c63-46379e068690
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_WO.WO_OWNER_APPROVAL_DATE
+	toColumn: LocalDateTable_991af4d5-531d-4b9c-a4f0-e032e3b5c7e4.Date
+
+relationship 0f3d48b9-3fad-437e-b526-ca803065406c
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_WO.WO_PENDING_COMPLETION_DATE
+	toColumn: LocalDateTable_f0c51db1-22b2-406b-864d-5b3ff1727fb2.Date
+
+relationship c09c066b-6831-4aef-b464-81f05f2d2be7
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_WO.WO_COMPLETED_AWAITING_APPROVAL_DATE
+	toColumn: LocalDateTable_647ed1ff-a3c7-4b94-94a2-ca86b951d964.Date
+
+relationship a7d68fe6-4086-4dc9-8312-691295f04125
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_WO.WO_CLOSED_DATE
+	toColumn: LocalDateTable_50b73db2-009f-42e4-95f4-d74ca2922a7d.Date
+
+relationship 151952e5-72cf-4eb4-89e9-517f2aea3c4e
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_WO.WO_CANCELLED_DATE
+	toColumn: LocalDateTable_a7dde35a-c4f9-472e-843b-2364fc2ae991.Date
+
+relationship 33270f4e-2b13-4842-beb8-e502cb694840
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Turns.O_HOLDING_FEE_DATE
+	toColumn: LocalDateTable_504441ed-0249-4365-b7e4-22db22efc7a8.Date
+
+relationship ceb16ab2-29e0-47b1-9541-2f1fabaf6c23
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Turns.O_LEASE_FROM_DATE
+	toColumn: LocalDateTable_6d55ef2b-5b58-45b3-8d17-30c0162dcfd1.Date
+
+relationship af31db1c-41eb-406a-94af-307bcdbbc46f
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Turns.O_LEASE_TO_DATE
+	toColumn: LocalDateTable_3a03d10a-bfa8-4060-a334-812137366be0.Date
+
+relationship 48fb6afd-b325-4fc8-bba3-1793b8a6725e
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Turns.O_NOTICE_DATE
+	toColumn: LocalDateTable_947fb290-0b36-4c75-a752-6fe26dab4c0e.Date
+
+relationship 83c16c0c-c1ad-4e37-9ab9-1d43ea638497
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Turns.O_MOVE_OUT
+	toColumn: LocalDateTable_798fbcbb-16ee-4f23-a7ec-e58eaee54547.Date
+
+relationship bf424407-d3f2-4c1c-b27b-41f8fe47eab1
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Turns.N_HOLDING_FEE_DATE
+	toColumn: LocalDateTable_27075d4c-a7b0-4475-8482-9364e5922a46.Date
+
+relationship accbd19c-1370-4234-9828-c3c5b1b0df19
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Turns.N_LEASE_FROM_DATE
+	toColumn: LocalDateTable_6669c413-dd18-4b9c-9134-8c4aa676c86a.Date
+
+relationship 52350e1e-c599-4e23-a4d9-f581c5bfeca3
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Turns.N_LEASE_TO_DATE
+	toColumn: LocalDateTable_0bfa30e9-466d-4764-a069-0ce04d1eb346.Date
+
+relationship ccca03c2-b973-40f1-9f0a-8535c8c3351c
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Turns.N_MOVE_OUT
+	toColumn: LocalDateTable_5a3b26de-b1f4-4f86-a375-fcb41f08ba71.Date
+
+relationship 4623e54d-c5f4-4345-95ec-8aa1de04c55c
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Tenant_Receipts.CHARGE_DATE
+	toColumn: LocalDateTable_198698c7-4972-4e85-88a4-a0b4168f82eb.Date
+
+relationship f477e3e8-575b-4a33-a28a-c82707adcd59
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Tenant.NOTICE_DATE
+	toColumn: LocalDateTable_a381be61-b1a6-44a0-a932-42b73adf57a0.Date
+
+relationship d02e69fa-8b3b-48f2-91c8-b6e8ec4483a1
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Tenant.HOLDING_FEE_DATE_NEW
+	toColumn: LocalDateTable_f1315cb1-99e9-4509-bde2-bb71b0e784c2.Date
+
+relationship ce2d9ac0-599e-41d1-b883-211b2401ad61
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Deals.LISTINGDATE
+	toColumn: LocalDateTable_5603c929-8eb8-443d-8717-db0f3bc5344c.Date
+
+relationship 4d70e506-c1e7-4ec2-8632-b83831d8d28f
+	fromColumn: QC_ResiAims.'Entity ID/Client ID'
+	toColumn: DW_Properties.ENTITYID
+
+relationship c12333c3-ff79-49a4-830f-a939d8155aea
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Listings.HOLDING_FEE_DATE_NEW
+	toColumn: LocalDateTable_6ded87ec-e360-4921-8771-a368445b4d96.Date
+
+relationship b16aa56a-7779-4129-b2ab-98faf2d6db10
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Listings.LISTING_DATE
+	toColumn: LocalDateTable_61933ed7-977f-4c3b-847c-0c89a65cb8b5.Date
+
+relationship d3f6ae65-fb77-438b-a231-c79dfd1cc653
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Listings.LISTING_END_DATE
+	toColumn: LocalDateTable_0685b551-bac1-42c2-bcbb-60d62fa1fb89.Date
+
+relationship 90599aaa-a657-453e-ae39-54209bf28ce1
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Listings.RENT_MODIFIED_DATE
+	toColumn: LocalDateTable_d753967d-64dc-46da-94bf-5556e686b87f.Date
+
+relationship bc917b9e-276c-49f3-aa6c-769e60cc11e1
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Listings.LEASE_START_DATE
+	toColumn: LocalDateTable_171f4681-c066-4763-9d1e-4a221eb3a9cd.Date
+
+relationship d21df862-0b64-45af-b8c1-ad5645337607
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Listings.LEASE_END_DATE
+	toColumn: LocalDateTable_32528c26-2141-4f90-af08-f3c8d8f29906.Date
+
+relationship 9a23497b-972d-432f-a85e-4b7524e5914f
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Listings.LEASE_SIGNED_DATE
+	toColumn: LocalDateTable_209ad51d-8a83-4641-bb2d-2a45c12ed32b.Date
+
+relationship e2add70f-4dc9-4689-af9f-1881adc6639a
+	joinOnDateBehavior: datePartOnly
+	fromColumn: PM_BOM.BEG_OF_MONTH
+	toColumn: LocalDateTable_9fd09431-f8c4-4490-ace0-6e5881f85f14.Date
+
+relationship 7c66c16e-370c-41aa-a1a7-80fd20a9cfc4
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Deals.APPLICATION_SUBMIT_DATE
+	toColumn: LocalDateTable_10ac7458-9f05-4741-a24c-de2160ad0ce6.Date
+
+relationship 5070e52a-19f6-494d-a2d7-694570b89124
+	isActive: false
+	fromColumn: DW_Deals.RENT_LIST_HIST_ID
+	toColumn: DW_Listings.RENT_LIST_HIST_ID
+
+relationship 38ef852a-4b1e-4028-b488-bcb0893722e7
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Leads.LEAD_CREATED_DATE
+	toColumn: LocalDateTable_7aac0efd-68f5-4749-8942-97cbc3f61c7a.Date
+
+relationship adc1e981-c165-4b4b-a381-64e9db31bce1
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Leads.APPLICATION_SENT_DATE
+	toColumn: LocalDateTable_d5918bdd-00a2-4240-86de-8dd3eee5c014.Date
+
+relationship 654ccea5-29a8-46b2-a30f-8e3bb3ee27cb
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Leads.APPLICATION_SUBMIT_DATE
+	toColumn: LocalDateTable_9a5e1d4e-8505-4b27-9248-aede5c1ad421.Date
+
+relationship 6202f3d7-ea5c-4495-860b-e4ed9e45f58d
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Leads.LISTINGDATE
+	toColumn: LocalDateTable_e185e0aa-d848-4f74-8d32-6f34e0540e17.Date
+
+relationship 06d4e898-bbec-4b5c-a0b1-d61a424797ca
+	isActive: false
+	fromColumn: DW_Leads.RENT_LIST_HIST_ID
+	toColumn: DW_Listings.RENT_LIST_HIST_ID
+
+relationship 08607c12-e4b8-4caf-b39d-0d93d3288ee2
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Properties.MOVEINREADY
+	toColumn: LocalDateTable_68d6fe95-705c-4c15-b190-8fb1d30e9c9d.Date
+
+relationship 43ae1bdc-2b5b-47ae-8a1a-757a32972b99
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 0_Month.END_OF_MONTH
+	toColumn: LocalDateTable_dc4996c4-d9fb-4a08-898d-a5d2d64e04ed.Date
+
+relationship 7647d6d4-b6de-4d85-b326-0fda9b74e44b
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 0_Month.'Next Month'
+	toColumn: LocalDateTable_912d9d0b-9952-47fa-9c7d-f514b64efe4b.Date
+
+relationship 82f1f691-bc9f-4785-8368-81537a95b954
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Listings.'Move-In (BOM)'
+	toColumn: LocalDateTable_d6fac67d-2dd2-493e-af2b-e2de055f82dd.Date
+
+relationship 63fe557e-b8e9-4df4-8efa-ba62ab6913e7
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Listings.'List (BOM)'
+	toColumn: LocalDateTable_a0858ea4-74fd-45f1-821a-373ac33a0d9c.Date
+
+relationship 4df5e4d7-e1b9-4c1e-b2dc-708d175ca875
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Leads.'1_Lead (BOM)'
+	toColumn: LocalDateTable_f217a433-a640-4db4-afaa-ceaa3db98f1f.Date
+
+relationship 7ff80120-7b27-4c28-bfe7-176940543e4b
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Renewals.1_C_LeaseEnd(BOM)
+	toColumn: LocalDateTable_7e68b84f-bf2f-4749-a99b-4b98edf9a03c.Date
+
+relationship 3676b5bd-32d2-4768-8e05-14ba14eb76db
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Renewals.'Vacate Date (BOM)'
+	toColumn: LocalDateTable_73c64af3-fba8-4185-9784-e5df795832d7.Date
+
+relationship 487b5960-b3c0-447e-8ccf-0023b170b5dd
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Turns.'N_List (BOM)'
+	toColumn: LocalDateTable_3c38c3e8-5944-4db0-88cb-07cd2a4d891b.Date
+
+relationship 2719334b-6a2b-4fbc-898d-9fb783795a68
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Turns.N_LISTING_DATE
+	toColumn: LocalDateTable_7e0f8fae-b763-47cf-a260-1f6c55ba5ef5.Date
+
+relationship 62c476f1-67e7-464a-90a8-fab4ba4d96e5
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_WO.'Closed Date_BOM'
+	toColumn: LocalDateTable_a3d9ea11-5965-4fcb-a447-cac0a3862bf6.Date
+
+relationship 75475ffd-dfd4-4666-bab6-76b05a75149b
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Deals.'HF (BOM)'
+	toColumn: LocalDateTable_359f67c8-729b-4de9-ad9f-3bd49dd536b7.Date
+
+relationship 95b8da15-30ff-41d0-baba-06f6321feb49
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Tenant_Charges.Charge_Date
+	toColumn: LocalDateTable_5a3f92a7-2b83-48e6-b843-bf0beb65060c.Date
+
+relationship bfba0b94-b611-4592-a65b-a657ebbc9922
+	joinOnDateBehavior: datePartOnly
+	fromColumn: PM_BOM.1_Move-Out
+	toColumn: LocalDateTable_1abe006b-209c-4242-aff7-de398a372011.Date
+
+relationship 99996c9c-145b-46ad-8724-79b9f2ac8e35
+	joinOnDateBehavior: datePartOnly
+	fromColumn: PM_BOM.1_Move-In
+	toColumn: LocalDateTable_a5bca677-3493-41de-8da6-28e4df322a39.Date
+
+relationship 2a29dd17-d66d-48ef-8288-574a23160e3d
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Occupancy.MOVEIN
+	toColumn: LocalDateTable_d1517783-5570-4086-ad8c-3e1f3d720141.Date
+
+relationship 2bcde7b8-1d99-403b-89ad-fc2c6c8d9c28
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Occupancy.MOVEOUT
+	toColumn: LocalDateTable_35a8f084-4618-445d-a066-e306a052aff1.Date
+
+relationship 2febd0d1-1b84-4372-8c61-832c5505e1da
+	joinOnDateBehavior: datePartOnly
+	fromColumn: PM_BOM.'Transfer Date'
+	toColumn: LocalDateTable_f551f1bb-c957-47ff-a41c-1c957d730fb8.Date
+
+relationship 13ebe3d3-e8c0-4950-aaed-f7a67f19dd69
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Turns.MOVEINREADY
+	toColumn: LocalDateTable_d67ab5da-ad17-4068-82ee-d68e8c40369d.Date
+
+relationship 6b387c3d-ebc2-47f0-97c8-a44825870a93
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Turns.1_List_HF
+	toColumn: LocalDateTable_47692171-bf5e-45b9-a24e-d5c9646a3d6b.Date
+
+relationship d69dcfea-543b-4be7-a0e9-7e8b9989ae20
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Turns.'1_Move-In (Deal)'
+	toColumn: LocalDateTable_ba78d9aa-7248-4aa7-bf94-4968e17ff829.Date
+
+relationship a49213b6-7963-43ff-ba38-0c24c005f524
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Tenant.MOVEINREADY
+	toColumn: LocalDateTable_8dc20a14-906b-4ddd-b737-4e70f1bff68c.Date
+
+relationship e82731ea-7c06-4811-b795-0f23ef277282
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Properties.TODAY
+	toColumn: LocalDateTable_de3b0243-5a64-4305-9f91-1274fe5d6d2f.Date
+
+relationship e8ef876f-db64-42ca-ab72-1f661fbea6e5
+	crossFilteringBehavior: bothDirections
+	fromColumn: DW_Properties.STATE_CODE
+	toColumn: SEL_DemandLetters.State
+
+relationship 0529dff4-2f79-441f-b5ea-6c97d6fd7163
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Turns.'N_Lease_FROM (BOM)'
+	toColumn: LocalDateTable_d136e848-8995-494e-8a58-a2cdd1a811d9.Date
+
+relationship af6d85ec-f94d-4f4d-a94e-92c0eda0cf06
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Leads.LEAD_ABANDONED_DATE
+	toColumn: LocalDateTable_f377b185-2e3c-48bc-933e-9b71ebb69482.Date
+
+relationship 2833cd60-c683-45a8-bcdd-97aaa7b933c0
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Leads.LEAD_WON_DATE
+	toColumn: LocalDateTable_c9354c97-42c2-4715-a360-1283dcfe51e8.Date
+
+relationship 93aa2112-fae3-4da0-b1b2-e0e5057bd879
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Leads.APPLICATION_FEE_PAID_DATE
+	toColumn: LocalDateTable_f23a9433-80a0-49db-832d-3c2413b8b47c.Date
+
+relationship 044445a2-e97b-485a-aed7-6ce9dfbf280d
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Deals.DEAL_CREATE_DATE
+	toColumn: LocalDateTable_bb7b5160-c941-40bd-8dcf-d97e2f033857.Date
+
+relationship 58bbadeb-3fe0-436a-a17f-8a7d41253a2e
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Deals.APPLICATION_APPROVED_DATE
+	toColumn: LocalDateTable_926f5300-c957-4fb8-b214-1a0804a8139e.Date
+
+relationship cce5d482-f718-4245-8c42-33add1e3c872
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Deals.DEAL_WON_DATE
+	toColumn: LocalDateTable_430f188e-a305-4074-b15b-5af578fda22b.Date
+
+relationship 44794335-4e05-4297-ba98-37aed727501c
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Deals.CONVERT_TO_RESIDENT_DATE
+	toColumn: LocalDateTable_bad5beb0-238e-4534-bf06-eb88ba619a2e.Date
+
+relationship 0c11630a-2c0d-4f81-9ba6-feb29b9b6bdc
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Tenant.LEASE_SIGNED_DATE
+	toColumn: LocalDateTable_90fe2779-d207-4811-b19f-98216827626f.Date
+
+relationship 399469e5-d0cf-480d-8494-23f8fa478ea4
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Tenant.LEASE_FROM_DATE
+	toColumn: LocalDateTable_1a0052ae-5b8d-49cb-be44-5279e21c6c1c.Date
+
+relationship d0b903d2-fd82-4986-a7a1-51f1b0664cf2
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Tenant.LEASE_TO_DATE
+	toColumn: LocalDateTable_5904bc86-bdba-4ccd-8e5a-1f2854600554.Date
+
+relationship 92845385-af4a-4ed9-979c-83c299623754
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_WO.CLIENT_INVOICE_DATE
+	toColumn: LocalDateTable_b6dcf736-21bd-4422-94ad-d755353d0e46.Date
+
+relationship c2837ab0-62bf-4a03-839d-e238f0f75255
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_WO.'Ext Invoice Date'
+	toColumn: LocalDateTable_307b39e0-2ea9-460f-b9ec-aa7c6484273c.Date
+
+relationship 020d5650-fffe-4d9c-b2d8-e35a1906cd05
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Tenant.MOVEIN_BOM
+	toColumn: LocalDateTable_c1dfbb3e-641b-4f38-a2ac-d2298092ad99.Date
+
+relationship ace97c23-0603-47bc-92e4-78a7a3b29f54
+	fromColumn: DW_WO.PROPERTY_KEY
+	toColumn: DW_Properties.PROPERTY_KEY
+
+relationship 8297c01f-d6c6-4389-b6dc-785f9f7ae38b
+	toCardinality: many
+	fromColumn: DW_Tenant.TENANT_KEY
+	toColumn: DW_Properties.TENANT_KEY
+
+relationship 1f45f72e-46a8-4054-bc7c-b4f70c124f05
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Properties.COLLECTIONNOTECREATED
+	toColumn: LocalDateTable_04b602ff-30de-40cb-8c5c-f24028f6c4e4.Date
+
+relationship f1691fb2-a1cb-4ba1-80d8-872387017e7a
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Tenant.MOVE_OUT_FORECAST
+	toColumn: LocalDateTable_6713e08d-0192-4f11-bc50-0e4f64001d9d.Date
+
+relationship 55e4de05-e3a3-42da-83b2-d663229de757
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Leads.LEAD_FIRST_CONTACTED_DATE
+	toColumn: LocalDateTable_0bd8e339-f3b4-499e-93f8-cf87b42f0bbf.Date
+
+relationship 645e43c6-2ec4-466d-bb5f-c1dd87bf3a1e
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Leads.LEAD_LAST_CONTACTED_DATE
+	toColumn: LocalDateTable_fdd60e41-42f4-4fc0-9a30-5b2211582d5b.Date
+
+relationship a8bbed3c-d68f-42f5-abee-f78418400557
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 0_Days.Date
+	toColumn: LocalDateTable_dfbc5ddc-921b-4888-977b-1c2fa118b9fb.Date
+
+relationship eed41df9-6731-47da-ae2f-2ac40c35e4a9
+	joinOnDateBehavior: datePartOnly
+	fromColumn: PM_PropStatus_ALL.LOGDATETIME
+	toColumn: LocalDateTable_eedf87e1-a38e-414d-870f-236afa477302.Date
+
+relationship d4f919b4-1912-46dd-a54d-a04b579c57b8
+	fromColumn: PM_BOM.HBPM_PROPERTYID
+	toColumn: DW_Properties.HBPM_PROPERTY_ID
+
+relationship 585e41e8-820b-44d9-b50d-6ece086d46d2
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_MoveOut.NOTICE_DATE
+	toColumn: LocalDateTable_8621e7b9-643f-4a0e-bf61-1b6764b0bc13.Date
+
+relationship 3e3ed0f7-446b-4180-8aa7-a5101effd561
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_MoveOut.CURRENT_LEASE_EXPIRATION_DATE
+	toColumn: LocalDateTable_8195b8ac-1e50-4125-b385-4802f6f2ebe4.Date
+
+relationship 210c6325-48a4-40ce-9200-a7536634945d
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_MoveOut.LEASE_SIGNED_DATE
+	toColumn: LocalDateTable_5b387330-6cb0-4324-bdc2-10c6c9abacbb.Date
+
+relationship 7d8cdf31-fa0c-4bf1-b393-60b2165318b8
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_MoveOut.LEASE_FROM_DATE
+	toColumn: LocalDateTable_8008d28f-ba17-482b-a874-f548ad35b2f4.Date
+
+relationship b151a7b8-d690-4df9-a633-fab98ce378cc
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_MoveOut.LEASE_TO_DATE
+	toColumn: LocalDateTable_a81188ba-fc9e-40ad-97bf-5fa08a93c921.Date
+
+relationship 2239bb83-e29e-4839-89fc-41d55ab1f912
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_MoveOut.MOVEIN
+	toColumn: LocalDateTable_742cd519-c7bf-4327-abbb-002bf5d5eab6.Date
+
+relationship bca291fb-47fc-4f6f-9df0-0cd99c8df72c
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_MoveOut.MOVEIN_BOM
+	toColumn: LocalDateTable_d09bc68a-f359-46df-9cf8-a1fe5104531b.Date
+
+relationship e07630cf-6ce9-4ee7-b3ac-3c399a91ef05
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_MoveOut.PURCHASELETTERPOSTEDDATE
+	toColumn: LocalDateTable_d8c380c6-4886-467e-8398-23fd753299d2.Date
+
+relationship c4c462a0-e229-4662-bd91-9db351bf619f
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_MoveOut.DATENOTIFIED
+	toColumn: LocalDateTable_e5185a3c-5ae0-4107-8e1b-0dafcf63d1f4.Date
+
+relationship 07b3564c-c472-440d-80eb-140b20a800be
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_MoveOut.FILEDWITHCOUNTYDATE
+	toColumn: LocalDateTable_4d000229-f2fb-4126-b66a-de0b9b195545.Date
+
+relationship 6bd2aa26-20f5-4b95-bb08-4e30deff571b
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_MoveOut.RESIDENTSERVEDDATE
+	toColumn: LocalDateTable_ab9d7911-5f30-4c57-aea2-4538b456dc18.Date
+
+relationship 97b9a37b-e9bf-4e19-90d3-3700351f826a
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_MoveOut.COURTDATESETDATE
+	toColumn: LocalDateTable_0a83fbf2-e460-47f9-8657-ad534ca476f5.Date
+
+relationship a09310d8-916d-4684-980a-b12cd5c6a652
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_MoveOut.JUDGEMENTDATE
+	toColumn: LocalDateTable_6fc14934-a3a7-448f-9b16-a5c0bbce4dc3.Date
+
+relationship 43268cd2-f21a-453e-9b43-24bf81b5eb49
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_MoveOut.LOCKOUTSCHEDULEDDATE
+	toColumn: LocalDateTable_d02d48cb-09da-47b3-bb2d-9d23250816b8.Date
+
+relationship 6aafda4d-8923-4243-81d0-5f66f8acd113
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_MoveOut.VACATEDATE
+	toColumn: LocalDateTable_c2be133d-7d5b-41bd-8acf-8f5ee40694c9.Date
+
+relationship cbb32955-7664-4117-8b89-8c09febc9264
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_MoveOut.ANTICIPATEDMOVEOUTDATE
+	toColumn: LocalDateTable_55a648bc-3d5c-47e5-9368-ec95aace2823.Date
+
+relationship d55195e8-b8d6-4276-8b15-3a113f9031cc
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_MoveOut.MOVEINREADY
+	toColumn: LocalDateTable_0a39b037-6a22-43a5-84bb-5c99d5c962b3.Date
+
+relationship da438d73-cdce-48e9-90e9-a8377badcf9e
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_MoveOut.MOVE_OUT_FORECAST
+	toColumn: LocalDateTable_c947eb88-60ae-4639-876a-f6d84c2bd2b4.Date
+
+relationship fc17a8df-e8db-4161-bfa8-decec0db3ddf
+	fromColumn: DW_MoveOut.PROPERTY_KEY
+	toColumn: DW_Properties.PROPERTY_KEY
+
+relationship 94d72eeb-f499-4169-b3f1-a37218fe37bd
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_MoveOut.MOVEOUT
+	toColumn: LocalDateTable_de6e387c-aba3-42bf-8eae-7488a7f3d1ea.Date
+
+relationship 003bdfe1-afd4-4820-931f-0abb2fb73515
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Deals.'DEAL_CREATED (BOM)'
+	toColumn: LocalDateTable_6ed007ba-4147-46f2-8e68-8f838ab19268.Date
+
+relationship cfaa004c-bd0a-46e5-adcf-133f5862fcd8
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Deals.'App Submit (BOM)'
+	toColumn: LocalDateTable_a1425a55-eccc-41b9-9088-7a2d4855319a.Date
+
+relationship 3ab25b2a-2a6a-4bde-aa99-36ffc563c412
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_WO.WO_UNBILLED_DATE
+	toColumn: LocalDateTable_3b971ec9-5d0b-41fb-9f4f-cd0c56b94ef3.Date
+
+relationship 2b222d09-773e-43a4-a1a6-19531cff97ad
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Deals.LEAD_CREATED_DATE
+	toColumn: LocalDateTable_60af02cf-966d-48f5-babc-afb4b35bbdeb.Date
+
+relationship 870bafc4-5af3-440f-8755-49ce2f579fa4
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Deals.'1_Lead (BOM)'
+	toColumn: LocalDateTable_898d54d2-b669-4ad9-a10c-8bcc7238c84a.Date
+
+relationship 67084578-2eb5-4acb-8939-7b3e1bd7ddfc
+	fromColumn: 'DW_Off Market'.PROPERTY_KEY
+	toColumn: DW_Properties.PROPERTY_KEY
+
+relationship 6e1c487c-7641-4ace-bfa6-9283ed69f6d6
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'DW_Off Market'.Transfer_Date
+	toColumn: LocalDateTable_752abddc-cce5-41a8-9b65-ab94543ded7a.Date
+
+relationship 72febcb7-c7e5-43e7-b6e5-872a43cff29e
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'DW_Off Market'.Purchase_Date
+	toColumn: LocalDateTable_f0740c7b-1027-41cf-bb52-2e3a2e390266.Date
+
+relationship fdaf55e4-093e-48f0-a30f-703578ffb109
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'DW_Off Market'.LISTINGDATE
+	toColumn: LocalDateTable_84ea027b-10b3-4956-a743-18c4c34fc1cb.Date
+
+relationship ffba12df-118f-4d4a-8352-7b71ec0e0200
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'DW_Off Market'.INITIAL_LISTING_DATE
+	toColumn: LocalDateTable_d76129aa-1ab7-4f20-8e70-80be1792c039.Date
+
+relationship 21e7750d-a09f-4724-b006-05c8584d37fc
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'DW_Off Market'.INITIAL_LISTING_DATE_BOM
+	toColumn: LocalDateTable_745b8521-1176-40dc-b504-3f34a981fe6b.Date
+
+relationship 3612d950-58ac-49ee-976b-44685a75bdd2
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'DW_Off Market'.OFFMARKETDATE
+	toColumn: LocalDateTable_eb3d09ac-55a2-45ed-9e43-f2db1b07b955.Date
+
+relationship 5f2d71a5-dcce-4329-9b19-24d54f5b405d
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'DW_Off Market'.MOVEINREADY
+	toColumn: LocalDateTable_51b130ba-196b-4a03-9d8f-f154a3374d62.Date
+
+relationship 3b7cd3c6-5180-44f5-bd2c-8396fcbf91aa
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'DW_Off Market'.INITIAL_LEASE_DATE
+	toColumn: LocalDateTable_63707a73-a179-46c7-ba53-6c7ea72b40bc.Date
+
+relationship af324238-21d1-4a94-a3cd-5122b8d534f2
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'DW_Off Market'.TODAY
+	toColumn: LocalDateTable_aefd93f8-c740-459f-95e0-28dc538c90b7.Date
+
+relationship a2a15fb0-c636-4522-b8d1-78bb59e4b47c
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'DW_Off Market'.2_AM_QC_Result_Date
+	toColumn: LocalDateTable_4c9548d1-0e97-4047-9ea4-fc52311d94cc.Date
+
+relationship 642434cd-a32b-4c1e-9621-046573bf0ee6
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'DW_Off Market'.2_MM_TKT_Created_Date
+	toColumn: LocalDateTable_5e34bfab-ad19-4f0d-8352-f826f44c0bcc.Date
+
+relationship 530f75de-7949-4c8d-a538-d6956875e08b
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'DW_Off Market'.2_MM_WO_Closed_Date
+	toColumn: LocalDateTable_0fa84b54-a855-40d6-8ae1-fe94a9fcf364.Date
+
+relationship 396b61ab-3e68-4ded-b231-953379b1dfb7
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'DW_Off Market'.RENTLY_LB_ASSIGNED_DATE
+	toColumn: LocalDateTable_96ed09a1-c060-4861-a2a7-97dc138331e7.Date
+
+relationship 5f1a8dea-b63c-4b03-9e17-e5fe520f8fd6
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'DW_Off Market'.RENTLY_AUTOSHOWING_DATE
+	toColumn: LocalDateTable_94013a99-2a5b-4fcd-868a-e06a42e868cf.Date
+
+relationship decdcd35-a270-4a85-a4e4-cbb8cebac4b9
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Renewals.RENEWALNOTECREATED
+	toColumn: LocalDateTable_55bc8e3e-a5eb-4b2d-be2a-29a95fb31b4f.Date
+
+relationship f4072448-6ad3-4842-9b11-105fccb581d2
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Listings.Transfer_Date
+	toColumn: LocalDateTable_d0942cfc-65a9-415d-b87d-8a3645627576.Date
+
+relationship 08878b97-b177-428d-a649-d8ead03de043
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Listings.MOVEINREADY
+	toColumn: LocalDateTable_833cd914-6f72-44f0-97f7-2fd984d01832.Date
+
+relationship 0bc06785-9c1a-47a1-ae4e-57874bc3f298
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Listings.MOVEOUT
+	toColumn: LocalDateTable_bc7563c9-87e5-41aa-9b61-806b90f9a240.Date
+
+relationship e5f6c917-cfd2-44c6-9b76-88b640093244
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'DW_Off Market'.FINAL_WALK_DATE
+	toColumn: LocalDateTable_a43f7942-1017-4146-a8bc-a1eb2ed92f73.Date
+
+relationship e76f830f-6df4-4a6b-bd92-1872eb2ab2a8
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Inspections.INSPECTION_COMPLETED_DATE
+	toColumn: LocalDateTable_c87bdf48-9ca0-4a31-8df3-4d379422bcf5.Date
+
+relationship 707b5481-25d3-4ea9-8225-3b9365122e06
+	fromColumn: DW_Inspections.PROPERTY_KEY
+	toColumn: DW_Properties.PROPERTY_KEY
+
+relationship 58e71514-3d45-40c0-9d2e-d60d1f08043b
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'DW_Off Market'.CON_DATE_FW_OR_COMPLETE
+	toColumn: LocalDateTable_a0973281-6161-4ca9-b1b5-9f45e911f90e.Date
+
+relationship 9cdcc226-0ea6-495b-8efc-1443a8af7035
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Deals.TENANT_MOVE_IN
+	toColumn: LocalDateTable_dd3acc29-2955-4fa7-a773-fcdfdcf2c504.Date
+
+relationship 1cb7aca7-484f-4e38-8f97-bf4fc8c2e60f
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Leads.RENTLY_SHOWING_DATE
+	toColumn: LocalDateTable_d8a503c4-017e-40af-96e0-5061d679583d.Date
+
+relationship cc061a70-114b-449f-a3d5-e25eaf36f7e2
+	fromColumn: DW_Listings.PROPERTY_KEY
+	toColumn: DW_Properties.PROPERTY_KEY
+
+relationship a0069f39-f254-4eb1-8206-04d2325a8a70
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Turns.HC_SCOPE_COMPLETED_DATE
+	toColumn: LocalDateTable_9217580c-8c47-412f-85c2-9f1df28daa20.Date
+
+relationship dead5a42-6b5e-4a74-8953-6539a299b717
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Turns.HC_TURN_COMPLETED_DATE
+	toColumn: LocalDateTable_5a351f55-5ee4-4ab9-be30-272504a392cc.Date
+
+relationship 4568ac74-e01d-4319-a0a2-955296272b6f
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'DW_Off Market'.FMI
+	toColumn: LocalDateTable_72294755-00a0-45c8-94f3-e43864c35b59.Date
+
+relationship 0c1e1259-22be-44a9-999f-c055c7431a4d
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Leads.LEAD_INTERESTED_DATE
+	toColumn: LocalDateTable_46542cef-2935-4ae9-9252-ec76c3df08f9.Date
+
+relationship 2c0275cd-4ded-439a-8abb-00a61f05054c
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Leads.'1_Lead_INTERESTED (BOM)'
+	toColumn: LocalDateTable_da7af370-b570-43fe-8e5b-4a3b5561c2f7.Date
+
+relationship 45a693fd-38af-42b1-8d31-5a4f00138f20
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Turns.TKT_CREATED_MIN
+	toColumn: LocalDateTable_08d5571c-43d5-4441-83f0-33d0011fd4a1.Date
+
+relationship 1609f0df-b8f0-442e-a776-816556845b57
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Turns.TKT_CREATED_MAX
+	toColumn: LocalDateTable_981bba99-8c3a-4408-9483-a3f1034d3f82.Date
+
+relationship 2b795a1a-a81a-461d-bac1-2ee324e573aa
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Turns.TKT_CLOSED_MAX
+	toColumn: LocalDateTable_24424d35-3f8a-4c23-94a6-6d6d0e92f0af.Date
+
+relationship 63966726-aa0e-424d-946e-17fcb7ed84c0
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Turns.TURN_COMPLETED
+	toColumn: LocalDateTable_7cc41485-8abf-4154-b67e-182bb1e9223f.Date
+
+relationship 4c256a3d-6505-4d88-bcf2-6a8ea716e3b4
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Turns.TURN_COMPLETED_BOM
+	toColumn: LocalDateTable_2e4c07b4-a437-4677-b161-d675e1b3c77f.Date
+
+relationship e263d4af-0544-43e5-bcca-d9ddf0b609d6
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Showings.ACTIVITY_CREATED_AT
+	toColumn: LocalDateTable_5b92f551-6adf-468b-89f6-af540c456321.Date
+
+relationship f622702d-f3b4-4832-988b-d3bb45ac845a
+	fromColumn: DW_Showings.PROPERTY_KEY
+	toColumn: DW_Properties.PROPERTY_KEY
+
+relationship d7ca26d2-1763-4aaf-9534-949bde0da72c
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Showings.RENTLY_LEAD_CREATED_DAT
+	toColumn: LocalDateTable_9607334a-78bd-44b6-9b87-d0cb6808e0b6.Date
+
+relationship 33d0a542-9e0d-4fb9-87fa-224f415f504e
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Showings.LISTING_DATE
+	toColumn: LocalDateTable_3f245e1f-76fc-4450-a945-3b0177398a67.Date
+
+relationship 3f837971-693e-4d2c-b26d-b2554c9702ba
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Showings.SHOWING_BOM
+	toColumn: LocalDateTable_fe3086a6-b4a8-40cd-90c2-bea10ec84635.Date
+
+relationship 9db90d64-80a4-45c0-b300-c06d010a70ca
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Turns.TKT_CREATED_HARD_FAIL
+	toColumn: LocalDateTable_b8d73810-7a68-4a9c-b35b-b9cadfc46cc3.Date
+
+relationship 64733386-3f9b-4a6a-bd8e-7ba7a8ecad08
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Turns.TKT_CLOSED_HARD_FAIL
+	toColumn: LocalDateTable_ab202749-3c9c-473d-b5b2-9f7b90944f6d.Date
+
+relationship c469729b-47fb-438f-a7dc-0346768c7b99
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Turns.TKT_CREATED_MINOR_FAIL
+	toColumn: LocalDateTable_1dbacf21-22eb-443d-ba83-29715034fb14.Date
+
+relationship ba9c4adb-b1f2-47c4-8c0e-7327e654ff42
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Turns.TKT_CLOSED_MINOR_FAIL
+	toColumn: LocalDateTable_69b02892-e7b3-4d95-9a5a-d4a833296258.Date
+
+relationship 4a6f1397-bfc0-4083-bce3-eaeea7e63254
+	fromColumn: DW_Leads.CONTACT_OWNER
+	toColumn: SEL_Contact_Owner.CONTACT_OWNER
+
+relationship 0629d4b3-2625-4dfa-a83f-61d1238f9d3f
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Listings.CONCESSIONENDDATE
+	toColumn: LocalDateTable_33c1902c-07f9-4047-94c5-26562e491d2d.Date
+
+relationship e776cc69-5b9d-426a-9404-242bd3faf453
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Tenant.AUTOPAY_NEXTWITHDRAWDATE
+	toColumn: LocalDateTable_969af51f-8286-43d5-b9d3-90e33178646b.Date
+
+relationship 7e86e174-1fdb-4b4d-b2a8-9334a10e8905
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Tenant_Monthly_Charges.LEASE_EXP
+	toColumn: LocalDateTable_d7fbe95d-a859-4bf2-a9ac-cfb5eddd9b88.Date
+
+relationship f0054738-7b89-46ee-b89f-0716116d6af3
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Tenant_Monthly_Charges.LASTBILLEDON
+	toColumn: LocalDateTable_1b5f8ddd-c4e6-4d55-9ddf-4a02e2b5f953.Date
+
+relationship 05b3b43b-5aa4-4997-99bb-87e8fa2a888a
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Tenant_Monthly_Charges.STARTDATE
+	toColumn: LocalDateTable_cd53801f-7a4c-4b51-bbeb-40d87f260d82.Date
+
+relationship 3a24eaa8-6a4b-4814-a954-767927f4f5b9
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Tenant_Monthly_Charges.ENDDATE
+	toColumn: LocalDateTable_ef586281-f824-4d17-bf3a-b6a05d87679f.Date
+
+relationship 5bc77dfe-dc61-455b-8369-4db22a380655
+	fromColumn: DW_Tenant_Monthly_Charges.TENANT_KEY
+	toColumn: DW_Tenant.TENANT_KEY
+
+relationship 24a02f8b-2c1a-4d68-b54a-669454d22b03
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Turns.O_ANTICIPATEDMOVEOUTDATE
+	toColumn: LocalDateTable_b1d9e028-90f2-459b-963b-71d5f288dac2.Date
+
+relationship 318457b1-373a-4bb6-b3e5-3a989ab37efa
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Turns.O_MOVE_OUT_BOM
+	toColumn: LocalDateTable_7496e390-737c-4e95-b93e-9fb7c6fdf47f.Date
+
+relationship d023f777-f61a-4364-8e6e-615bd16f0096
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'DW_Off Market'.CABINETS_PRELEASE_DATE
+	toColumn: LocalDateTable_65e4d798-9005-4a6b-ada9-4b04d1a7a0cb.Date
+
+relationship 15ad105f-7f38-48c6-ab7b-0e1b886bec5c
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'DW_Off Market'.QC_TRIGGER_DATE
+	toColumn: LocalDateTable_5a54f5b5-a481-447a-9ed1-52cd68c224b2.Date
+
+relationship e022874a-e847-4877-bf90-6fa449f34ff9
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Turns.OFFMARKETDATE
+	toColumn: LocalDateTable_11682bf8-8240-4b28-a3b8-d13ad9412529.Date
+
+relationship 3ed04209-3862-4449-84f0-4ae0f574d8ee
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Properties.UW_UPDATE_DATE
+	toColumn: LocalDateTable_b6edf75b-487d-4556-8c33-83cb45ec35c0.Date
+
+relationship f824733b-a62a-4d1a-b8ab-294e7f546f0f
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Tenant_Secondary.NOTICE_DATE
+	toColumn: LocalDateTable_ba44e5bc-bae1-4c28-8802-0f9e5545a62e.Date
+
+relationship dc669e75-9b47-476f-b8cd-e4f3d87de6e5
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Tenant_Secondary.CURRENT_LEASE_EXPIRATION_DATE
+	toColumn: LocalDateTable_3dc673ef-c41b-4494-b9ce-d97e212dc6d8.Date
+
+relationship 17757b5b-8500-4e5d-a72d-49dd366c0cb0
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Tenant_Secondary.LEASE_SIGNED_DATE
+	toColumn: LocalDateTable_78f2f98f-405c-4a27-8afa-ea7bf5b1d34f.Date
+
+relationship 77b0b13e-27ba-4a35-8c43-83f55edd85ef
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Tenant_Secondary.LEASE_FROM_DATE
+	toColumn: LocalDateTable_ea5418f0-0aa9-4511-aa09-9437e1ae5008.Date
+
+relationship 6aa64e29-1d36-49a9-aeec-e6c825c7afd9
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Tenant_Secondary.LEASE_TO_DATE
+	toColumn: LocalDateTable_9249a91f-43d2-46fd-b7c2-7ac9684b1907.Date
+
+relationship d784eaef-bcfb-45ca-be76-0fdac7307779
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Tenant_Secondary.DOB
+	toColumn: LocalDateTable_3f8da4d1-ca4f-41f4-a806-b2a6af1ff9e7.Date
+
+relationship 4ef0e76c-4bc7-43ce-97ff-834379c3eb95
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Tenant_Secondary.MOVEIN
+	toColumn: LocalDateTable_11c185b5-9a31-4b9c-86b0-c978c7472a69.Date
+
+relationship 7dd7e755-a4df-43a6-8ec8-3e8ee8fcbb53
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Tenant_Secondary.MOVEIN_BOM
+	toColumn: LocalDateTable_7b1672a3-cb7d-4210-bf7f-94d1c6665a6f.Date
+
+relationship f7237188-f166-489e-a763-5a16d27f6d55
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Tenant_Secondary.MOVEOUT
+	toColumn: LocalDateTable_be80b270-2eba-41e7-bd3e-7f680b5819c7.Date
+
+relationship 254eba07-e670-45a5-9b0e-ce32549bef89
+	fromColumn: DW_Tenant.DEAL_OWNER
+	toColumn: SEL_Contact_Owner.CONTACT_OWNER
+
+relationship 63974a1a-be1f-402f-bdf2-a41d6af7e9b1
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Tenant.'1_Lease_From (BOM)'
+	toColumn: LocalDateTable_adfee20c-219d-40fc-8bcd-2896fc8a9439.Date
+
+relationship 4686bd99-7e5e-47bd-829d-ff401da24b35
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'DW_Off Market'.'1_First Lease Post RRQC'
+	toColumn: LocalDateTable_ec738b4b-a3d4-482b-86eb-069f9884d205.Date
+
+relationship e3bc6eb8-da83-4640-a05f-b89239c30286
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Properties.MI_NOTECREATED
+	toColumn: LocalDateTable_07a4ad6f-0d5b-4121-a1b6-614c94680ad0.Date
+
+relationship fd22b042-e9bc-4d3e-b7b7-ea0cbafe74cc
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_MoveOut.MO_NOTECREATED
+	toColumn: LocalDateTable_10afd15b-8f07-45b0-b373-9245f97754de.Date
+
+relationship 823d820f-be85-422b-910f-2308b9360331
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Tenant.COLLECTIONNOTECREATED
+	toColumn: LocalDateTable_9a38eb1f-ef20-4f81-bad1-329bd024544a.Date
+
+relationship 904beabd-9b05-4b51-842e-cdd4c8b235ad
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Tenant.EVICTIONNOTECREATED
+	toColumn: LocalDateTable_068b2c4a-a953-4fba-a16b-a27c26746368.Date
+
+relationship 0d28404f-7b70-401f-aacd-5650c0425416
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Renewals.UW_UPDATE_DATE
+	toColumn: LocalDateTable_012f01ec-dccc-45bb-ba55-1b60ae62ff50.Date
+
+relationship 5ba76600-582f-43b3-84c7-5b9f6f092cce
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Renewals.INSPECTION_COMPLETED_DATE
+	toColumn: LocalDateTable_512f931f-b48f-4b1c-8aaa-f706a75bafa4.Date
+
+relationship d5fdeec2-bf0e-483f-b555-a4915500f558
+	fromColumn: DW_Renewals.'1_Lease Type'
+	toColumn: SEL_LeaseType.'Lease Type'
+
+relationship 24c99e59-ffab-4a8e-b863-f2cf1703928f
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Listings.LAST_LEASE_START
+	toColumn: LocalDateTable_b2d8763c-4926-4b3e-8d9d-c9f1dba9c8be.Date
+
+relationship 9820083a-1c73-4644-bc0c-402ccfeb63f4
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Renewals.ANTICIPATEDMOVEOUTDATE
+	toColumn: LocalDateTable_4566133f-afff-4bba-b278-19983fa79a92.Date
+
+relationship 2d29e476-0407-4909-b004-c56564c77fdc
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_WO.RRQC_PASS_DATE_MM
+	toColumn: LocalDateTable_576f6262-35e8-4e74-b388-81978581eb92.Date
+
+relationship ceef2515-c028-4e58-832c-4d031e29aae4
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_WO.FIRST_LEASE_START_DATE_POST_RRQC
+	toColumn: LocalDateTable_5f80175c-6d3a-448d-936b-cade24c39004.Date
+
+relationship 8b7ddd9c-7891-4604-a003-d872ca7cf5ee
+	joinOnDateBehavior: datePartOnly
+	fromColumn: PM_BOM.FIRST_LEASE_PLUS_90
+	toColumn: LocalDateTable_b2268354-89dc-48e0-bcea-b8317e218c77.Date
+
+relationship d004a4c6-1199-4657-ab6a-fd9149320e38
+	joinOnDateBehavior: datePartOnly
+	fromColumn: PM_BOM.SOLD_DATE
+	toColumn: LocalDateTable_1f78dac9-6ff4-4541-99dd-f6fdef065d71.Date
+
+relationship 1b2c901f-6d1a-485c-950b-44f554e38cd1
+	joinOnDateBehavior: datePartOnly
+	fromColumn: PM_Listings_BOM.CALENDAR_DATE
+	toColumn: LocalDateTable_fe9e18ec-62ac-4549-973b-f6c872697cf1.Date
+
+relationship e72f6211-c023-4161-8b12-82aa238d0c10
+	joinOnDateBehavior: datePartOnly
+	fromColumn: PM_Listings_BOM.CALENDAR_DATE_BOM
+	toColumn: LocalDateTable_ee42491d-599e-4caa-bdba-4261a6fba24e.Date
+
+relationship 0169cba0-7e85-49f7-9116-189c93b54105
+	fromColumn: PM_Listings_BOM.PROPERTY_KEY
+	toColumn: DW_Properties.PROPERTY_KEY
+
+relationship 9754a4ed-7b5e-4331-afc6-a2869d195943
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Turns.LISTING_MI_READY_DATE
+	toColumn: LocalDateTable_ae6834d7-60e2-4081-901e-0689132b7769.Date
+
+relationship c7cc599e-fe40-4828-8d8d-872762be8f04
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'DW_Off Market'.'2_TOTAL_Most Recent QC Result Date'
+	toColumn: LocalDateTable_dfc80222-d32e-48fe-9e09-0a21f58011a1.Date
+
+relationship 84f36b40-3932-4141-b585-0d1f566b2ea7
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Tenant_Receipts.CHARGE_DATE_BOM
+	toColumn: LocalDateTable_b85b1467-8bd8-44fa-ad51-3ab268ffd251.Date
+
+relationship 87bc6e50-9bfb-4b39-9767-3382605c9b51
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Tenant_Receipts.RECEIVED_DATE_BOM
+	toColumn: LocalDateTable_d60d6ece-474a-4327-97c8-27096ea09ae6.Date
+
+relationship 0f02ba32-09d4-4d6d-8075-46d25b4ff3c9
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Tenant_Charges.CHARGE_DATE_BOM
+	toColumn: LocalDateTable_1d61bcb0-76ab-4d9e-bbed-356cebf1dd35.Date
+
+relationship 2846f26e-00a0-4be8-aaac-0fc8f61fab62
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 0_Month.BEG_OF_MONTH
+	toColumn: LocalDateTable_f5394fe9-afc2-419c-a66f-c652cbb3b25a.Date
+
+relationship b6c710e5-04b6-49b8-b20c-09d906b9ee94
+	fromColumn: 0_Days.BOM
+	toColumn: 0_Month.BEG_OF_MONTH
+
+relationship 27b32e6e-197f-4b55-abd6-bfbd7639271b
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'DW_Off Market'.OFFMARKETNOTECREATED
+	toColumn: LocalDateTable_3bf1b487-094a-443a-8a84-fb3f909fc06e.Date
+
+relationship 4415f554-e474-4457-8b76-c852b0d11913
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Listings.ONMARKETNOTECREATED
+	toColumn: LocalDateTable_d4fe3a7c-db36-4192-be22-dd1c9fb41feb.Date
+
+relationship a0d4cd82-8425-45d7-85fc-bac216fcf486
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_MoveOut.MOVEOUT_BOM
+	toColumn: LocalDateTable_fd429f4d-20b6-4058-86f4-464f7a7a56fc.Date
+
+relationship 59642c29-81e6-4a02-97d8-261601c9de43
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Turns.UW_UPDATE_DATE
+	toColumn: LocalDateTable_54e5c807-45cd-4852-a50e-20baad20563c.Date
+
+relationship a98509b1-cbe7-476f-b098-55300daca81d
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'DW_Off Market'.UW_UPDATE_DATE
+	toColumn: LocalDateTable_4b343a98-8032-4332-afdf-36ef884ddc67.Date
+
+relationship f2f7555d-7a07-4bc5-9051-f705cfcf7b57
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'DW_Off Market'.DRC_CO_DATE
+	toColumn: LocalDateTable_2450d137-ae3e-43a8-91e2-f8976ca3b905.Date
+
+relationship bbe21722-5d26-489f-85f9-e378a77b6842
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Properties.1_RRQC
+	toColumn: LocalDateTable_f15e610e-8755-4703-a951-c6bdbd01f2f5.Date
+
+relationship c99ced01-c0ab-47c8-b8c6-384444226127
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Turns.1_RRQC
+	toColumn: LocalDateTable_2a299ed4-1efb-4922-bd0c-5e94e6c6edd3.Date
+
+relationship 6848a0a5-00cb-41b1-b877-e01340f671f4
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'DW_Off Market'.'1_Squatter Date'
+	toColumn: LocalDateTable_7a66edfc-f40b-4f0d-b31e-b4c74c335bab.Date
+
+relationship bd24568d-ae39-4f53-b75a-be6fe370bc92
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_MoveOut.'1_TKT Date'
+	toColumn: LocalDateTable_d27264ef-b64c-4f6d-aa1c-6c8f7c5c2107.Date
+
+relationship f9bc2e54-044c-4dc2-b1bd-6bd47fd543e9
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_MoveOut.1_Scope
+	toColumn: LocalDateTable_36aecf9a-25cf-40a2-b61e-1987da6f5039.Date
+
+relationship 5b073c66-3211-4f0b-8cab-47ebabc518fb
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Tenant.MI_NOTECREATED
+	toColumn: LocalDateTable_8d7aa745-439f-4dbb-92c3-23b1581e5276.Date
+
+relationship 7ecaf22c-b40b-4edf-9f08-753cb4745498
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Tenant.MID_ADDED_DATE
+	toColumn: LocalDateTable_93ab5b36-ac81-495a-8681-cfe2247d8127.Date
+
+relationship ad74fd15-82ec-47f2-9b7b-f27bc1f0cfca
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Listings.PM_MIR
+	toColumn: LocalDateTable_3440f4d3-3ffd-44dd-afe9-e74b747fb5f6.Date
+
+relationship a55625e1-d813-4ae9-be77-553e9416ec46
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Deals.PM_MIR
+	toColumn: LocalDateTable_ff8cf131-e027-4db0-8030-8a6f8f1f8cb3.Date
+
+relationship edc86aed-06f1-4d3b-921b-bcf4a06c0579
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_WO.INSP_START_DATE
+	toColumn: LocalDateTable_ca278517-35b7-449c-ab2b-accee362a75a.Date
+
+relationship 3cf3331f-8753-4331-b86a-4b304931e6bc
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_WO.WO_START_DATE
+	toColumn: LocalDateTable_a2bffbb1-b0e5-407d-9239-a57a0dfbe756.Date
+
+relationship 24df4bd0-deca-4427-a05f-be201a5d4060
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_WO.WO_END_DATE
+	toColumn: LocalDateTable_3e3cbd4e-aee5-4be1-a5cf-bdcf4ec3c684.Date
+
+relationship b440b974-56fd-4a04-8e80-312cf4d87437
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_WO.WO_NOTE_CREATED_DATE
+	toColumn: LocalDateTable_83d72fd8-9833-47fd-abcd-857143c19720.Date
+
+relationship 9793c2c6-d268-45fc-81e3-2fb1b403d4bc
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_WO.WO_NOTE_OWNER_CREATED_DATE
+	toColumn: LocalDateTable_3356a524-75bc-4bb3-8f6d-53507198aad4.Date
+
+relationship 7311a600-cca7-4742-97b8-5ddab0730e11
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Tenant.EVICTION_DATESENTTOATTORNEY
+	toColumn: LocalDateTable_2527a1aa-3cc5-4c64-af45-240d1e5043df.Date
+
+relationship 5ce7fcd8-8040-497e-8704-144962db09c5
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Tenant.EVICTION_DATEFILED
+	toColumn: LocalDateTable_df48ffd2-8599-44e3-a70e-1e3544eda431.Date
+
+relationship 5d2e1abc-7ce6-4368-997e-09d5d8cd7816
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Tenant.EVICTION_ESTIMATEDVACATEDATE
+	toColumn: LocalDateTable_e70fe645-6970-4183-a7e9-f97327c925f1.Date
+
+relationship 62bfb2de-bf76-4b9e-badb-f81727ec58de
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Tenant.EVICTION_DATESCHEDULEDWITHVENDOR
+	toColumn: LocalDateTable_b4b528bf-88dc-42ec-9534-cdab9c48000c.Date
+
+relationship 272bc97b-79f1-4cc3-a859-074f48dedafd
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Tenant.EVICTION_COURTDATESETDATE
+	toColumn: LocalDateTable_87054f90-1b7e-4eb1-879f-f0ddd07b6774.Date
+
+relationship 6a32fa81-cdb6-46f2-b4b9-4858dfce5733
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Tenant.EVICTION_JUDGMENTDATE
+	toColumn: LocalDateTable_83972270-816a-43e7-8558-9cabbf90bf7a.Date
+
+relationship 58c9842f-0382-42d9-831c-3e1f8df4d524
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Tenant.EVICTION_CASHFORKEYSCHEDULEDDATE
+	toColumn: LocalDateTable_e19805bd-17df-41ea-97cb-9ae7d6ccca84.Date
+
+relationship 2746957e-4579-40e5-ba41-6d400fb42233
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Tenant.EVICTION_PENDINGLOCKOUTDATE
+	toColumn: LocalDateTable_4ab8994b-aabe-4aae-a4dc-74fcbfe8a2e6.Date
+
+relationship 420c8f27-dde1-46e0-8547-eeb47dafc8ba
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Tenant.EVICTION_LOCKOUTSCHEDULEDDATE
+	toColumn: LocalDateTable_a34e0d10-96db-4f89-afac-15d67043e00b.Date
+
+relationship 6b679f85-9279-48d9-91d9-36642746f210
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Tenant.EVICTION_WRITREQUESTEDDATE
+	toColumn: LocalDateTable_627098d8-6b8b-4de8-8bc1-789efbe6460e.Date
+
+relationship bc2a8f2f-6a72-48ab-823c-7917f0857468
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Tenant.EVICTION_LASTEDITEDDATE
+	toColumn: LocalDateTable_a2584ffa-3597-43d8-ac40-28b551cecd1f.Date
+
+relationship 4582a8e5-6188-453c-bc57-bf215e0e567d
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Tenant.EVICTION_EVICTIONTERMINATEDDATE
+	toColumn: LocalDateTable_0a0bf49d-b101-4328-b3e3-644fa1830809.Date
+
+relationship 904835c4-fdee-41ba-899b-1aa6352b1625
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Tenant.EVICTION_DEFENDANTAPPEALDATE
+	toColumn: LocalDateTable_b931c43c-84b7-4861-bffc-dc223a4e0a57.Date
+
+relationship 099a48cf-8d10-4fff-bbb5-3e015453e5f0
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Tenant.EVICTION_ANSWERFILEDDATE
+	toColumn: LocalDateTable_d5148566-be26-4d78-83aa-241584b5f1ba.Date
+
+relationship 4a6e8b15-a9cd-4338-9429-d792348b0c77
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Tenant.EVICTION_VACATEDATE
+	toColumn: LocalDateTable_76fb367d-a402-48fe-b418-25e5933bffb2.Date
+
+relationship 9325298a-3331-473c-845c-a27e5c3da595
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Tenant.EXPIRATION_FORECAST
+	toColumn: LocalDateTable_c3446b6c-f6b3-4389-885e-ce81d3587dde.Date
+
+relationship ee785b53-8bab-48e8-9945-8099086ade70
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 0_Month_Exp.Date
+	toColumn: LocalDateTable_40fbead7-e814-4f63-a2ca-d1128703ad7c.Date
+
+relationship d9828c45-846b-4b0b-b9b8-cfc1917785d6
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'DW_Off Market'.VANDALISM_DATE
+	toColumn: LocalDateTable_50299592-8b4f-4b35-abde-9f96e5afe7cd.Date
+
+relationship f6a5a1bd-0cc2-4eee-9532-285d1d2a44fc
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Listings.LISTING_PRICE_MODIFICATION_DATE
+	toColumn: LocalDateTable_e474a73c-9b83-42d7-83e5-a25245bf4282.Date
+
+relationship 1ee09d51-89fe-41a3-981c-3ba5fbb7af32
+	joinOnDateBehavior: datePartOnly
+	fromColumn: GS_CodeViolations.'Date Of Record'
+	toColumn: LocalDateTable_500df58c-8d40-4bc3-98b0-e23fd7d2aa02.Date
+
+relationship 961302b1-8352-414b-9be1-63a39cf3dea6
+	joinOnDateBehavior: datePartOnly
+	fromColumn: GS_CodeViolations.'Received Date'
+	toColumn: LocalDateTable_76106888-e868-4af3-8699-b0a5bb020b35.Date
+
+relationship 1c18ace0-a931-4aba-a0a1-62ea38489fb2
+	joinOnDateBehavior: datePartOnly
+	fromColumn: GS_CodeViolations.'Respond by Date'
+	toColumn: LocalDateTable_ce7c3638-5844-4f9a-ac7d-ba77a072fa1d.Date
+
+relationship 196e6d83-1eb0-47a6-b8bd-65999e662deb
+	joinOnDateBehavior: datePartOnly
+	fromColumn: GS_CodeViolations.'Correct by Date'
+	toColumn: LocalDateTable_012a7703-ee39-456f-b13d-51e35ecb438b.Date
+
+relationship 6d609cc6-1911-49cb-b5a5-c871fabc65f5
+	joinOnDateBehavior: datePartOnly
+	fromColumn: GS_CodeViolations.'Completed Date'
+	toColumn: LocalDateTable_e512fa3c-6821-492f-b4cd-a6031497a312.Date
+
+relationship 0421b139-36dd-472c-a4fe-ddb3729dee56
+	fromColumn: GS_CodeViolations.'Entity Id'
+	toColumn: DW_Properties.ENTITYID
+
+relationship 7f0dee28-e01c-4b53-94a3-5fd6628db1c9
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Deals.MOVE_IN_CHARGES_PAID
+	toColumn: LocalDateTable_09fb8e9d-fe8e-473e-872e-eafc56b9854f.Date
+
+relationship e415098a-6835-4e23-bcf6-903f9fcc19c7
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Deals.APPLICATION_STARTED_DATE
+	toColumn: LocalDateTable_113c6538-12c1-47d1-980c-512e1c85b854.Date
+
+relationship d33b0115-7722-4d91-b249-4eaba58f3d31
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Deals.APP_STARTED_BOM
+	toColumn: LocalDateTable_f2b97d10-8e1b-42c2-93de-fdc6655f82f7.Date
+
+relationship c41800ba-6276-46e5-9174-ab53b3ee7a54
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Leads.1_Lead_Created_BOM
+	toColumn: LocalDateTable_208d39fb-7002-4ead-86b9-579fe2346524.Date
+
+relationship cb30723f-b816-4989-ba4a-22844451c97c
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 0_Days_Agent.Date
+	toColumn: LocalDateTable_e0a2d11b-0e83-41f5-ac39-f01c325b4da8.Date
+
+relationship 82df5142-2f9d-4ed5-987e-f5cd9d127229
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 0_Days_Agent.BOM
+	toColumn: LocalDateTable_d6421bc0-684b-4fae-a345-90e52cacf137.Date
+
+relationship 7a164691-1cb9-48aa-8716-bfbf063d8147
+	fromColumn: DW_Deals.DEAL_OWNER
+	toColumn: SEL_Contact_Owner.CONTACT_OWNER
+
+relationship da6c658a-3036-4d72-98d3-417c71ce6b37
+	crossFilteringBehavior: bothDirections
+	fromColumn: 0_Days_Agent.CONTACT_OWNER
+	toColumn: SEL_Contact_Owner.CONTACT_OWNER
+
+relationship d42e459c-5e08-430a-888f-012bbb35ceaa
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_MoveOut.RRQC_RESULT_DATE
+	toColumn: LocalDateTable_20b091d0-e766-4bba-bfca-e2cfbbf539c7.Date
+
+relationship b5a7e795-e6c5-4538-8245-7e1b2ff5999a
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'DW_Off Market'.PM_MIR
+	toColumn: LocalDateTable_a205898a-117c-41da-9657-9cace12b22e2.Date
+
+relationship 62f78663-bf74-433f-8548-3bdb1783c8c9
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Inspections.1_MI_Date
+	toColumn: LocalDateTable_b46ad53f-5f9f-4b4a-9fe9-1fa18fbfbd1a.Date
+
+relationship 8f1d721f-d162-4814-b0cb-7152428e4181
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Turns.N_MOVEIN
+	toColumn: LocalDateTable_f2ef0964-b682-4093-a1bf-0b71dc92903d.Date
+
+relationship e092de9f-92c5-4476-a7c0-c638e8bbcdb6
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Turns.WO_END_DATE
+	toColumn: LocalDateTable_46517f2e-8b87-41ca-90ba-ecdafcbcf53e.Date
+
+relationship 292fcae3-50a8-43ab-947c-eaaa035a5eb9
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Turns.WO_NOTE_CREATED_DATE
+	toColumn: LocalDateTable_14b0612d-71f5-4a29-828e-91b23a714012.Date
+
+relationship 2bd777aa-da5a-45be-8645-e89a423a3fb6
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Tenant.PROMISETOPAYDATE
+	toColumn: LocalDateTable_e60586a1-e1f1-4772-bd6f-4cc1efd932a7.Date
+
+relationship a9bd832f-0be0-4ccb-8151-b5152952cc72
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'DW_Off Market'.PROJECTEDCOMPLETIONDATE
+	toColumn: LocalDateTable_aa180554-c58a-4674-8d9a-2afb3a2ff788.Date
+
+relationship 4c653a9b-6077-4e86-825d-b691e485c7b7
+	fromColumn: DW_Listings.LEASING_AGENT
+	toColumn: SEL_Contact_Owner.CONTACT_OWNER
+
+relationship 2a06d336-5b67-4101-b172-cbfa6b7c6de4
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Listings.LEASE_START_DATE_BOM
+	toColumn: LocalDateTable_ac3cda55-6e7f-4134-831a-0705e2d9e10e.Date
+
+relationship 8f9c07e4-c4c3-4d96-a34b-9e2effb52874
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Turns.COLLECTIONNOTECREATED
+	toColumn: LocalDateTable_c030a29c-ca1d-4f5b-a31e-cf5ceaac6bc2.Date
+
+relationship 62d21bbb-ec8f-40ae-9be6-0dad02f05067
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Turns.SODA_COMPLETION_DATE
+	toColumn: LocalDateTable_0525aa7a-e639-4182-ac0f-3ec142ee1d11.Date
+
+relationship d20458bc-d286-409c-b8f7-c0658a7145fe
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_MoveOut.SODA_COMPLETION_DATE
+	toColumn: LocalDateTable_a1b2021b-7291-46b4-a500-0f6ce64c6c55.Date
+
+relationship 7d044bab-d2a7-4867-aab4-ba8526ce1003
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_MoveOut.SODA_COMPLETION_DATE_BOM
+	toColumn: LocalDateTable_4d0af1eb-39e7-48e6-8b0d-e672a2813a98.Date
+
+relationship 64770e47-90cc-4440-b702-abfd4212d540
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Listings.PM_MIR_BOM
+	toColumn: LocalDateTable_7ec17943-c5b0-4235-92f3-d0158712e243.Date
+
+relationship 969993ad-372b-4efb-b7e3-c217d1710eb2
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_WO.Purchase_Date
+	toColumn: LocalDateTable_c2316ee6-ba9f-4553-afbf-12f349ce67e0.Date
+
+relationship 88486b81-8a57-459f-bab4-09c07097c4a3
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Tenant.MOVEOUT_BOM
+	toColumn: LocalDateTable_f367d227-e289-4989-81ff-d07b3b59433d.Date
+
+relationship db3cb916-5307-4b80-b266-50b31978678a
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Renewals.MOVEOUT_BOM
+	toColumn: LocalDateTable_149fff78-c4a4-49d4-bb94-4c27434933e6.Date
+
+relationship d4f4d7f5-58ad-4503-ae69-285b66bbc5c9
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_MoveOut.MOVE_OUT_FORECAST_BOM
+	toColumn: LocalDateTable_6c706249-e952-4b2d-ad12-00489a9c1118.Date
+
+relationship ec66e905-22a9-472e-a2e2-c008617883a2
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Turns.WO_REQUESTED_DATE
+	toColumn: LocalDateTable_c218a37f-0edb-43a9-99c6-ad35c1419727.Date
+
+relationship 85365618-4cab-4db0-a89b-c86a2aed55f5
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_WO.OA_APPROVAL_DATE
+	toColumn: LocalDateTable_03fa7211-7f5e-45e5-8004-1476b75bacd4.Date
+
+relationship e366f4d9-0481-46b1-86aa-338d3402a94b
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_WO.APPROVED_DATE
+	toColumn: LocalDateTable_cb57d47c-1ef2-4992-8b36-9b6d5bfe22b0.Date
+
+relationship 6c8c1160-8a3a-4e9a-88af-e68048129020
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_MoveOut.IMPORT_DUE_DATE
+	toColumn: LocalDateTable_36fade96-b880-457a-a35a-0f16caff19b1.Date
+
+relationship bf69747b-9f32-4f0d-93ad-c1412ebf10fa
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Properties.1_Last_MO
+	toColumn: LocalDateTable_dfca649e-8d06-4b97-a308-c4dcc1c243e5.Date
+
+relationship cf495507-b40b-e5f0-082e-03180028dbed
+	fromColumn: SP_PPW.1_Property_key
+	toColumn: DW_Properties.PROPERTY_KEY
+
+relationship 44451731-c77c-dabb-74bd-616563b2a735
+	crossFilteringBehavior: bothDirections
+	fromCardinality: one
+	fromColumn: DW_Properties.ENTITYID
+	toColumn: SP_Engrain.'Asset ID'
+
+relationship 23529ea0-01e2-4229-a48b-8c5bbcd7bfc4
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Properties.PM_MIR
+	toColumn: LocalDateTable_543a8113-582d-4c88-824f-bcd571f47661.Date
+
+relationship 6b84a3ea-4857-4a24-9ea9-760923a0226d
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Tenant.IMPORT_DUE_DATE
+	toColumn: LocalDateTable_d43d1499-c2ad-4171-9052-caf140f7c2cd.Date
+
+relationship f3ed7c36-32f4-4dca-b1ef-626439c3bb41
+	joinOnDateBehavior: datePartOnly
+	fromColumn: GS_CodeViolations.1_Adjusted_FollowUp
+	toColumn: LocalDateTable_624c8f33-94c9-409d-a122-3d7250574874.Date
+
+relationship 38ca1d05-c6a0-4382-9771-9918a3f22792
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Properties.1_DRC_HF
+	toColumn: LocalDateTable_656abb10-1c41-4041-b860-404d1088e884.Date
+
+relationship 9320b099-a901-4aa5-8418-6fa5b631a2ac
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Tenant.IMP_DELIQUENCY_DATE
+	toColumn: LocalDateTable_2bb9a06d-c199-4ff8-8919-d8264f49ea83.Date
+
+relationship fd08f183-29fb-4fd9-8f5b-7ea10b3a17e1
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Tenant.IMP_NOTICE_DATE
+	toColumn: LocalDateTable_499937b0-d3dd-40a2-b99c-16f961ec5b0f.Date
+
+relationship 0b58970d-b8cf-4f9a-867e-746df96a6c93
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Tenant.'App Submit (BOM)'
+	toColumn: LocalDateTable_9accc5c2-62cf-43ec-97da-0463f91f2aa4.Date
+
+relationship 5758f1ad-f751-4327-a169-30eb31109339
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Tenant.APPLICATION_STARTED_DATE
+	toColumn: LocalDateTable_24a6aff8-5308-4ccd-9c65-f2815085d7ab.Date
+
+relationship fbca2698-a9d1-4c53-8b61-b5fcd5333f14
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Tenant.APP_STARTED_BOM
+	toColumn: LocalDateTable_952dcf06-de34-47c1-b37f-fb94835528b5.Date
+
+relationship b70425d7-adb8-4d0c-822a-5e5814fa3e65
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Renewals.IMPORT_DUE_DATE
+	toColumn: LocalDateTable_daf0a57e-ca2c-41ac-b66a-dd98b874e52d.Date
+
+relationship d5996b7d-9836-49d9-a8ab-aa515eecb6c2
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Listings.1_AMOD
+	toColumn: LocalDateTable_175b05c0-857b-4887-8204-baa11037619e.Date
+
+relationship 3a1a0d57-efe6-4fa4-8fd2-d743a4e9a8d4
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Listings.'1_App Submit Date'
+	toColumn: LocalDateTable_52609cbb-1c68-4807-8d4d-784a36ef789b.Date
+
+relationship 41d4d0d7-4402-4d15-ab33-1686a23e635a
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Properties.LAST_LEASE_START
+	toColumn: LocalDateTable_0d829ded-eaf9-4873-88f3-a5294fe77895.Date
+
+relationship 6f93d5fa-6725-49e5-97c5-0f91810b451c
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_MoveOut.HOLDING_FEE_PAID_DATE
+	toColumn: LocalDateTable_e5cae885-c1f0-4130-8bc8-39513c0ae26d.Date
+
+relationship 3de7b9a7-1158-480a-b136-20a2b044a666
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Leads.FINDIGS_APPLICATION_SUBMITTED
+	toColumn: LocalDateTable_c2f3a706-2b65-4908-bb1a-13856f482060.Date
+
+relationship a8aadd70-05c3-4417-af55-02b6df82abe1
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Leads.FINDIGS_GROUP_DECISIONED_AT
+	toColumn: LocalDateTable_b1b114f4-7adb-44a3-86ab-2d4ff3664863.Date
+
+relationship 56ed2aed-06cd-4c6d-9768-71b0c68ce540
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Leads.FINDIGS_GROUP_PENDING_REVIEW_AT
+	toColumn: LocalDateTable_53cd3d0e-bed6-4386-a3eb-a05eda2262d1.Date
+
+relationship ba508c0a-995d-4a7f-9df4-9a93d81b9585
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Leads.APPLICANT_EMPLOYMENT_START_DATE
+	toColumn: LocalDateTable_0a802e01-474d-4269-8d23-f5345791c76a.Date
+
+relationship e8550665-b54f-44c8-8dba-bc00dc0fbd35
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Leads.APPLICANT_DESIRED_MOVE_IN_DATE
+	toColumn: LocalDateTable_75c2f3e1-a89b-4815-834f-261735ad21b5.Date
+
+relationship 9021934e-befb-492c-afd9-dcbc6ae5bf46
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Deals.FINDIGS_APPLICATION_SUBMITTED
+	toColumn: LocalDateTable_eb030e70-3e6d-4c18-8004-bfd5aa875b24.Date
+
+relationship 732784fa-fc37-473f-ad1f-f3b589fba60c
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Deals.FINDIGS_GROUP_DECISIONED_AT
+	toColumn: LocalDateTable_91960e21-fdb3-4532-a4b9-fdbade00eb0f.Date
+
+relationship e18f3c71-b82a-4a47-b856-a25de604ed2e
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Deals.FINDIGS_GROUP_PENDING_REVIEW_AT
+	toColumn: LocalDateTable_ee6bef60-f576-4654-9bf9-0d33f3b0a19c.Date
+
+relationship 22e080e0-a981-43c7-b073-5c3a6be9d3e0
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Deals.APPLICANT_EMPLOYMENT_START_DATE
+	toColumn: LocalDateTable_523951fe-0666-40da-b412-33a61828461a.Date
+
+relationship c68d7221-300f-42f3-8c55-e6d3b6baa886
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Deals.APPLICANT_DESIRED_MOVE_IN_DATE
+	toColumn: LocalDateTable_203dfe98-b85d-4fca-8647-eb7e49babc2c.Date
+
+relationship 1daf4c7b-d6aa-c67d-d44e-b7478dc6134a
+	fromColumn: DW_Properties.PORTFOLIO_KEY
+	toColumn: SEL_Transcard.PORTFOLIO_KEY
+
+relationship 160c4dcd-580e-4265-a94f-0266bbb86bae
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_WO.1_MI_Date
+	toColumn: LocalDateTable_5ac7ff1b-373b-4cb5-ac30-68f18d876628.Date
+
+relationship 0dcc86f6-2e7e-4aa7-bcfa-d7324f641549
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Renewals.EVICTION_EVICTIONTERMINATEDDATE
+	toColumn: LocalDateTable_6fea0292-ad7b-4725-adc8-e9635b30ddde.Date
+
+relationship bcbb706d-a311-93e5-ad4d-3db426e3b36d
+	fromColumn: LTO.PROPERTY_KEY
+	toColumn: DW_Properties.PROPERTY_KEY
+
+relationship bbd4cf69-7d1e-4a24-9cb1-fe19c3db5a2d
+	joinOnDateBehavior: datePartOnly
+	fromColumn: LTO.N_LEASESTART
+	toColumn: LocalDateTable_61e01db9-96fc-48ef-a9e7-6b0f5105753b.Date
+
+relationship 6d9a136c-959d-4b8c-b126-96c92185eeec
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Properties.1_DRC_DATE
+	toColumn: LocalDateTable_f26c1dde-dfc8-4626-b99f-7a20c164a4e5.Date
+
+relationship 7158e8bd-07c6-4035-b690-590a9812566e
+	joinOnDateBehavior: datePartOnly
+	fromColumn: SP_PPW.'Daily Due Date'
+	toColumn: LocalDateTable_5e7e3f87-e31a-45fd-b9bd-31a8bfb1e911.Date
+
+relationship 35634634-7d32-4ec3-996b-dd29c0a44be4
+	joinOnDateBehavior: datePartOnly
+	fromColumn: SP_PPW.'Daily Invoice Date'
+	toColumn: LocalDateTable_05eb5b50-776f-4cdd-bbd2-02f75bd85bde.Date
+
+relationship 5dccb310-c7d5-4495-acf3-1874843d50d8
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Properties.1_Last_GC_Invoiced
+	toColumn: LocalDateTable_8649ec89-bdd9-48fe-8db8-3feba87281fd.Date
+
+relationship 1bd06d57-d087-48c2-86e3-22c94d4f8361
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Properties.1_Next_GC_Due
+	toColumn: LocalDateTable_86d6afb9-05d5-4e97-97fc-7a04d636f258.Date
+
+relationship 7b08ef30-4d86-4139-a720-07343e09f01f
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Properties.1_Last_Pool_Invoiced
+	toColumn: LocalDateTable_7114491c-ed8a-4538-81d8-38bee0a58243.Date
+
+relationship 4e80de19-2219-42f4-b188-5bfe242ca0c2
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_MoveOut.RENT_RESPONSBLE_DATE
+	toColumn: LocalDateTable_10699f43-4341-4950-bbe1-f8970123ac84.Date
+
+relationship b3390965-32ea-41db-bd67-63930d3d61bd
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Turns.O_MOVEIN
+	toColumn: LocalDateTable_05685991-1155-4d76-a859-733e18455e0d.Date
+
+relationship 81874fe3-f587-47cb-b773-47edaa82f852
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Tenant_Receipts.STRIPESETTLEMENTDATE
+	toColumn: LocalDateTable_5deddb83-df2b-49fb-9aad-b3bf508d9ea6.Date
+
+relationship 88dafbc1-5189-4815-b00f-dbc6376d9504
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Tenant_Charges.MOVEOUT
+	toColumn: LocalDateTable_3512ba43-ba60-4bc2-95d6-b7894de5cb81.Date
+
+relationship d017e416-0909-449c-b0f6-f5134dbfe8bc
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Tenant_Receipts.MOVEOUT
+	toColumn: LocalDateTable_69722929-c491-4e17-a7f2-708a5a05600f.Date
+
+relationship da61cdd5-848b-dc2a-5190-4190041291ac
+	fromColumn: GS_RentCast.'LISTING KEY'
+	toColumn: DW_Listings.LISTING_KEY
+
+relationship 3535e1ca-b631-401d-b731-15642e2e094e
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Listings.MOVE_IN_CHARGES_PAID
+	toColumn: LocalDateTable_87662544-9e08-42e5-b912-ca49004ec834.Date
+
+relationship 17caae16-7ede-4656-a372-513c1ff35edb
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Deals.EXPECTED_MOVE_IN_DATE
+	toColumn: LocalDateTable_c6494b38-a1ea-4345-b680-c85962967feb.Date
+
+relationship f996ad18-233b-40e5-95c2-6208f23e22ec
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Properties.'1_Last Payment_Date'
+	toColumn: LocalDateTable_4c2cdec7-f650-4376-8646-4c74aa4bbf7a.Date
+
+relationship 1174bb62-4873-49ff-8e6c-99921c7bbac2
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Properties.TEN_MOVE_IN_DATE
+	toColumn: LocalDateTable_65d41f8c-b59e-462d-8ff3-8a55728e84c6.Date
+
+relationship d0297ef8-ad4a-405c-b3a4-7307ac821f24
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Properties.TEN_ANTICIPATED_MOVE_OUT_DATE
+	toColumn: LocalDateTable_69db1977-7972-4c16-9f8f-680d3f62ee87.Date
+
+relationship f8eb3fb5-6188-479c-9e44-5fccbacd17f6
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Tenant_Secondary.'1_Last Payment_Date'
+	toColumn: LocalDateTable_1cf2463c-46ba-410c-abf2-394e745e698d.Date
+
+relationship ad188b0e-7b50-59e7-8da7-23624ae525b2
+	fromColumn: DW_Tenant_Secondary.LEASE_ID
+	toColumn: DW_Tenant.LEASE_ID
+
+relationship c11ff393-a2e3-466c-935f-2d5f99cec3aa
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Tenant_Secondary.ANTICIPATEDMOVEOUTDATE
+	toColumn: LocalDateTable_b37862c8-9f08-4ed7-b7bb-033dc767677b.Date
+
+relationship 3dc3bec5-3ac7-45f9-8896-951f9dcea250
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Properties.PROPERTY_RENTLY_SERIAL_ID_UPDATE_DATE
+	toColumn: LocalDateTable_e1c16a20-7df6-436c-a858-99bfe8682ff7.Date
+
+relationship 00eae6b9-b0d0-420d-86e9-9811720de649
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Rent_Comps.LISTED_RENT_MOST_RECENT_DATE
+	toColumn: LocalDateTable_dab7dfe7-158a-42c4-923d-cc615f7d3362.Date
+
+relationship 203a1128-44b3-44ca-8dc8-76b063c0e14f
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Rent_Comps.TENANT_RENT_MOST_RECENT_DATE
+	toColumn: LocalDateTable_ff4b83d0-65b3-4f30-8684-34b3222f3aaa.Date
+
+relationship 1773f942-557b-1e0f-4b60-98d47ef602b8
+	fromColumn: DW_Properties.FLOORPLAN_KEY
+	toColumn: DW_Rent_Comps.FLOORPLAN_KEY
+
+relationship 65fe838a-d41d-4353-99c9-9bdda6d10e1e
+	joinOnDateBehavior: datePartOnly
+	fromColumn: GS_RateCards.Timestamp
+	toColumn: LocalDateTable_5ed3dc5f-6325-4bea-934a-fc5ff6cee44e.Date
+
+relationship fa2e9c81-75c8-41bb-82a4-ed05ef314d94
+	joinOnDateBehavior: datePartOnly
+	fromColumn: GS_RateCards.'Approval Timestamp'
+	toColumn: LocalDateTable_2e0b0d83-1551-4340-abe0-e4fd6065ab28.Date
+
+relationship fe42f344-92bb-4d4e-19a5-fbed19ee172e
+	fromColumn: GS_RateCards.EntityID
+	toColumn: DW_Properties.ENTITYID
+
+relationship e9848987-3b4b-49ae-ab96-93f76a227baf
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Tenant.LAST_CALL_DATE
+	toColumn: LocalDateTable_21090555-5788-4ecc-8a5b-852005512866.Date
+
+relationship 2f666c57-ceca-49ab-b604-cfe17776d641
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DW_Renewals.PROPERTY_LAST_CALL_DATE
+	toColumn: LocalDateTable_48cac7b1-99fb-45e2-bb20-4062190b4708.Date
+
+relationship 673a778f-5fc1-4968-a75d-43346c2ebc59
+	joinOnDateBehavior: datePartOnly
+	fromColumn: GS_CodeViolations.'1_Days Till Corrected'
+	toColumn: LocalDateTable_70579caa-44bd-4382-8dd5-beff816fa1d6.Date
+
+relationship 92f5eafa-e93c-19a4-b027-696ed504d721
+	toCardinality: many
+	fromColumn: DW_Properties.SUBDIVISION
+	toColumn: 0_DRC.SUBDIVISION
+

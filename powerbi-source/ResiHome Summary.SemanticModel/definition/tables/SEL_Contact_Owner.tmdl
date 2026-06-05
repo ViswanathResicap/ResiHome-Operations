@@ -1,0 +1,26 @@
+table SEL_Contact_Owner
+	lineageTag: e3dee563-14d2-4fbd-9e57-e626a64cd07f
+
+	column CONTACT_OWNER
+		dataType: string
+		lineageTag: ae659c31-1187-4a5a-b79f-8e0bd24180ec
+		summarizeBy: none
+		sourceColumn: CONTACT_OWNER
+
+		annotation SummarizationSetBy = Automatic
+
+	partition SEL_Contact_Owner-e365a933-ce39-4633-9fdb-0a6819e012cc = m
+		mode: import
+		queryGroup: Inputs
+		source =
+				let
+				    Source = Value.NativeQuery(Snowflake.Databases("ota12822.us-east-1.snowflakecomputing.com","DEVELOPER_WH"){[Name="PROD_REPLICA"]}[Data], "WITH CONTACT_OWNER_TEMP AS (#(lf)    SELECT DEAL_OWNER AS CONTACT_OWNER #(lf)    FROM ""PROD_ANALYTICS"".""DBT_RESICAP"".""DIM_DEAL""#(lf)    GROUP BY  DEAL_OWNER#(lf)    UNION ALL#(lf)    SELECT CONTACT_OWNER #(lf)    FROM ""PROD_ANALYTICS"".""DBT_RESICAP"".""DIM_LEAD""#(lf)    GROUP BY CONTACT_OWNER #(lf))#(lf)#(lf)SELECT DISTINCT  CONTACT_OWNER  FROM  CONTACT_OWNER_TEMP#(lf)WHERE  CONTACT_OWNER IS NOT NULL AND CONTACT_OWNER <> ''#(lf)ORDER BY CONTACT_OWNER", null, [EnableFolding=true]),
+				    #"Capitalized Each Word" = Table.TransformColumns(Source,{{"CONTACT_OWNER", Text.Proper, type text}}),
+				    #"Sorted Rows" = Table.Sort(#"Capitalized Each Word",{{"CONTACT_OWNER", Order.Ascending}}),
+				    #"Filtered Rows" = Table.SelectRows(#"Sorted Rows", each ([CONTACT_OWNER] <> " ")),
+				    #"Removed Duplicates" = Table.Distinct(#"Filtered Rows")
+				in
+				    #"Removed Duplicates"
+
+	annotation PBI_ResultType = Table
+

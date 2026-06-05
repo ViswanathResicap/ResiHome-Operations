@@ -1,0 +1,30 @@
+table SEL_WO_CHART
+	lineageTag: 77c9e479-894b-4e32-a428-c037c9e4959e
+
+	measure 0_Value =
+			VAR Choice = SELECTEDVALUE(SEL_WO_CHART[Value])
+			return IF(Choice="Count",[0_TKT_Count],IF(Choice="Invoice Amount",SUM(DW_WO[CLIENT_INVOICE_AMOUNT]),BLANK()))
+		lineageTag: eb596ad2-1cd5-4b9a-887f-c78a1fddda67
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Value
+		dataType: string
+		lineageTag: d38702f3-69d6-4a71-bf45-64d0d6c7b2f2
+		summarizeBy: none
+		sourceColumn: Value
+
+		annotation SummarizationSetBy = Automatic
+
+	partition SEL_WO_CHART-2b008a05-ede1-4398-818e-f6a5e07b0be3 = m
+		mode: import
+		queryGroup: Inputs
+		source =
+				let
+				    Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("i45Wcs4vzStRitWJVvJMK8vPTE5VcMyFCMUCAA==", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [Value = _t]),
+				    #"Changed Type" = Table.TransformColumnTypes(Source,{{"Value", type text}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Table
+

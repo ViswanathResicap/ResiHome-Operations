@@ -1,0 +1,23 @@
+table SEL_Collections_Type
+	lineageTag: 8326659f-44e6-4dce-9613-7a6f174a0506
+
+	column Value
+		dataType: string
+		lineageTag: 7b661464-139c-4c5b-974c-20a5298d8d31
+		summarizeBy: none
+		sourceColumn: Value
+
+		annotation SummarizationSetBy = Automatic
+
+	partition SEL_Collections_Type-9084fa88-1809-44a8-8cd0-246d77a6291c = m
+		mode: import
+		queryGroup: Inputs
+		source =
+				let
+				    Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("i45Wci/KLy5WitWJVvJLLVHQqNB1zs9LTi0uzszPK9ZUio0FAA==", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [Value = _t]),
+				    #"Changed Type" = Table.TransformColumnTypes(Source,{{"Value", type text}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Table
+

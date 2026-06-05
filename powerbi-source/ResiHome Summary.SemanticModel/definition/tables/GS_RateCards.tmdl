@@ -1,0 +1,115 @@
+table GS_RateCards
+	lineageTag: 81a60e5d-4768-4c08-9183-c2168adbf89b
+
+	column Timestamp
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 1a4f766a-541a-4d75-965e-665f83c2d867
+		summarizeBy: none
+		sourceColumn: Timestamp
+
+		variation Variation
+			isDefault
+			relationship: 65fe838a-d41d-4353-99c9-9bdda6d10e1e
+			defaultHierarchy: LocalDateTable_5ed3dc5f-6325-4bea-934a-fc5ff6cee44e.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'URL Link'
+		dataType: string
+		lineageTag: b0d22dd5-84e3-41ff-8c2b-90760e80dc58
+		summarizeBy: none
+		sourceColumn: URL Link
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Approval Timestamp'
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 7c18c431-aec9-48ee-9224-bf22f2738d1f
+		summarizeBy: none
+		sourceColumn: Approval Timestamp
+
+		variation Variation
+			isDefault
+			relationship: fa2e9c81-75c8-41bb-82a4-ed05ef314d94
+			defaultHierarchy: LocalDateTable_2e0b0d83-1551-4340-abe0-e4fd6065ab28.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column Status
+		dataType: string
+		lineageTag: 2aa9c5af-86f8-4899-99ab-605b44a47c99
+		summarizeBy: none
+		sourceColumn: Status
+
+		annotation SummarizationSetBy = Automatic
+
+	column EntityID
+		dataType: string
+		lineageTag: a8cd9661-2e5a-459a-81f1-d1dcac918894
+		summarizeBy: none
+		sourceColumn: EntityID
+
+		annotation SummarizationSetBy = Automatic
+
+	column Address
+		dataType: string
+		lineageTag: 16e88c14-ded4-4a39-a735-4bdbeab9887d
+		summarizeBy: none
+		sourceColumn: Address
+
+		annotation SummarizationSetBy = Automatic
+
+	column Market
+		dataType: string
+		lineageTag: ad84c449-f9ad-4019-88f0-0b831e44fe8a
+		summarizeBy: none
+		sourceColumn: Market
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Submitted By'
+		dataType: string
+		lineageTag: 4c7f3ebf-cba3-433c-873e-9a48ae66d345
+		summarizeBy: none
+		sourceColumn: Submitted By
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Approval Check By'
+		dataType: string
+		lineageTag: da4493aa-4486-4118-bf64-32bd84b309e7
+		summarizeBy: none
+		sourceColumn: Approval Check By
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Message Link'
+		dataType: string
+		lineageTag: 30b8e2d9-35f1-45e9-93cc-fee449e26cd7
+		summarizeBy: none
+		sourceColumn: Message Link
+
+		annotation SummarizationSetBy = Automatic
+
+	partition GS_RateCards = m
+		mode: import
+		queryGroup: QC
+		source =
+				let
+				    Source = Csv.Document(Web.Contents("https://docs.google.com/spreadsheets/d/e/2PACX-1vQzdz7015BDt7Mp7KhGka5OOYzo3afyly_tZ7xO3Ltvw67LjrLtR0t7kyGOFD7tFRjhl2Ia81042Qbn/pub?gid=2121797624&single=true&output=csv"),[Delimiter=",", Columns=13, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Filtered Rows" = Table.SelectRows(#"Promoted Headers", each ([EntityID] <> "")),
+				    #"Removed Columns" = Table.RemoveColumns(#"Filtered Rows",{"", "_1"}),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Removed Columns",{{"Timestamp", type datetime}}),
+				    #"Removed Columns1" = Table.RemoveColumns(#"Changed Type",{"Approval Check"}),
+				    #"Changed Type1" = Table.TransformColumnTypes(#"Removed Columns1",{{"Approval Timestamp", type datetime}}),
+				    #"Sorted Rows" = Table.Sort(#"Changed Type1",{{"Timestamp", Order.Descending}})
+				in
+				    #"Sorted Rows"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

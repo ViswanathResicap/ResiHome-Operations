@@ -1,0 +1,118 @@
+table SP_PPW
+	lineageTag: c1bc20ca-8f17-4635-8a71-8ebc96916b82
+
+	column 'PPW #'
+		dataType: string
+		lineageTag: ab665597-6175-4aec-b9d7-5757e2d3b58b
+		summarizeBy: none
+		sourceColumn: PPW #
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Property Address'
+		dataType: string
+		lineageTag: 2a7063d3-b4fc-4c2e-85b3-98e8b421cea1
+		summarizeBy: none
+		sourceColumn: Property Address
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Property State'
+		dataType: string
+		lineageTag: 7c2a452f-96bf-48dd-82e1-21cf0ec6648c
+		summarizeBy: none
+		sourceColumn: Property State
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Work Order Status'
+		dataType: string
+		lineageTag: 7acbdbf3-1583-4360-bc44-6c2e0e0ca6a0
+		summarizeBy: none
+		sourceColumn: Work Order Status
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Work Type Name'
+		dataType: string
+		lineageTag: c4f7414b-70e0-4142-8b79-4a35c8943098
+		summarizeBy: none
+		sourceColumn: Work Type Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Company Name'
+		dataType: string
+		lineageTag: 8fe05073-8d46-4e73-9edf-a0e21b12909a
+		summarizeBy: none
+		sourceColumn: Company Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column 1_Property_key = CALCULATE(MAX(DW_Properties[PROPERTY_KEY]),FILTER(DW_Properties,DW_Properties[ADDRESS]=SP_PPW[Property Address]&&DW_Properties[STATE_CODE]=SP_PPW[Property State]))
+		lineageTag: 1cf5518a-9518-489c-847c-970b3bb62a76
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 'Daily Due Date'
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: f8525024-0607-4f71-95e5-b2c61ef381b0
+		summarizeBy: none
+		sourceColumn: Daily Due Date
+
+		variation Variation
+			isDefault
+			relationship: 7158e8bd-07c6-4035-b690-590a9812566e
+			defaultHierarchy: LocalDateTable_5e7e3f87-e31a-45fd-b9bd-31a8bfb1e911.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column 'Daily Invoice Date'
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: e67e5a91-76cc-430f-a4ef-6f3b44b6c604
+		summarizeBy: none
+		sourceColumn: Daily Invoice Date
+
+		variation Variation
+			isDefault
+			relationship: 35634634-7d32-4ec3-996b-dd29c0a44be4
+			defaultHierarchy: LocalDateTable_05eb5b50-776f-4cdd-bbd2-02f75bd85bde.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column 'Property City'
+		dataType: string
+		lineageTag: 56016d8c-ebef-47f7-9352-4da6593021cc
+		summarizeBy: none
+		sourceColumn: Property City
+
+		annotation SummarizationSetBy = Automatic
+
+	partition SP_PPW = m
+		mode: import
+		queryGroup: QC
+		source =
+				let
+				    Source = SharePoint.Files("https://residentialcapital.sharepoint.com/sites/Hayden-Workspace", [ApiVersion = 15]),
+				    #"PPW csv_https://residentialcapital sharepoint com/sites/Hayden-Workspace/Shared Documents/" = Source{[Name="PPW.csv",#"Folder Path"="https://residentialcapital.sharepoint.com/sites/Hayden-Workspace/Shared Documents/"]}[Content],
+				    #"Imported CSV" = Csv.Document(#"PPW csv_https://residentialcapital sharepoint com/sites/Hayden-Workspace/Shared Documents/",[Delimiter=",", Columns=9, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Imported CSV",{{"Column1", type text}, {"Column2", type text}, {"Column3", type text}, {"Column4", type text}, {"Column5", type text}, {"Column6", type text}, {"Column7", type text}, {"Column8", type text}, {"Column9", type text}}),
+				    #"Removed Top Rows" = Table.Skip(#"Changed Type",5),
+				    #"Promoted Headers" = Table.PromoteHeaders(#"Removed Top Rows", [PromoteAllScalars=true]),
+				    #"Changed Type1" = Table.TransformColumnTypes(#"Promoted Headers",{{"Daily Due Date", type date}, {"Daily Invoice Date", type date}})
+				in
+				    #"Changed Type1"
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

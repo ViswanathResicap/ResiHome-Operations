@@ -1,0 +1,133 @@
+table GS_RentCast
+	lineageTag: cf81ac48-8004-44c8-8a70-41ead40133ef
+
+	column 'LISTING KEY'
+		dataType: int64
+		formatString: 0
+		lineageTag: 85c583b6-d218-4d61-a205-7bbdc721eed4
+		summarizeBy: none
+		sourceColumn: LISTING KEY
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'RentCast Estimate'
+		dataType: decimal
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: ebb378fe-221e-481b-8901-26b88359c084
+		summarizeBy: sum
+		sourceColumn: RentCast Estimate
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'RentCast Low'
+		dataType: decimal
+		formatString: 0
+		lineageTag: fccc0469-4ea5-40bb-943f-1dfa87b613ac
+		summarizeBy: sum
+		sourceColumn: RentCast Low
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'RentCast High'
+		dataType: decimal
+		formatString: 0
+		lineageTag: 552431c4-4dd1-4d15-bed2-fbfbf56fb022
+		summarizeBy: sum
+		sourceColumn: RentCast High
+
+		annotation SummarizationSetBy = Automatic
+
+	column ENTITYID
+		dataType: string
+		lineageTag: ed24cfb1-49c6-4d91-936e-addda3b2a600
+		summarizeBy: none
+		sourceColumn: ENTITYID
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'REGION NAME'
+		dataType: string
+		lineageTag: f2e39724-6e92-4d8e-8bc1-4103ef3bb463
+		summarizeBy: none
+		sourceColumn: REGION NAME
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'LEASING AGENT'
+		dataType: string
+		lineageTag: dd582b3f-8194-4ae6-8e98-4ce04ca7f5c5
+		summarizeBy: none
+		sourceColumn: LEASING AGENT
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'LISTING DATE'
+		dataType: string
+		lineageTag: 1a5198e2-cb78-4237-a549-73dd9dcb6316
+		summarizeBy: none
+		sourceColumn: LISTING DATE
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'FULL ADDRESS'
+		dataType: string
+		lineageTag: 26f58796-2320-47e1-b34d-7b9c702e9305
+		summarizeBy: none
+		sourceColumn: FULL ADDRESS
+
+		annotation SummarizationSetBy = Automatic
+
+	column BEDROOMS
+		dataType: int64
+		formatString: 0
+		lineageTag: ed249104-697b-4161-bd2c-2a3633cf72cc
+		summarizeBy: sum
+		sourceColumn: BEDROOMS
+
+		annotation SummarizationSetBy = Automatic
+
+	column BATHROOMS
+		dataType: double
+		lineageTag: c6ddea85-3399-4b55-8e50-487f205ff94f
+		summarizeBy: sum
+		sourceColumn: BATHROOMS
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 'SQUARE FOOTAGE'
+		dataType: int64
+		formatString: 0
+		lineageTag: 51aad34a-cfcc-469c-a46d-85e9d7a6dff5
+		summarizeBy: sum
+		sourceColumn: SQUARE FOOTAGE
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'CURRENT LIST PRICE'
+		dataType: decimal
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: 5fc2371b-d612-4249-8635-6cb99d79665a
+		summarizeBy: sum
+		sourceColumn: CURRENT LIST PRICE
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	partition GS_RentCast = m
+		mode: import
+		queryGroup: QC
+		source =
+				let
+				    Source = Csv.Document(Web.Contents("https://docs.google.com/spreadsheets/d/e/2PACX-1vRAn5r4vjJxiLN-p_rWkAB2-A43hcmbm4ZBA5UJgJ323HkTmN7ZDwx-odoK6bvOT2VfDucm-5pTlC9I/pub?gid=0&single=true&output=csv"),[Delimiter=",", Columns=13, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"LISTING KEY", Int64.Type}, {"ENTITYID", type text}, {"REGION NAME", type text}, {"LEASING AGENT", type text}, {"LISTING DATE", type text}, {"FULL ADDRESS", type text}, {"BEDROOMS", Int64.Type}, {"BATHROOMS", type number}, {"SQUARE FOOTAGE", Int64.Type}, {"CURRENT LIST PRICE", Currency.Type}, {"RentCast Estimate", Currency.Type}, {"RentCast Low", Currency.Type}, {"RentCast High", Currency.Type}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

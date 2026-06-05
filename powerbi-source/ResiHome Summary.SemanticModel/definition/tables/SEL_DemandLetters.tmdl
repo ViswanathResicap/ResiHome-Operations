@@ -1,0 +1,58 @@
+table SEL_DemandLetters
+	lineageTag: b746d7bd-a78a-4883-a8e8-295fc6708941
+
+	column State
+		dataType: string
+		lineageTag: aa162253-0944-4501-8c31-49634d1fabfe
+		summarizeBy: none
+		sourceColumn: State
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Days till Demand Letter'
+		dataType: int64
+		formatString: 0
+		lineageTag: 972ccf98-db3a-4c68-912c-bc4ff8381581
+		summarizeBy: none
+		sourceColumn: Days till Demand Letter
+
+		changedProperty = DataType
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Days Word'
+		dataType: string
+		lineageTag: 2f6236a0-4d56-496b-b0c6-bd2fb6cd34d3
+		summarizeBy: none
+		sourceColumn: Days Word
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Resihome Email'
+		dataType: string
+		lineageTag: 35b46a46-2ea4-4e62-8cbf-b7ef29c2036d
+		summarizeBy: none
+		sourceColumn: Resihome Email
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'SD Days'
+		dataType: string
+		lineageTag: 265e312a-037f-4012-a670-44ecacd64b2b
+		summarizeBy: none
+		sourceColumn: SD Days
+
+		annotation SummarizationSetBy = Automatic
+
+	partition SEL_DemandLetters-e0590f4a-508d-4cc0-b461-377c44ce7ce2 = m
+		mode: import
+		queryGroup: Inputs
+		source =
+				let
+				    Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("dZHBCoMwEET/JWcpWrW9NiiKqPFgEFE8lLKgByvY1u9vEmsPrntYEsKbySzTtoxnzGJXNSUs8FSnhPvIs9sMr6GfRjg9plG9XmzWWYpu1N1XEw0LbHCzhx3PwJG2djXVz7DREbJ2V+uYH9AxJ+hEezu2wbbUCWWdiANY7GHPN3AerhuoHafP/Ia/Ig8phaAU6I+zYxQiwIFEQKQvUgwXKZGlDHBBJeUsqeASBf/1L+uDkmRN+Fcch6lQozp59wU=", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [State = _t, #"Days till Demand Letter" = _t, #"Days Word" = _t, #"Resihome Email" = _t, #"SD Days" = _t]),
+				    #"Changed Type" = Table.TransformColumnTypes(Source,{{"State", type text}, {"Days till Demand Letter", type text}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Table
+

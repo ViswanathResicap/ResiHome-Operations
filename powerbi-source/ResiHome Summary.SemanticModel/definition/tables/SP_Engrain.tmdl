@@ -1,0 +1,57 @@
+table SP_Engrain
+	lineageTag: 6abcd8f1-a6f0-48ec-9270-1c5067f05500
+
+	column 'Unit ID'
+		dataType: int64
+		formatString: 0
+		lineageTag: 69bcb5fd-a4b8-4f45-8b29-2404ebd6f7e4
+		summarizeBy: count
+		sourceColumn: Unit ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Asset ID'
+		dataType: string
+		lineageTag: 6606ba5c-0fc2-4270-b221-b19cbebbd172
+		summarizeBy: none
+		sourceColumn: Asset ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Map ID'
+		dataType: int64
+		formatString: 0
+		lineageTag: 87bb464a-d021-4f09-ab4d-cf570ee33375
+		summarizeBy: count
+		sourceColumn: Map ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column Community
+		dataType: string
+		lineageTag: 2027ea64-d285-4447-81b2-ee97d223f1c0
+		summarizeBy: none
+		sourceColumn: Community
+
+		annotation SummarizationSetBy = Automatic
+
+	partition SP_Engrain = m
+		mode: import
+		source =
+				let
+				    Source = SharePoint.Files("https://residentialcapital.sharepoint.com/sites/Hayden-Workspace", [ApiVersion = 15]),
+				    #"Engrain Mapping xlsx_https://residentialcapital sharepoint com/sites/Hayden-Workspace/Shared Documents/" = Source{[Name="Engrain Mapping.xlsx",#"Folder Path"="https://residentialcapital.sharepoint.com/sites/Hayden-Workspace/Shared Documents/"]}[Content],
+				    #"Imported Excel Workbook" = Excel.Workbook(#"Engrain Mapping xlsx_https://residentialcapital sharepoint com/sites/Hayden-Workspace/Shared Documents/"),
+				    Sheet1_Sheet = #"Imported Excel Workbook"{[Item="Sheet1",Kind="Sheet"]}[Data],
+				    #"Promoted Headers" = Table.PromoteHeaders(Sheet1_Sheet, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"Unit ID", Int64.Type}, {"Asset ID", type text}, {"Map ID", Int64.Type}, {"Community", type text}}),
+				    #"Filtered Rows" = Table.SelectRows(#"Changed Type", each ([Community] <> null and [Community] <> "Alcovy Meadows" and [Community] <> "Hammock Preserve" and [Community] <> "Midway Carlton Lake")),
+				    #"Sorted Rows" = Table.Sort(#"Filtered Rows",{{"Community", Order.Ascending}}),
+				    #"Filtered Rows1" = Table.SelectRows(#"Sorted Rows", each [Asset ID] <> null and [Asset ID] <> "")
+				in
+				    #"Filtered Rows1"
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+
