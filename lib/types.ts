@@ -42,22 +42,22 @@ export interface SummaryCache {
     organizationNameExcludes: (string | null)[];
   };
   kpis: {
-    totalProperties: number;
-    occupancyPct: number;
-    activeListings: number;
-    totalTenants: number;
-    rentVar: number; // vs UW (e.g. -0.03 = -3%)
-    holdingFees: number;
-    projActualMis: number;
-    netOccupancyGain: number;
-    turnoverPct: number;
+    totalProperties: number | null;
+    occupancyPct: number | null;
+    activeListings: number | null;
+    totalTenants: number | null;
+    rentVar: number | null; // vs UW (e.g. -0.03 = -3%)
+    holdingFees: number | null;
+    projActualMis: number | null;
+    netOccupancyGain: number | null;
+    turnoverPct: number | null;
   };
   gauges: {
     eomCollections: GaugeData;
     renewal: GaugeData;
     netTurnCost: GaugeData;
     internalMaintenance: GaugeData;
-  };
+  } | null;
   propertySummary: PropertySummaryRow[];
   monthlyTrend: MonthlyTrendRow[];
 }
