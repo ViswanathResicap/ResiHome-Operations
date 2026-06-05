@@ -6,8 +6,10 @@ import { PropertySummaryTable } from "@/components/PropertySummaryTable";
 import { MonthlyTrendTable } from "@/components/MonthlyTrendTable";
 import { pct, num } from "@/lib/format";
 
-// Serve cached results, refreshed hourly (mirrors Power BI scheduled refresh).
-export const revalidate = 3600;
+// Render on demand (never during build) and allow time for the hourly-cached
+// Snowflake queries to run on a cache miss.
+export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 
 const show = (v: number | null, fmt: (n: number) => string) =>
   v === null || v === undefined ? "—" : fmt(v);

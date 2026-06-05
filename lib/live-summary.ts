@@ -29,7 +29,9 @@ export async function getLiveSummary(): Promise<SummaryCache> {
     // Property-level KPIs (match the card measures over DW_Properties).
     try {
       const [r] = await conn.query<Record<string, unknown>>(`
-        WITH p AS ( SELECT * FROM ( ${DW_PROPERTIES_SQL} ) )
+        WITH p AS ( SELECT * FROM (
+${DW_PROPERTIES_SQL}
+) )
         SELECT
           COUNT(DISTINCT PROPERTY_KEY) AS TOTAL_PROPERTIES,
           DIV0( COUNT(DISTINCT IFF(OCCUPANCY_STATUS_SUMMARYID IN (7,8), PROPERTY_KEY, NULL)),
@@ -49,7 +51,9 @@ export async function getLiveSummary(): Promise<SummaryCache> {
     // Property Summary pivot source (Organization x occupancy status).
     try {
       const rows = await conn.query<Record<string, unknown>>(`
-        WITH p AS ( SELECT * FROM ( ${DW_PROPERTIES_SQL} ) )
+        WITH p AS ( SELECT * FROM (
+${DW_PROPERTIES_SQL}
+) )
         SELECT ORGANIZATION_NAME AS ORG, OCCUPANCY_STATUS_SUMMARY AS STATUS,
                COUNT(DISTINCT PROPERTY_KEY) AS CNT
         FROM p WHERE ${PAGE_FILTER} GROUP BY 1,2 ORDER BY 1,2`);
@@ -64,7 +68,9 @@ export async function getLiveSummary(): Promise<SummaryCache> {
     // Active Listings (DW_Listings): status Active & published.
     try {
       const [r] = await conn.query<Record<string, unknown>>(`
-        WITH l AS ( SELECT * FROM ( ${DW_LISTINGS_SQL} ) )
+        WITH l AS ( SELECT * FROM (
+${DW_LISTINGS_SQL}
+) )
         SELECT COUNT(DISTINCT PROPERTY_KEY) AS ACTIVE_LISTINGS
         FROM l WHERE LISTING_STATUS = 'Active' AND IS_PUBLISHED = 'Y'`);
       kpis.activeListings = numOr(r?.ACTIVE_LISTINGS);
@@ -75,7 +81,9 @@ export async function getLiveSummary(): Promise<SummaryCache> {
     // calculated columns and are wired in a follow-up (validated vs the report).
     try {
       const rows = await conn.query<Record<string, unknown>>(`
-        WITH b AS ( SELECT * FROM ( ${PM_BOM_SQL} ) )
+        WITH b AS ( SELECT * FROM (
+${PM_BOM_SQL}
+) )
         SELECT TO_CHAR(BEG_OF_MONTH, 'Mon YYYY') AS MONTH,
                MIN(BEG_OF_MONTH) AS BOM,
                COUNT(IFF(OCCUPANCY_STATUS IS NOT NULL, HBPM_PROPERTYID, NULL)) AS HOMES,
@@ -97,7 +105,9 @@ export async function getLiveSummary(): Promise<SummaryCache> {
     // gauge excludes the non-maintenance vendor companies; goal = POD*2*2000*4.
     try {
       const [r] = await conn.query<Record<string, unknown>>(`
-        WITH w AS ( SELECT * FROM ( ${DW_WO_SQL} ) )
+        WITH w AS ( SELECT * FROM (
+${DW_WO_SQL}
+) )
         SELECT SUM(CLIENT_INVOICE_AMOUNT) AS IM
         FROM w
         WHERE WORKORDER_STATUS = 'Closed' AND IS_INTERNAL_VENDOR = 'Y'
