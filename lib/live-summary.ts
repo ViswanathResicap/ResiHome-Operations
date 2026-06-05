@@ -10,8 +10,8 @@ const numOr = (v: unknown): number | null =>
 
 /**
  * Builds the Summary dataset live from Snowflake, reusing the EXACT native
- * queries preserved in the .pbip mirror. Each metric group is independently
- * guarded so one failing query never blanks the whole page.
+ * queries preserved in the .pbip mirror. The independent queries run in
+ * parallel; each is guarded so one failure never blanks the whole page.
  */
 export async function getLiveSummary(): Promise<SummaryCache> {
   const conn = await connect();
@@ -23,12 +23,14 @@ export async function getLiveSummary(): Promise<SummaryCache> {
   let propertySummary: PropertySummaryRow[] = [];
   let monthlyTrend: MonthlyTrendRow[] = [];
   let podCount: number | null = null;
+  let imValue: number | null = null;
   let internalMaintenance: GaugeData | null = null;
+  const q = <T = Record<string, unknown>>(sql: string) => conn.query<T>(sql);
 
-  try {
-    // Property-level KPIs (match the card measures over DW_Properties).
+  // Property-level KPIs (match the card measures over DW_Properties).
+  const tProps = (async () => {
     try {
-      const [r] = await conn.query<Record<string, unknown>>(`
+      const [r] = await q(`
         WITH p AS ( SELECT * FROM (
 ${DW_PROPERTIES_SQL}
 ) )
@@ -47,10 +49,12 @@ ${DW_PROPERTIES_SQL}
       kpis.rentVar = numOr(r?.RENT_VAR);
       podCount = numOr(r?.POD_COUNT);
     } catch (e) { console.error("[live] property KPIs failed:", (e as Error).message); }
+  })();
 
-    // Property Summary pivot source (Organization x occupancy status).
+  // Property Summary pivot source (Organization x occupancy status).
+  const tSummary = (async () => {
     try {
-      const rows = await conn.query<Record<string, unknown>>(`
+      const rows = await q(`
         WITH p AS ( SELECT * FROM (
 ${DW_PROPERTIES_SQL}
 ) )
@@ -64,10 +68,12 @@ ${DW_PROPERTIES_SQL}
           status: String(r.STATUS), count: Number(r.CNT),
         }));
     } catch (e) { console.error("[live] property summary failed:", (e as Error).message); }
+  })();
 
-    // Active Listings (DW_Listings): status Active & published.
+  // Active Listings (DW_Listings): status Active & published.
+  const tListings = (async () => {
     try {
-      const [r] = await conn.query<Record<string, unknown>>(`
+      const [r] = await q(`
         WITH l AS ( SELECT * FROM (
 ${DW_LISTINGS_SQL}
 ) )
@@ -75,12 +81,12 @@ ${DW_LISTINGS_SQL}
         FROM l WHERE LISTING_STATUS = 'Active' AND IS_PUBLISHED = 'Y'`);
       kpis.activeListings = numOr(r?.ACTIVE_LISTINGS);
     } catch (e) { console.error("[live] active listings failed:", (e as Error).message); }
+  })();
 
-    // Monthly trend (last 4 BOM months) — Homes + Avg Rent from PM_BOM (native).
-    // Occupancy/collections/renewal/turnover/net-turn-cost depend on Power BI
-    // calculated columns and are wired in a follow-up (validated vs the report).
+  // Monthly trend (last 4 BOM months) — Homes + Avg Rent from PM_BOM (native).
+  const tTrend = (async () => {
     try {
-      const rows = await conn.query<Record<string, unknown>>(`
+      const rows = await q(`
         WITH b AS ( SELECT * FROM (
 ${PM_BOM_SQL}
 ) )
@@ -99,12 +105,12 @@ ${PM_BOM_SQL}
         renewal: null, turnover: null, netTurnCost: null,
       }));
     } catch (e) { console.error("[live] monthly trend failed:", (e as Error).message); }
+  })();
 
-    // Internal Maintenance gauge (last 4 months, native DW_WO columns).
-    // 04_Interal Maintenance = SUM(CLIENT_INVOICE_AMOUNT) closed internal-vendor WOs;
-    // gauge excludes the non-maintenance vendor companies; goal = POD*2*2000*4.
+  // Internal Maintenance $ (last 4 months, native DW_WO columns).
+  const tIM = (async () => {
     try {
-      const [r] = await conn.query<Record<string, unknown>>(`
+      const [r] = await q(`
         WITH w AS ( SELECT * FROM (
 ${DW_WO_SQL}
 ) )
@@ -114,24 +120,30 @@ ${DW_WO_SQL}
           AND DATE_TRUNC('month', WO_CLOSED_DATE) >= DATEADD('month', -3, DATE_TRUNC('month', CURRENT_DATE()))
           AND DATE_TRUNC('month', WO_CLOSED_DATE) <= DATE_TRUNC('month', CURRENT_DATE())
           AND COMPANY_NAME NOT IN ('Credit Card Vendor','GE Vendor (Maintenance)','New Builder Warranty Vendor','Lennar Builder Warranty')`);
-      const im = numOr(r?.IM);
-      const goal = podCount != null ? podCount * 2 * 2000 * 4 : null;
-      if (im != null && goal) {
-        internalMaintenance = {
-          value: im, target: goal, min: 0, max: goal,
-          format: "currency", label: "Internal Maintenance",
-        };
-      }
+      imValue = numOr(r?.IM);
     } catch (e) { console.error("[live] internal maintenance failed:", (e as Error).message); }
+  })();
+
+  try {
+    await Promise.allSettled([tProps, tSummary, tListings, tTrend, tIM]);
   } finally {
     conn.close();
+  }
+
+  // 04_IM_Goal = DISTINCTCOUNT(POD)*2*2000*4
+  const goal = podCount != null ? podCount * 2 * 2000 * 4 : null;
+  if (imValue != null && goal) {
+    internalMaintenance = {
+      value: imValue, target: goal, min: 0, max: goal,
+      format: "currency", label: "Internal Maintenance",
+    };
   }
 
   return {
     _meta: {
       source: "SNOWFLAKE",
       generatedAt: new Date().toISOString(),
-      note: "Live: property KPIs, Property Summary, Active Listings, and monthly Homes/Avg Rent. Gauges & remaining trend columns (collections, renewal, turnover, occupancy %, net turn cost) translate Power BI calculated columns and are being wired + validated against the report.",
+      note: "Live: property KPIs, Property Summary, Active Listings, monthly Homes/Avg Rent, Internal Maintenance. Remaining gauges & trend columns translate Power BI calculated columns and are being wired + validated against the report.",
     },
     filters: { occupancyStatusExcludes: ["Dispositions"], organizationNameExcludes: [null] },
     kpis,
