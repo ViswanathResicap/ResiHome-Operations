@@ -22,16 +22,18 @@ app-level SharePoint auth (service account / app registration). Plan to retire t
   expose an admin-only CRUD UI (add/edit/delete rows, plus CSV re-upload to bulk-replace).
   Gate behind the same auth as the eventual 2FA landing page; non-admins read-only.
 
-### `SP_PPW` → **still open**
-- Property/work-order CSV (`PPW.csv`), columns incl. `PPW #`, Property Address/State/City,
-  Work Order Status, Work Type Name, Company Name, Daily Due/Invoice Date. Has a calculated
-  `1_Property_key` linking to `DW_Properties` by Address + State.
-- **Options:** (a) same admin-managed pattern as Engrain if it's relatively static / manually
-  maintained; (b) keep a SharePoint pull via app registration if it's frequently updated by
-  others. **Need owner input** on how `PPW.csv` is maintained today.
+## Out of scope — external scrape (decided 2026-06-05)
+These three sources are being collected **via a separate external scraping process** and are
+**not part of this app's data layer**. They are intentionally excluded from the refresh job, the
+cache schema, and the page builds. (None of them feed the Summary page.)
+- **`SP_PPW`** (SharePoint `PPW.csv`)
+- **`GS_CodeViolations`** (SharePoint `CodePermit.csv` — despite the `GS_` prefix)
+- **`QC_ResiAims`** (SharePoint)
 
-## Google Sheets dependencies (the `GS_` tables)
-`GS_RentCast`, `GS_RateCards`, `GS_CodeViolations` are **published-to-web CSVs** (public
+Their `.tmdl` definitions remain in the `powerbi-source/` mirror for fidelity, but nothing in
+the app references them.
+
+## Google Sheets dependencies (the `GS_` tables we DO use)
+`GS_RentCast`, `GS_RateCards`, `SEL_Transcard` are **published-to-web CSVs** (public
 `docs.google.com/.../pub?output=csv` URLs). The app can fetch these directly on the hourly
-cache schedule — no auth, no change needed. (Could later migrate to the same admin-managed
-pattern if desired.)
+cache schedule — no auth, no change needed.

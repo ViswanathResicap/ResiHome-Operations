@@ -34,13 +34,14 @@ PM_PropStatus_ALL, 0_Days, 0_Days_Agent, SEL_Contact_Owner`
   Oak, Rocklyn Homes, ROI Property Group, Newstar}), …)` + listing/app/LTO measures.
 - **`LTO`**, **`0_Month_Exp`** — calculated helper tables.
 
-### SHAREPOINT (4 tables) — ⚠️ need an access path for the web app
+### SHAREPOINT (4 tables)
 `residentialcapital.sharepoint.com/sites/Hayden-Workspace/Shared Documents/`
 - **`SP_Engrain`** → `Engrain.csv` — **DECIDED: becomes admin-managed table** (seed at
   `data/seed/engrain_unit_map.csv`). No SharePoint needed.
-- **`SP_PPW`** → `PPW.csv` — open question (admin-managed vs. SharePoint pull).
-- **`GS_CodeViolations`** → `CodePermit.csv` (despite `GS_` prefix, it's SharePoint).
-- **`QC_ResiAims`** → SharePoint file.
+- **`SP_PPW`** (`PPW.csv`), **`GS_CodeViolations`** (`CodePermit.csv`), **`QC_ResiAims`** —
+  **OUT OF SCOPE: collected via external scraping**, not part of this app's data layer. Excluded
+  from the refresh job, cache, and page builds. (None feed the Summary page.) See
+  `DATA_SOURCE_DECISIONS.md`.
 
 ### GOOGLE_SHEETS (3 tables) — published CSV, public URL, no auth
 - **`GS_RentCast`** → `docs.google.com/.../pub?gid=0&output=csv` (13 cols: listing/rent estimates).
@@ -61,5 +62,5 @@ business logic the Summary page renders; reproduce as SQL/app logic against the 
 The bulk of the dashboard is Snowflake (native-query datasets + DAX measures over them). Phase 1:
 run the native queries (or curated `PROD_ANALYTICS` equivalents) on an hourly cache, reproduce the
 `0_Month`/`0_DRC` calculated logic + measures, fetch the 3 Google Sheets directly, and replace
-`SP_Engrain` with the admin-managed table. Only `SP_PPW`, `GS_CodeViolations`/`CodePermit`, and
-`QC_ResiAims` still need a SharePoint decision.
+`SP_Engrain` with the admin-managed table. `SP_PPW`, `GS_CodeViolations`/`CodePermit`, and
+`QC_ResiAims` are out of scope (external scrape).

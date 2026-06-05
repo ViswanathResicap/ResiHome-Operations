@@ -1,0 +1,46 @@
+{
+  "_meta": {
+    "source": "SAMPLE",
+    "generatedAt": "2026-06-05T17:00:00.000Z",
+    "note": "Placeholder figures for layout/build verification only — NOT real ResiHome data."
+  },
+  "filters": {
+    "occupancyStatusExcludes": ["Dispositions"],
+    "organizationNameExcludes": [null]
+  },
+  "kpis": {
+    "totalProperties": 12480,
+    "occupancyPct": 0.942,
+    "activeListings": 612,
+    "totalTenants": 11760,
+    "rentVar": -0.018,
+    "holdingFees": 188,
+    "projActualMis": 421,
+    "netOccupancyGain": 96,
+    "turnoverPct": 0.031
+  },
+  "gauges": {
+    "eomCollections": { "value": 0.948, "target": 0.955, "min": 0.9, "max": 0.97, "format": "percent", "label": "EOM Collections" },
+    "renewal": { "value": 0.712, "target": 0.75, "min": 0, "max": 1, "format": "percent", "label": "Renewal" },
+    "netTurnCost": { "value": 1925, "target": 1750, "min": 1000, "max": 3000, "format": "currency", "label": "Net Turn Cost (All)" },
+    "internalMaintenance": { "value": 142000, "target": 160000, "min": 0, "max": 160000, "format": "currency", "label": "Internal Maintenance" }
+  },
+  "propertySummary": [
+    { "organization": "RP SFR", "region": "Southeast", "subdivision": "—", "status": "Tenant Leased", "count": 7320 },
+    { "organization": "RP SFR", "region": "Southeast", "subdivision": "—", "status": "Vacant", "count": 540 },
+    { "organization": "RP SFR", "region": "Southeast", "subdivision": "—", "status": "Trustee Leased", "count": 210 },
+    { "organization": "RB DRC", "region": "Southeast", "subdivision": "—", "status": "Tenant Leased", "count": 2140 },
+    { "organization": "RB DRC", "region": "Southeast", "subdivision": "—", "status": "Vacant", "count": 180 },
+    { "organization": "Hudson Oak", "region": "Southeast", "subdivision": "—", "status": "Tenant Leased", "count": 980 },
+    { "organization": "Hudson Oak", "region": "Southeast", "subdivision": "—", "status": "Vacant", "count": 70 },
+    { "organization": "Rocklyn Homes", "region": "Southeast", "subdivision": "—", "status": "Tenant Leased", "count": 540 },
+    { "organization": "ROI Property Group", "region": "Southeast", "subdivision": "—", "status": "Tenant Leased", "count": 110 },
+    { "organization": "Newstar", "region": "Southeast", "subdivision": "—", "status": "Tenant Leased", "count": 60 }
+  ],
+  "monthlyTrend": [
+    { "month": "Mar 2026", "homes": 12410, "avgRent": 1865, "occBom": 0.939, "occEom": 0.944, "collections": 0.951, "renewal": 0.701, "turnover": 0.034, "netTurnCost": 1880 },
+    { "month": "Apr 2026", "homes": 12440, "avgRent": 1872, "occBom": 0.944, "occEom": 0.946, "collections": 0.949, "renewal": 0.708, "turnover": 0.033, "netTurnCost": 1905 },
+    { "month": "May 2026", "homes": 12465, "avgRent": 1880, "occBom": 0.946, "occEom": 0.943, "collections": 0.947, "renewal": 0.715, "turnover": 0.032, "netTurnCost": 1918 },
+    { "month": "Jun 2026", "homes": 12480, "avgRent": 1888, "occBom": 0.943, "occEom": 0.942, "collections": 0.948, "renewal": 0.712, "turnover": 0.031, "netTurnCost": 1925 }
+  ]
+}
