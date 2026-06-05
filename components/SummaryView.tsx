@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { SummaryCache, PropertyRow, PropertySummaryRow } from "@/lib/types";
 import { LEASED_STATUSES, STABILIZED_STATUSES } from "@/lib/types";
 import { KpiCard } from "./KpiCard";
@@ -22,7 +22,18 @@ type Filters = {
 const EMPTY: Filters = { org: ALL, status: ALL, region: ALL, subdivision: ALL,
   pm: ALL, apm: ALL, pod: ALL, delinquent: ALL, address: "" };
 
-export function SummaryView({ data: d }: { data: SummaryCache }) {
+export function SummaryView({ initialData }: { initialData: SummaryCache }) {
+  // Render the instant committed snapshot, then swap in fresh data from the
+  // cron-warmed API (full per-property rows + live numbers) once it arrives.
+  const [d, setData] = useState<SummaryCache>(initialData);
+  useEffect(() => {
+    let on = true;
+    fetch("/api/summary")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j) => { if (on && j && j._meta) setData(j as SummaryCache); })
+      .catch(() => {});
+    return () => { on = false; };
+  }, []);
   const [f, setF] = useState<Filters>(EMPTY);
   const set = (k: keyof Filters, v: string) => setF((p) => ({ ...p, [k]: v }));
   const props = d.properties ?? null;
