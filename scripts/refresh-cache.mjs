@@ -118,9 +118,9 @@ async function main() {
   if (properties.length) {
     kpis.totalProperties = properties.length;
     const leased = properties.filter((p) => LEASED.has(p.status)).length;
-    const stable = properties.filter((p) => ["Tenant Leased","Trustee Leased","Vacant - On Market","Vacant - FMI"].includes(p.status)).length;
     kpis.totalTenants = leased;
-    kpis.occupancyPct = stable ? leased / stable : null;
+    // 0_Current_Occupancy = leased (summaryId 7,8) / all properties.
+    kpis.occupancyPct = kpis.totalProperties ? leased / kpis.totalProperties : null;
     const rs = properties.filter((p) => p.rent != null && p.uw != null);
     const sr = rs.reduce((s, p) => s + p.rent, 0), su = rs.reduce((s, p) => s + p.uw, 0);
     kpis.rentVar = su ? sr / su - 1 : null;

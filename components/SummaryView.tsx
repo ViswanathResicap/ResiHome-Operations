@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import type { SummaryCache, PropertyRow, PropertySummaryRow } from "@/lib/types";
-import { LEASED_STATUSES, STABILIZED_STATUSES } from "@/lib/types";
+import { LEASED_STATUSES } from "@/lib/types";
 import { KpiCard } from "./KpiCard";
 import { Gauge } from "./Gauge";
 import { PropertySummaryTable } from "./PropertySummaryTable";
@@ -11,7 +11,6 @@ import { pct, num } from "@/lib/format";
 
 const ALL = "All";
 const LEASED = new Set(LEASED_STATUSES);
-const STABLE = new Set(STABILIZED_STATUSES);
 const show = (v: number | null, fmt: (n: number) => string) => (v == null ? "—" : fmt(v));
 const uniq = (xs: string[]) => Array.from(new Set(xs.filter(Boolean))).sort();
 
@@ -56,7 +55,7 @@ export function SummaryView({ initialData }: { initialData: SummaryCache }) {
   // Build the (filtered) Property Summary matrix + derived counts.
   const { matrix, totalProps, totalTenants, occupancy, rentVar } = useMemo(() => {
     let matrix: PropertySummaryRow[];
-    let totalProps: number, leased: number, stable: number;
+    let totalProps: number, leased: number;
     let rentVar: number | null = fullMode ? null : d.kpis.rentVar;
 
     if (fullMode) {
@@ -75,7 +74,6 @@ export function SummaryView({ initialData }: { initialData: SummaryCache }) {
       matrix = Array.from(g.values());
       totalProps = fp.length;
       leased = fp.filter((p) => LEASED.has(p.status)).length;
-      stable = fp.filter((p) => STABLE.has(p.status)).length;
       const rs = fp.filter((p) => p.rent != null && p.uw != null);
       const sr = rs.reduce((s, p) => s + (p.rent as number), 0);
       const su = rs.reduce((s, p) => s + (p.uw as number), 0);
@@ -85,9 +83,10 @@ export function SummaryView({ initialData }: { initialData: SummaryCache }) {
         (f.org === ALL || r.organization === f.org) && (f.status === ALL || r.status === f.status));
       totalProps = matrix.reduce((s, r) => s + r.count, 0);
       leased = matrix.filter((r) => LEASED.has(r.status)).reduce((s, r) => s + r.count, 0);
-      stable = matrix.filter((r) => STABLE.has(r.status)).reduce((s, r) => s + r.count, 0);
     }
-    return { matrix, totalProps, totalTenants: leased, occupancy: stable ? leased / stable : null, rentVar };
+    // Report's 0_Current_Occupancy = leased (summaryId 7,8) / all properties
+    // (summaryId is never null in the source, so the denominator is every property).
+    return { matrix, totalProps, totalTenants: leased, occupancy: totalProps ? leased / totalProps : null, rentVar };
   }, [fullMode, props, f, d.propertySummary, d.kpis.rentVar]);
 
   const k = d.kpis;
