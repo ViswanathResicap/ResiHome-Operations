@@ -1,46 +1,63 @@
 {
   "_meta": {
-    "source": "SAMPLE",
-    "generatedAt": "2026-06-05T17:00:00.000Z",
-    "note": "Placeholder figures for layout/build verification only — NOT real ResiHome data."
+    "source": "SNOWFLAKE",
+    "generatedAt": "2026-06-05T18:30:00.000Z",
+    "note": "Snapshot of live figures (property KPIs, Property Summary, monthly Homes/Avg Rent). Auto-refreshes hourly once the GitHub Action secrets are set. Occupancy %, vs-UW Rent, and the remaining gauges/trend columns are being corrected & wired."
   },
   "filters": {
     "occupancyStatusExcludes": ["Dispositions"],
     "organizationNameExcludes": [null]
   },
   "kpis": {
-    "totalProperties": 12480,
-    "occupancyPct": 0.942,
-    "activeListings": 612,
-    "totalTenants": 11760,
-    "rentVar": -0.018,
-    "holdingFees": 188,
-    "projActualMis": 421,
-    "netOccupancyGain": 96,
-    "turnoverPct": 0.031
+    "totalProperties": 8052,
+    "occupancyPct": null,
+    "activeListings": 451,
+    "totalTenants": 6246,
+    "rentVar": null,
+    "holdingFees": null,
+    "projActualMis": null,
+    "netOccupancyGain": null,
+    "turnoverPct": null
   },
-  "gauges": {
-    "eomCollections": { "value": 0.948, "target": 0.955, "min": 0.9, "max": 0.97, "format": "percent", "label": "EOM Collections" },
-    "renewal": { "value": 0.712, "target": 0.75, "min": 0, "max": 1, "format": "percent", "label": "Renewal" },
-    "netTurnCost": { "value": 1925, "target": 1750, "min": 1000, "max": 3000, "format": "currency", "label": "Net Turn Cost (All)" },
-    "internalMaintenance": { "value": 142000, "target": 160000, "min": 0, "max": 160000, "format": "currency", "label": "Internal Maintenance" }
-  },
+  "gauges": { "eomCollections": null, "renewal": null, "netTurnCost": null, "internalMaintenance": null },
   "propertySummary": [
-    { "organization": "RP SFR", "region": "Southeast", "subdivision": "—", "status": "Tenant Leased", "count": 7320 },
-    { "organization": "RP SFR", "region": "Southeast", "subdivision": "—", "status": "Vacant", "count": 540 },
-    { "organization": "RP SFR", "region": "Southeast", "subdivision": "—", "status": "Trustee Leased", "count": 210 },
-    { "organization": "RB DRC", "region": "Southeast", "subdivision": "—", "status": "Tenant Leased", "count": 2140 },
-    { "organization": "RB DRC", "region": "Southeast", "subdivision": "—", "status": "Vacant", "count": 180 },
-    { "organization": "Hudson Oak", "region": "Southeast", "subdivision": "—", "status": "Tenant Leased", "count": 980 },
-    { "organization": "Hudson Oak", "region": "Southeast", "subdivision": "—", "status": "Vacant", "count": 70 },
-    { "organization": "Rocklyn Homes", "region": "Southeast", "subdivision": "—", "status": "Tenant Leased", "count": 540 },
-    { "organization": "ROI Property Group", "region": "Southeast", "subdivision": "—", "status": "Tenant Leased", "count": 110 },
-    { "organization": "Newstar", "region": "Southeast", "subdivision": "—", "status": "Tenant Leased", "count": 60 }
+    { "organization": "Array Park LLC", "region": "—", "subdivision": "—", "status": "Vacant - Off Market", "count": 179 },
+    { "organization": "Hudson Oak", "region": "—", "subdivision": "—", "status": "Tenant Leased", "count": 216 },
+    { "organization": "Hudson Oak", "region": "—", "subdivision": "—", "status": "Turnkey", "count": 1 },
+    { "organization": "Hudson Oak", "region": "—", "subdivision": "—", "status": "Vacant - Off Market", "count": 1 },
+    { "organization": "Hudson Oak", "region": "—", "subdivision": "—", "status": "Vacant - On Market", "count": 3 },
+    { "organization": "Newstar", "region": "—", "subdivision": "—", "status": "Tenant Leased", "count": 34 },
+    { "organization": "Newstar", "region": "—", "subdivision": "—", "status": "Trustee Leased", "count": 32 },
+    { "organization": "Newstar", "region": "—", "subdivision": "—", "status": "Turnkey", "count": 2 },
+    { "organization": "Newstar", "region": "—", "subdivision": "—", "status": "Vacant - On Market", "count": 5 },
+    { "organization": "Oak Hill Residence Park LLC", "region": "—", "subdivision": "—", "status": "Vacant - Off Market", "count": 81 },
+    { "organization": "RB DRC", "region": "—", "subdivision": "—", "status": "Tenant Leased", "count": 1400 },
+    { "organization": "RB DRC", "region": "—", "subdivision": "—", "status": "Turnkey", "count": 77 },
+    { "organization": "RB DRC", "region": "—", "subdivision": "—", "status": "Vacant - Off Market", "count": 260 },
+    { "organization": "RB DRC", "region": "—", "subdivision": "—", "status": "Vacant - On Market", "count": 118 },
+    { "organization": "ROI Property Group", "region": "—", "subdivision": "—", "status": "Tenant Leased", "count": 27 },
+    { "organization": "ROI Property Group", "region": "—", "subdivision": "—", "status": "Trustee Leased", "count": 2 },
+    { "organization": "ROI Property Group", "region": "—", "subdivision": "—", "status": "Turnkey", "count": 2 },
+    { "organization": "ROI Property Group", "region": "—", "subdivision": "—", "status": "Vacant - Off Market", "count": 13 },
+    { "organization": "ROI Property Group", "region": "—", "subdivision": "—", "status": "Vacant - On Market", "count": 10 },
+    { "organization": "RP SFR", "region": "—", "subdivision": "—", "status": "Tenant Leased", "count": 4260 },
+    { "organization": "RP SFR", "region": "—", "subdivision": "—", "status": "Trustee Leased", "count": 2 },
+    { "organization": "RP SFR", "region": "—", "subdivision": "—", "status": "Turnkey", "count": 114 },
+    { "organization": "RP SFR", "region": "—", "subdivision": "—", "status": "Vacant - Off Market", "count": 5 },
+    { "organization": "RP SFR", "region": "—", "subdivision": "—", "status": "Vacant - On Market", "count": 118 },
+    { "organization": "Rivertown Park LLC", "region": "—", "subdivision": "—", "status": "Vacant - Off Market", "count": 73 },
+    { "organization": "Rocklyn Homes", "region": "—", "subdivision": "—", "status": "Tenant Leased", "count": 162 },
+    { "organization": "Rocklyn Homes", "region": "—", "subdivision": "—", "status": "Trustee Leased", "count": 111 },
+    { "organization": "Rocklyn Homes", "region": "—", "subdivision": "—", "status": "Turnkey", "count": 11 },
+    { "organization": "Rocklyn Homes", "region": "—", "subdivision": "—", "status": "Vacant - FMI", "count": 2 },
+    { "organization": "Rocklyn Homes", "region": "—", "subdivision": "—", "status": "Vacant - Off Market", "count": 524 },
+    { "organization": "Rocklyn Homes", "region": "—", "subdivision": "—", "status": "Vacant - On Market", "count": 39 },
+    { "organization": "Wiltshire Park LLC", "region": "—", "subdivision": "—", "status": "Vacant - Off Market", "count": 168 }
   ],
   "monthlyTrend": [
-    { "month": "Mar 2026", "homes": 12410, "avgRent": 1865, "occBom": 0.939, "occEom": 0.944, "collections": 0.951, "renewal": 0.701, "turnover": 0.034, "netTurnCost": 1880 },
-    { "month": "Apr 2026", "homes": 12440, "avgRent": 1872, "occBom": 0.944, "occEom": 0.946, "collections": 0.949, "renewal": 0.708, "turnover": 0.033, "netTurnCost": 1905 },
-    { "month": "May 2026", "homes": 12465, "avgRent": 1880, "occBom": 0.946, "occEom": 0.943, "collections": 0.947, "renewal": 0.715, "turnover": 0.032, "netTurnCost": 1918 },
-    { "month": "Jun 2026", "homes": 12480, "avgRent": 1888, "occBom": 0.943, "occEom": 0.942, "collections": 0.948, "renewal": 0.712, "turnover": 0.031, "netTurnCost": 1925 }
+    { "month": "Mar 2026", "homes": 7531, "avgRent": 2065, "occBom": null, "occEom": null, "collections": null, "renewal": null, "turnover": null, "netTurnCost": null },
+    { "month": "Apr 2026", "homes": 7531, "avgRent": 2065, "occBom": null, "occEom": null, "collections": null, "renewal": null, "turnover": null, "netTurnCost": null },
+    { "month": "May 2026", "homes": 7781, "avgRent": 2066, "occBom": null, "occEom": null, "collections": null, "renewal": null, "turnover": null, "netTurnCost": null },
+    { "month": "Jun 2026", "homes": 8128, "avgRent": 2067, "occBom": null, "occEom": null, "collections": null, "renewal": null, "turnover": null, "netTurnCost": null }
   ]
 }

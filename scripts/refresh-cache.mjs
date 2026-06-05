@@ -1,20 +1,15 @@
 #!/usr/bin/env node
 /**
- * Refresh the Summary cache (data/cache/summary.json) from Snowflake.
+ * Refresh data/cache/summary.json from Snowflake (scheduled, OFF the request path).
  *
- * Architecture: pages serve cached results (mirrors Power BI scheduled refresh).
- * This job runs out-of-band (cron/hourly). It reuses the EXACT native-query SQL
- * preserved in the .pbip mirror, so the cached figures match the report.
+ * The Summary page reads the committed JSON statically (instant load). This job
+ * runs the heavy report-faithful native queries (from the .pbip mirror), in
+ * parallel, and writes the compact result. Run hourly via GitHub Actions
+ * (.github/workflows/refresh.yml) or locally with creds.
  *
- * Requires env (not committed):
- *   SNOWFLAKE_ACCOUNT   e.g. ota12822.us-east-1
- *   SNOWFLAKE_USERNAME
- *   SNOWFLAKE_PASSWORD  (or SNOWFLAKE_PRIVATE_KEY_PATH)
- *   SNOWFLAKE_WAREHOUSE e.g. DEVELOPER_WH   (report uses DEVELOPER_WH / role UAT)
- *   SNOWFLAKE_ROLE      e.g. UAT
- * And: `npm i snowflake-sdk`
- *
- * Usage: npm run refresh
+ * Env: SNOWFLAKE_ACCOUNT, SNOWFLAKE_USERNAME, SNOWFLAKE_PASSWORD (or
+ *      SNOWFLAKE_PRIVATE_KEY[_PATH]), SNOWFLAKE_WAREHOUSE, SNOWFLAKE_ROLE.
+ * Run: npm i snowflake-sdk && npm run refresh
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -23,96 +18,115 @@ import { fileURLToPath } from "node:url";
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const TABLES = path.join(ROOT, "powerbi-source", "ResiHome Summary.SemanticModel", "definition", "tables");
 const OUT = path.join(ROOT, "data", "cache", "summary.json");
-
-/** Extract a table's Snowflake native-query SQL from its .tmdl (unescapes M string). */
-export function nativeSql(tableName) {
-  const tmdl = fs.readFileSync(path.join(TABLES, `${tableName}.tmdl`), "utf-8");
-  const m = tmdl.match(/\[Data\],\s*"([\s\S]*?)",\s*null,\s*\[EnableFolding/);
-  if (!m) throw new Error(`No native query found in ${tableName}.tmdl`);
-  return m[1]
-    .replace(/#\(lf\)/g, "\n")
-    .replace(/#\(tab\)/g, "\t")
-    .replace(/""/g, '"');
-}
-
-async function connect() {
-  let sdk;
-  try { sdk = (await import("snowflake-sdk")).default; }
-  catch { throw new Error("snowflake-sdk not installed. Run: npm i snowflake-sdk"); }
-  const cfg = {
-    account: req("SNOWFLAKE_ACCOUNT"),
-    username: req("SNOWFLAKE_USERNAME"),
-    warehouse: process.env.SNOWFLAKE_WAREHOUSE || "DEVELOPER_WH",
-    role: process.env.SNOWFLAKE_ROLE || "UAT",
-    database: "PROD_ANALYTICS",
-  };
-  if (process.env.SNOWFLAKE_PASSWORD) cfg.password = process.env.SNOWFLAKE_PASSWORD;
-  else if (process.env.SNOWFLAKE_PRIVATE_KEY_PATH) {
-    cfg.authenticator = "SNOWFLAKE_JWT";
-    cfg.privateKey = fs.readFileSync(process.env.SNOWFLAKE_PRIVATE_KEY_PATH, "utf-8");
-  } else throw new Error("Set SNOWFLAKE_PASSWORD or SNOWFLAKE_PRIVATE_KEY_PATH");
-  const conn = sdk.createConnection(cfg);
-  await new Promise((res, rej) => conn.connect((e) => (e ? rej(e) : res())));
-  return conn;
-}
-const req = (k) => { const v = process.env[k]; if (!v) throw new Error(`Missing env ${k}`); return v; };
-const run = (conn, sqlText) =>
-  new Promise((res, rej) =>
-    conn.execute({ sqlText, complete: (e, _s, rows) => (e ? rej(e) : res(rows)) }));
-
-// Page-level filters from the Summary page.json.
 const PAGE_FILTER = `OCCUPANCY_STATUS <> 'Dispositions' AND ORGANIZATION_NAME IS NOT NULL`;
 
-async function main() {
-  const conn = await connect();
-  const props = nativeSql("DW_Properties"); // exact MASTER PROPERTY dataset
+const nativeSql = (t) => {
+  const tmdl = fs.readFileSync(path.join(TABLES, `${t}.tmdl`), "utf-8");
+  const m = tmdl.match(/\[Data\],\s*"([\s\S]*?)",\s*null,\s*\[EnableFolding/);
+  if (!m) throw new Error(`No native query in ${t}.tmdl`);
+  return m[1].replace(/#\(lf\)/g, "\n").replace(/#\(tab\)/g, "\t").replace(/""/g, '"');
+};
+const numOr = (v) => (v == null || Number.isNaN(Number(v)) ? null : Number(v));
+const req = (k) => { const v = process.env[k]; if (!v) throw new Error(`Missing env ${k}`); return v; };
 
-  // Headline KPIs derived from DW_Properties (matches the card measures).
-  const [kpi] = await run(conn, `
-    WITH p AS ( SELECT * FROM ( ${props} ) )
-    SELECT
-      COUNT(DISTINCT PROPERTY_KEY)                                              AS TOTAL_PROPERTIES,
-      DIV0( COUNT_IF(OCCUPANCY_STATUS_SUMMARYID IN (7,8)),
-            COUNT_IF(OCCUPANCY_STATUS_SUMMARYID IS NOT NULL) )                  AS OCCUPANCY_PCT,
-      COUNT(DISTINCT CASE WHEN OCCUPANCY_STATUS IN ('Tenant Leased','Trustee Leased')
-                          THEN PROPERTY_KEY END)                                AS TOTAL_TENANTS,
-      DIV0( SUM(CURRENT_RENT), NULLIF(SUM(UNDER_WRITTEN_RENT),0) ) - 1          AS RENT_VAR
-    FROM p WHERE ${PAGE_FILTER}`);
-
-  // Property Summary pivot source (Organization x status counts).
-  const summary = await run(conn, `
-    WITH p AS ( SELECT * FROM ( ${props} ) )
-    SELECT ORGANIZATION_NAME AS ORG, REGION_NAME AS REGION,
-           OCCUPANCY_STATUS_SUMMARY AS STATUS, COUNT(DISTINCT PROPERTY_KEY) AS CNT
-    FROM p WHERE ${PAGE_FILTER}
-    GROUP BY 1,2,3 ORDER BY 1,3`);
-
-  // Merge into the existing cache; leave 0_Month/Listings-derived figures for the
-  // next extension (gauges, monthly trend, active listings) — see TODO below.
-  const prev = JSON.parse(fs.readFileSync(OUT, "utf-8"));
-  const cache = {
-    ...prev,
-    _meta: { source: "SNOWFLAKE", generatedAt: new Date().toISOString() },
-    kpis: {
-      ...prev.kpis,
-      totalProperties: Number(kpi.TOTAL_PROPERTIES),
-      occupancyPct: Number(kpi.OCCUPANCY_PCT),
-      totalTenants: Number(kpi.TOTAL_TENANTS),
-      rentVar: Number(kpi.RENT_VAR),
-    },
-    propertySummary: summary.map((r) => ({
-      organization: r.ORG, region: r.REGION, subdivision: "—",
-      status: r.STATUS, count: Number(r.CNT),
-    })),
+async function connect() {
+  const sdk = (await import("snowflake-sdk")).default;
+  try { sdk.configure({ logLevel: "ERROR" }); } catch {}
+  const cfg = {
+    account: req("SNOWFLAKE_ACCOUNT"), username: req("SNOWFLAKE_USERNAME"),
+    warehouse: process.env.SNOWFLAKE_WAREHOUSE || "DEVELOPER_WH",
+    role: process.env.SNOWFLAKE_ROLE || "UAT", database: "PROD_ANALYTICS",
+    application: "ResiHomeOperationsRefresh",
   };
-  fs.writeFileSync(OUT, JSON.stringify(cache, null, 2));
-  console.log(`Wrote ${OUT} — ${cache.propertySummary.length} summary rows, ${cache.kpis.totalProperties} properties.`);
-
-  // TODO (next extension): activeListings <- DW_Listings; gauges + monthlyTrend
-  // <- 0_Month measures (EOM Collections / Renewal / Net Turn Cost / Internal
-  // Maintenance, occ/turnover trend). Reuse nativeSql("DW_Listings"), etc., and
-  // reproduce the 0_Month DAX as SQL over those datasets.
-  conn.destroy(() => {});
+  if (process.env.SNOWFLAKE_PASSWORD) cfg.password = process.env.SNOWFLAKE_PASSWORD;
+  else {
+    let pk = process.env.SNOWFLAKE_PRIVATE_KEY
+      || (process.env.SNOWFLAKE_PRIVATE_KEY_PATH && fs.readFileSync(process.env.SNOWFLAKE_PRIVATE_KEY_PATH, "utf-8"));
+    if (!pk) throw new Error("Set SNOWFLAKE_PASSWORD or SNOWFLAKE_PRIVATE_KEY[_PATH]");
+    if (!pk.includes("BEGIN")) { try { pk = Buffer.from(pk, "base64").toString("utf-8"); } catch {} }
+    cfg.authenticator = "SNOWFLAKE_JWT";
+    cfg.privateKey = pk.replace(/\\n/g, "\n");
+    if (process.env.SNOWFLAKE_PRIVATE_KEY_PASSPHRASE) cfg.privateKeyPass = process.env.SNOWFLAKE_PRIVATE_KEY_PASSPHRASE;
+  }
+  const conn = sdk.createConnection(cfg);
+  await new Promise((res, rej) => conn.connect((e) => (e ? rej(e) : res())));
+  const query = (sqlText) => new Promise((res, rej) =>
+    conn.execute({ sqlText, complete: (e, _s, rows) => (e ? rej(e) : res(rows ?? [])) }));
+  return { query, close: () => conn.destroy(() => {}) };
 }
 
+async function main() {
+  const DWP = nativeSql("DW_Properties"), DWL = nativeSql("DW_Listings"),
+        BOM = nativeSql("PM_BOM"), WO = nativeSql("DW_WO");
+  const conn = await connect();
+  const kpis = { totalProperties: null, occupancyPct: null, activeListings: null,
+    totalTenants: null, rentVar: null, holdingFees: null, projActualMis: null,
+    netOccupancyGain: null, turnoverPct: null };
+  let propertySummary = [], monthlyTrend = [], podCount = null, imValue = null, internalMaintenance = null;
+  const log = (n, e) => console.error(`[refresh] ${n} failed:`, e.message);
+
+  const tProps = (async () => { try {
+    const [r] = await conn.query(`WITH p AS ( SELECT * FROM (\n${DWP}\n) )
+      SELECT COUNT(DISTINCT PROPERTY_KEY) AS TOTAL_PROPERTIES,
+        DIV0(COUNT(DISTINCT IFF(OCCUPANCY_STATUS_SUMMARYID IN (7,8),PROPERTY_KEY,NULL)),
+             COUNT(DISTINCT IFF(OCCUPANCY_STATUS_SUMMARYID IS NOT NULL,PROPERTY_KEY,NULL))) AS OCCUPANCY_PCT,
+        COUNT(DISTINCT IFF(OCCUPANCY_STATUS IN ('Tenant Leased','Trustee Leased'),PROPERTY_KEY,NULL)) AS TOTAL_TENANTS,
+        DIV0(SUM(IFF(CURRENT_RENT IS NOT NULL AND UNDER_WRITTEN_RENT IS NOT NULL,CURRENT_RENT,NULL)),
+             SUM(IFF(CURRENT_RENT IS NOT NULL AND UNDER_WRITTEN_RENT IS NOT NULL,UNDER_WRITTEN_RENT,NULL)))-1 AS RENT_VAR,
+        COUNT(DISTINCT POD) AS POD_COUNT
+      FROM p WHERE ${PAGE_FILTER}`);
+    kpis.totalProperties = numOr(r?.TOTAL_PROPERTIES); kpis.occupancyPct = numOr(r?.OCCUPANCY_PCT);
+    kpis.totalTenants = numOr(r?.TOTAL_TENANTS); kpis.rentVar = numOr(r?.RENT_VAR); podCount = numOr(r?.POD_COUNT);
+  } catch (e) { log("property KPIs", e); } })();
+
+  const tSummary = (async () => { try {
+    const rows = await conn.query(`WITH p AS ( SELECT * FROM (\n${DWP}\n) )
+      SELECT ORGANIZATION_NAME AS ORG, OCCUPANCY_STATUS_SUMMARY AS STATUS, COUNT(DISTINCT PROPERTY_KEY) AS CNT
+      FROM p WHERE ${PAGE_FILTER} GROUP BY 1,2 ORDER BY 1,2`);
+    propertySummary = rows.filter((r) => r.STATUS).map((r) => ({
+      organization: String(r.ORG), region: "—", subdivision: "—", status: String(r.STATUS), count: Number(r.CNT) }));
+  } catch (e) { log("property summary", e); } })();
+
+  const tListings = (async () => { try {
+    const [r] = await conn.query(`WITH l AS ( SELECT * FROM (\n${DWL}\n) )
+      SELECT COUNT(DISTINCT PROPERTY_KEY) AS ACTIVE_LISTINGS FROM l WHERE LISTING_STATUS='Active' AND IS_PUBLISHED='Y'`);
+    kpis.activeListings = numOr(r?.ACTIVE_LISTINGS);
+  } catch (e) { log("active listings", e); } })();
+
+  const tTrend = (async () => { try {
+    const rows = await conn.query(`WITH b AS ( SELECT * FROM (\n${BOM}\n) )
+      SELECT TO_CHAR(BEG_OF_MONTH,'Mon YYYY') AS MONTH, MIN(BEG_OF_MONTH) AS BOM,
+        COUNT(IFF(OCCUPANCY_STATUS IS NOT NULL,HBPM_PROPERTYID,NULL)) AS HOMES, AVG(CURRENT_RENT) AS AVG_RENT
+      FROM b WHERE BEG_OF_MONTH >= DATEADD('month',-3,DATE_TRUNC('month',CURRENT_DATE()))
+      GROUP BY TO_CHAR(BEG_OF_MONTH,'Mon YYYY') ORDER BY BOM`);
+    monthlyTrend = rows.map((r) => ({ month: String(r.MONTH), homes: numOr(r.HOMES), avgRent: numOr(r.AVG_RENT),
+      occBom: null, occEom: null, collections: null, renewal: null, turnover: null, netTurnCost: null }));
+  } catch (e) { log("monthly trend", e); } })();
+
+  const tIM = (async () => { try {
+    const [r] = await conn.query(`WITH w AS ( SELECT * FROM (\n${WO}\n) )
+      SELECT SUM(CLIENT_INVOICE_AMOUNT) AS IM FROM w
+      WHERE WORKORDER_STATUS='Closed' AND IS_INTERNAL_VENDOR='Y'
+        AND DATE_TRUNC('month',WO_CLOSED_DATE) >= DATEADD('month',-3,DATE_TRUNC('month',CURRENT_DATE()))
+        AND DATE_TRUNC('month',WO_CLOSED_DATE) <= DATE_TRUNC('month',CURRENT_DATE())
+        AND COMPANY_NAME NOT IN ('Credit Card Vendor','GE Vendor (Maintenance)','New Builder Warranty Vendor','Lennar Builder Warranty')`);
+    imValue = numOr(r?.IM);
+  } catch (e) { log("internal maintenance", e); } })();
+
+  await Promise.allSettled([tProps, tSummary, tListings, tTrend, tIM]);
+  conn.close();
+
+  const goal = podCount != null ? podCount * 2 * 2000 * 4 : null;
+  if (imValue != null && goal) internalMaintenance = { value: imValue, target: goal, min: 0, max: goal, format: "currency", label: "Internal Maintenance" };
+
+  const cache = {
+    _meta: { source: "SNOWFLAKE", generatedAt: new Date().toISOString(),
+      note: "Live (refreshed hourly): property KPIs, Property Summary, Active Listings, monthly Homes/Avg Rent, Internal Maintenance. Remaining gauges & trend columns are being wired + validated." },
+    filters: { occupancyStatusExcludes: ["Dispositions"], organizationNameExcludes: [null] },
+    kpis, gauges: { eomCollections: null, renewal: null, netTurnCost: null, internalMaintenance },
+    propertySummary, monthlyTrend,
+  };
+  fs.writeFileSync(OUT, JSON.stringify(cache, null, 2));
+  console.log(`Wrote ${OUT}: ${kpis.totalProperties} properties, ${propertySummary.length} summary rows, ${monthlyTrend.length} trend months.`);
+}
 main().catch((e) => { console.error(e); process.exit(1); });
