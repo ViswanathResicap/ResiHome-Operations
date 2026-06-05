@@ -1,0 +1,359 @@
+table DW_Tenant_Monthly_Charges
+	lineageTag: bd4fe4a5-4940-407c-9091-0b81a3509825
+
+	column TENANTCHARGEID
+		dataType: double
+		lineageTag: 71ea5c09-3a74-49d2-ab2d-3b8389b26c39
+		summarizeBy: count
+		sourceColumn: TENANTCHARGEID
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column PROPERTY_KEY
+		dataType: double
+		lineageTag: 379b0ef2-7b16-4dda-90be-418e150cb979
+		summarizeBy: sum
+		sourceColumn: PROPERTY_KEY
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ENTITYID
+		dataType: string
+		lineageTag: 660e7b9f-0d2a-4c88-a724-4380ef21478a
+		summarizeBy: none
+		sourceColumn: ENTITYID
+
+		annotation SummarizationSetBy = Automatic
+
+	column ADDRESS
+		dataType: string
+		lineageTag: d59a57a5-1a3c-420d-bfee-7ea6f642c139
+		summarizeBy: none
+		sourceColumn: ADDRESS
+
+		annotation SummarizationSetBy = Automatic
+
+	column TENANT_KEY
+		dataType: double
+		lineageTag: f4c2d416-a37b-4162-bb83-6be84a0d45a3
+		summarizeBy: none
+		sourceColumn: TENANT_KEY
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column TENANT_STATUS
+		dataType: string
+		lineageTag: 27121a8b-6cd5-4f55-8492-c533012e8e12
+		summarizeBy: none
+		sourceColumn: TENANT_STATUS
+
+		annotation SummarizationSetBy = Automatic
+
+	column MONTH_TO_MONTH
+		dataType: string
+		lineageTag: c44cb99b-dfef-48de-813a-676b48229257
+		summarizeBy: none
+		sourceColumn: MONTH_TO_MONTH
+
+		annotation SummarizationSetBy = Automatic
+
+	column LEASE_EXP
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 6cea3fb7-2250-4dd0-a3f1-cf3f80aff973
+		summarizeBy: none
+		sourceColumn: LEASE_EXP
+
+		variation Variation
+			isDefault
+			relationship: 7e86e174-1fdb-4b4d-b2a8-9334a10e8905
+			defaultHierarchy: LocalDateTable_d7fbe95d-a859-4bf2-a9ac-cfb5eddd9b88.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column LEASE_ID
+		dataType: double
+		lineageTag: 2905c03f-9e73-4b73-bf63-eb0436c96476
+		summarizeBy: count
+		sourceColumn: LEASE_ID
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column REGION_NAME
+		dataType: string
+		lineageTag: 7d5d6e0c-b676-40a8-a59f-bee4bc444664
+		summarizeBy: none
+		sourceColumn: REGION_NAME
+
+		annotation SummarizationSetBy = Automatic
+
+	column ORGANIZATION_KEY
+		dataType: double
+		lineageTag: daab5f1e-289c-4f1b-9447-35bb6614089d
+		summarizeBy: sum
+		sourceColumn: ORGANIZATION_KEY
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ORGANIZATION_NAME
+		dataType: string
+		lineageTag: 5817ab0c-a869-40fb-9c9a-16dad8cfb219
+		summarizeBy: none
+		sourceColumn: ORGANIZATION_NAME
+
+		annotation SummarizationSetBy = Automatic
+
+	column PORTFOLIO_NAME
+		dataType: string
+		lineageTag: 7578f557-b89a-401c-a1b1-a178bd45ad6f
+		summarizeBy: none
+		sourceColumn: PORTFOLIO_NAME
+
+		annotation SummarizationSetBy = Automatic
+
+	column SUBDIVISION
+		dataType: string
+		lineageTag: 23699ede-f160-469d-bc19-fa3874c23010
+		summarizeBy: none
+		sourceColumn: SUBDIVISION
+
+		annotation SummarizationSetBy = Automatic
+
+	column OCCUPANCY_STATUS
+		dataType: string
+		lineageTag: 0d08a46c-2d53-4517-9efb-0c50348e8a3b
+		summarizeBy: none
+		sourceColumn: OCCUPANCY_STATUS
+
+		annotation SummarizationSetBy = Automatic
+
+	column TENANTINFORMATIONID
+		dataType: double
+		lineageTag: 24d60ad7-0db2-4d0d-970c-5ba278b3ebc9
+		summarizeBy: count
+		sourceColumn: TENANTINFORMATIONID
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column GLACCOUNTID
+		dataType: double
+		lineageTag: 2f7ac3ce-1cd2-4ad8-a8dc-8667a1309bd3
+		summarizeBy: count
+		sourceColumn: GLACCOUNTID
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column GLACCOUNTNO
+		dataType: string
+		lineageTag: 927a8ce9-9ef4-4dd7-80b9-097f2e5a12ba
+		summarizeBy: none
+		sourceColumn: GLACCOUNTNO
+
+		annotation SummarizationSetBy = Automatic
+
+	column GLDESCRIPTION
+		dataType: string
+		lineageTag: 96b01c78-ad17-4638-aef5-89da8b3b8029
+		summarizeBy: none
+		sourceColumn: GLDESCRIPTION
+
+		annotation SummarizationSetBy = Automatic
+
+	column ISDEBIT
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 7a6dda87-88df-4193-afde-da1e5737e4b2
+		summarizeBy: none
+		sourceColumn: ISDEBIT
+
+		annotation SummarizationSetBy = Automatic
+
+	column CHARGEDESCRIPTION
+		dataType: string
+		lineageTag: 3f797ea6-1d1c-4450-8064-9f3f51a55165
+		summarizeBy: none
+		sourceColumn: CHARGEDESCRIPTION
+
+		annotation SummarizationSetBy = Automatic
+
+	column ISMOVEOUTSPECIFIC
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 73e8b1dc-7f53-4d56-ba88-e4f68e4ca942
+		summarizeBy: none
+		sourceColumn: ISMOVEOUTSPECIFIC
+
+		annotation SummarizationSetBy = Automatic
+
+	column ONETIMECHARGES
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: f1dfbb96-9ba3-4179-837c-63856f1c3f1b
+		summarizeBy: none
+		sourceColumn: ONETIMECHARGES
+
+		annotation SummarizationSetBy = Automatic
+
+	column AMOUNT
+		dataType: double
+		lineageTag: 0ba5c714-9c37-4582-9afb-29a2e8b54d24
+		summarizeBy: sum
+		sourceColumn: AMOUNT
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column LASTBILLEDON
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 3f3d1019-f6b3-45f6-b4b8-67479ede0e7f
+		summarizeBy: none
+		sourceColumn: LASTBILLEDON
+
+		variation Variation
+			isDefault
+			relationship: f0054738-7b89-46ee-b89f-0716116d6af3
+			defaultHierarchy: LocalDateTable_1b5f8ddd-c4e6-4d55-9ddf-4a02e2b5f953.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column STARTDATE
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 6fcb4c9a-c44f-4bc3-9d39-7f1b7e648c82
+		summarizeBy: none
+		sourceColumn: STARTDATE
+
+		variation Variation
+			isDefault
+			relationship: 05b3b43b-5aa4-4997-99bb-87e8fa2a888a
+			defaultHierarchy: LocalDateTable_cd53801f-7a4c-4b51-bbeb-40d87f260d82.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column ENDDATE
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: dbf4bc36-66ee-4b16-9ecd-59f46a018caa
+		summarizeBy: none
+		sourceColumn: ENDDATE
+
+		variation Variation
+			isDefault
+			relationship: 3a24eaa8-6a4b-4814-a954-767927f4f5b9
+			defaultHierarchy: LocalDateTable_ef586281-f824-4d17-bf3a-b6a05d87679f.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column MAX_COMMUNTIY_GL_CHARGE
+		dataType: double
+		lineageTag: b2f07854-cb7b-4202-a90a-e15a63a57443
+		summarizeBy: sum
+		sourceColumn: MAX_COMMUNTIY_GL_CHARGE
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column CURRENT_RENT
+		dataType: double
+		lineageTag: b68a5d27-5770-4cbb-8ecb-def7125dadfe
+		summarizeBy: sum
+		sourceColumn: CURRENT_RENT
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column CHARGE_GROUP
+		dataType: string
+		lineageTag: 41278db8-efd8-4405-a388-29707566012f
+		summarizeBy: none
+		sourceColumn: CHARGE_GROUP
+
+		annotation SummarizationSetBy = Automatic
+
+	column IS_ACTIVE
+		dataType: string
+		lineageTag: 8bee62e9-c8b1-4617-952c-7a025d2097fb
+		summarizeBy: none
+		sourceColumn: IS_ACTIVE
+
+		annotation SummarizationSetBy = Automatic
+
+	column PORTFOLIO_KEY
+		dataType: double
+		lineageTag: ff56b528-d608-4b6b-a71f-fa5f1553a0c7
+		summarizeBy: sum
+		sourceColumn: PORTFOLIO_KEY
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column UNITID
+		dataType: double
+		lineageTag: 944ecb41-e03d-4550-8fe4-d42ef1de1567
+		summarizeBy: count
+		sourceColumn: UNITID
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column REVISED_GLACCOUNTID
+		dataType: double
+		lineageTag: 56ead59e-ac72-4b03-ad23-c56caff60b5e
+		summarizeBy: count
+		sourceColumn: REVISED_GLACCOUNTID
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column REVISED_GLACCOUNTNO
+		dataType: string
+		lineageTag: 0c1313a3-0e93-45a6-8d11-899a24446bc1
+		summarizeBy: none
+		sourceColumn: REVISED_GLACCOUNTNO
+
+		annotation SummarizationSetBy = Automatic
+
+	column REVISED_GLDESCRIPTON
+		dataType: string
+		lineageTag: 33bd40e5-1bb4-491e-83f2-4361df275b28
+		summarizeBy: none
+		sourceColumn: REVISED_GLDESCRIPTON
+
+		annotation SummarizationSetBy = Automatic
+
+	partition DW_Tenant_Monthly_Charges-744782ad-fde7-4ab5-a2e0-9abfbadf8d8e = m
+		mode: import
+		queryGroup: 'DW Sources'
+		source =
+				let
+				    Source = Value.NativeQuery(Snowflake.Databases("ota12822.us-east-1.snowflakecomputing.com","DEVELOPER_WH",[Implementation="2.0"]){[Name="PROD_REPLICA"]}[Data], "/* =============================================================================#(lf)   TENANT MONTHLY CHARGES DATASET#(lf)   -----------------------------------------------------------------------------#(lf)   Grain:   One row per active recurring tenant charge (anchor#(lf)            TENANTCHARGEHISTORIES TCH via MC_Temp), with GL remap, community#(lf)            max-charge lookup, and charge grouping. Final output is#(lf)            SELECT * FROM MC_Final.#(lf)   CTE chain: MC_Temp, MC_Revised, MC_Community, MC_Final, MC_GROUP -> SELECT.#(lf)#(lf)   CLEANUP NOTES:#(lf)     [SYNC]  The single ORGANIZATION_KEY / ORGANIZATION_NAME CASE block (in#(lf)             MC_Temp) was updated from the three-group form (+58,59 -> 'Hudson#(lf)             Oak') to the full six-group roll-up that mirrors the master PROPERTY#(lf)             script. DELIBERATE OUTPUT CHANGE limited to the organization columns.#(lf)     [FLAG]  MC_Final references Organization_Key = 1 in the Smart-Lock#(lf)             community-charge override. Org 1 is not produced by either the old#(lf)             or the new CASE (both roll the -1.. group to -1, and 1 is not in any#(lf)             member list), so this branch was already dead and remains unchanged.#(lf)             Noted only so the value is on the record.#(lf)     No CTEs or joins dropped. MC_GROUP is defined-but-unused (final SELECT reads#(lf)             MC_Final) and preserved as-is.#(lf)#(lf)   ORG SYNC IMPACT (intended diff vs. original output):#(lf)        added 66                  -> 27 / 'RB DRC'#(lf)        62,63,64,65,68,69         -> 62 / 'Rocklyn Homes'#(lf)        61,70                     -> 61 / 'ROI Property Group'#(lf)        67                        -> 67 / 'Newstar'#(lf)   ============================================================================= */#(lf)#(lf)WITH MC_Temp AS (#(lf)#(lf)SELECT #(lf)TCH.TENANTCHARGEID#(lf),P.Property_key#(lf),P.EntityID#(lf),P.Address#(lf),T.Tenant_key#(lf),T.Tenant_Status#(lf),T.CURRENT_RENT#(lf),CASE WHEN to_date(COALESCE(TLA.CURRENT_LEASE_EXPIRATION_DATE_KEY,TLA.LEASE_TO_DATE_KEY)::TEXT,'yyyymmdd') < GETDATE() THEN 'Y'#(lf)#(tab)  ELSE COALESCE(T.MONTH_TO_MONTH,'N')#(lf)#(tab)  END AS MONTH_TO_MONTH#(lf),to_date(COALESCE(TLA.CURRENT_LEASE_EXPIRATION_DATE_KEY,TLA.LEASE_TO_DATE_KEY)::TEXT,'yyyymmdd') AS LEASE_EXP#(lf),T.Lease_ID#(lf),R.REGION_NAME#(lf)#(tab),CASE#(lf)        WHEN P.ORGANIZATION_KEY IN (-1,18,26,28,48)                   THEN -1#(lf)        WHEN P.ORGANIZATION_KEY IN (27,50,51,52,54,45,55,53,56,57,66) THEN 27#(lf)        WHEN P.ORGANIZATION_KEY IN (58,59)                            THEN 58#(lf)        WHEN P.ORGANIZATION_KEY IN (62,63,64,65,68,69)                THEN 62#(lf)        WHEN P.ORGANIZATION_KEY IN (61,70)                            THEN 61#(lf)        WHEN P.ORGANIZATION_KEY IN (67)                               THEN 67#(lf)        ELSE P.ORGANIZATION_KEY#(lf)     END AS ORGANIZATION_KEY#(lf)      #(lf)#(tab),CASE#(lf)        WHEN P.ORGANIZATION_KEY IN (-1,18,26,28,48)                   THEN 'RP SFR'#(lf)        WHEN P.ORGANIZATION_KEY IN (27,50,51,52,54,45,55,53,56,57,66) THEN 'RB DRC'#(lf)        WHEN P.ORGANIZATION_KEY IN (58,59)                            THEN 'Hudson Oak'#(lf)        WHEN P.ORGANIZATION_KEY IN (62,63,64,65,68,69)                THEN 'Rocklyn Homes'#(lf)        WHEN P.ORGANIZATION_KEY IN (61,70)                            THEN 'ROI Property Group'#(lf)        WHEN P.ORGANIZATION_KEY IN (67)                               THEN 'Newstar'#(lf)        ELSE O.ORGANIZATION_NAME#(lf)     END AS ORGANIZATION_NAME#(lf),PUS.PORTFOLIO_KEY#(lf),PO.PORTFOLIO_NAME#(lf),P.Subdivision#(lf),CASE WHEN PUS.Occupancy_Status = 'Trustee Lease Honored' THEN 'Trustee Leased' #(lf)      WHEN PUS.Property_Status = 'Tenant Lease' AND PUS.Occupancy_Status = 'Vacant - Future Move In' THEN 'Tenant Leased'#(lf)      ELSE PUS.Occupancy_Status END AS Occupancy_Status#(lf),TCH.UNITID#(lf),TCH.TENANTINFORMATIONID#(lf)#(lf),TCH.GLACCOUNTID AS GLAccountID#(lf),GL.Accountnumber AS GLAccountNO#(lf),GL.Description AS GLDescription#(lf)#(lf),CASE WHEN TCH.GLAccountID IN (12,82) THEN 12 #(lf)#(tab)  WHEN TCH.GLAccountID IN (395,403) THEN 395#(lf)#(tab)  WHEN TCH.GLAccountID IN (83,378) THEN 378#(lf)#(tab)  WHEN TCH.GLAccountID IN (408,379) THEN 379#(lf)#(tab)  WHEN TCH.GLAccountID IN (316) AND Amount = 4 THEN 410 #(lf)      ELSE TCH.GLAccountID#(lf)      END AS Revised_GLAccountID#(lf)#(lf),TCH.ISDEBIT#(lf),TCH.CHARGEDESCRIPTION#(lf),TCH.ISMOVEOUTSPECIFIC#(lf),TCH.ONETIMECHARGES#(lf)#(lf),TCH.AMOUNT#(lf),TCH.LASTBILLEDON#(lf),TCH.STARTDATE#(lf),TCH.ENDDATE#(lf),CASE WHEN TCH.STARTDATE <= DATEADD(DAY,1,LAST_DAY(GETDATE())) AND (last_Day(TCH.ENDDATE) >= LAST_DAY(GETDATE()) OR TCH.ENDDATE IS NULL) THEN 'Yes' ELSE 'No' END AS IS_ACTIVE#(lf)--,LAST_DAY(GETDATE()) AS TEST#(lf)#(lf)  FROM  PROD_ANALYTICS.DBT_RESICAP.DIM_PROPERTY P#(lf)  LEFT JOIN PROD_REPLICA.HBPM_DBO.PROPERTIES PM_P ON PM_P.PROPERTYID = P.HBPM_PROPERTY_ID AND PM_P.""_FIVETRAN_DELETED"" = 'N'#(lf)  LEFT JOIN PROD_REPLICA.HBPM_DBO.PROPERTYADDLINFOES PM_PA ON PM_PA.PROPERTYID = PM_P.PROPERTYID AND PM_PA.""_FIVETRAN_DELETED"" = 'N'#(lf)  LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.FCT_PROPERTY_UNIT_SUMMARY PUS ON PUS.PROPERTY_KEY  = P.PROPERTY_KEY  #(lf)  LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PROPERTY_UNIT PU ON PU.PROPERTY_UNIT_KEY = PUS.PROPERTY_UNIT_KEY #(lf)  LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PORTFOLIO PO ON PO.PORTFOLIO_KEY = PUS.PORTFOLIO_KEY #(lf)  LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_REGION R ON R.REGION_KEY = PUS.REGION_KEY #(lf)  LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_OWNER_ORGANIZATION O ON O.ORGANIZATION_KEY = PUS.ORGANIZATION_KEY #(lf)   #(lf)  LEFT JOIN PROD_REPLICA.HBPM_DBO.TENANTCHARGEHISTORIES TCH ON TCH.UNITID = PM_PA.UnitID AND TCH._FIVETRAN_DELETED = 'N'#(lf)  LEFT JOIN PROD_REPLICA.HBPM_DBO.GLACCOUNTS GL ON GL.GLACCOUNTID = TCH.GLACCOUNTID #(lf)  LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_TENANT T ON T.Tenant_Information_ID = TCH.TENANTINFORMATIONID AND T.CURRENT_FLAG = 'Y'#(lf)  LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.FCT_TENANT_LEASING_ACCUM TLA ON TLA.TENANT_KEY = T.Tenant_Key#(lf)   #(lf)WHERE 1=1#(lf) AND ONETIMECHARGES = 0#(lf) AND ISDEBIT = 'Y'#(lf) AND (ISMOVEOUTSPECIFIC = 'N' OR ISMOVEOUTSPECIFIC IS NULL)#(lf) AND TCH.CHARGEDESCRIPTION NOT LIKE '%Prorate%'#(lf) AND TCH._FIVETRAN_DELETED = 'N'#(lf) AND PO.Portfolio_KEY NOT IN (223,598,147,102,109,28,603,169,602,170,58,54)#(lf) AND PUS.Organization_KEY not IN (16,17)#(lf) AND PO.IS_Active_AM = 'Y'#(lf) AND PO.Current_Flag = 'Y'#(lf) AND P.Current_Flag = 'Y'#(lf) AND PU.Current_Flag = 'Y'#(lf) AND PUS.Occupancy_Status NOT IN ('Not Managed','Property SOLD')#(lf))#(lf)#(lf)--*******************************************************************************************#(lf)#(lf),MC_Revised AS (SELECT #(lf) MC_Temp.*#(lf) ,GL.Accountnumber AS Revised_GLAccountNO#(lf),GL.Description AS Revised_GLDescripton#(lf) FROM  MC_Temp#(tab)#(lf) LEFT JOIN PROD_REPLICA.HBPM_DBO.GLACCOUNTS GL ON GL.GLACCOUNTID = MC_Temp. Revised_GLAccountID#(lf)#(lf)WHERE 1=1#(lf)AND Occupancy_Status IN ('Tenant Leased', 'Trustee Leased')#(lf)AND (Tenant_Status <> 'Past' OR Tenant_Status IS NULL)#(lf))#(lf)#(lf)--*******************************************************************************************#(lf),MC_Community AS (#(lf)SELECT #(lf)MC_Revised.Subdivision#(lf),MC_Revised.Revised_GLAccountID#(lf),MAX(AMOUNT) Max_Communtiy_GL_Charge#(lf)FROM MC_Revised#(lf)WHERE #(lf)MC_Revised.Subdivision IS NOT NULL#(lf)AND Revised_GLAccountID IN (395,379,410,420)#(lf)GROUP BY #(lf)MC_Revised.Subdivision#(lf),MC_Revised.Revised_GLAccountID#(lf))#(lf)--*******************************************************************************************#(lf),MC_Final AS (#(lf)#(lf)SELECT #(lf)MCR.*#(lf),CASE WHEN Organization_Key =1 AND MCR.Revised_GLAccountID = 410 THEN 4#(lf)#(tab)ELSE Max_Communtiy_GL_Charge#(lf)#(tab)END AS Max_Communtiy_GL_Charge#(lf),CASE WHEN GLACCOUNTID IN (12,82) THEN 'Rent'#(lf)#(tab)  WHEN GLACCOUNTID IN (83,378) THEN 'Pet'#(lf)#(tab)  WHEN GLACCOUNTID IN (68) THEN 'MTM'#(lf)#(tab)  WHEN GLACCOUNTID IN (410,316) AND AMOUNT = 4 THEN 'Smart Lock'#(lf)#(tab)  ELSE NULL#(lf)#(tab)  END AS CHARGE_GROUP#(lf)#(lf)FROM MC_Revised MCR#(lf)LEFT JOIN MC_Community MCC ON MCC.Subdivision = MCR.Subdivision AND MCC.Revised_GLAccountID = MCR.Revised_GLAccountID#(lf))#(lf)--*******************************************************************************************#(lf)#(lf),MC_GROUP AS (#(lf)#(lf)SELECT #(lf)TENANT_KEY#(lf),SUM(CASE WHEN CHARGE_GROUP = 'Rent' THEN AMOUNT ELSE NULL END) AS  MC_Rent#(lf),SUM(CASE WHEN CHARGE_GROUP = 'MTM' THEN AMOUNT ELSE NULL END) AS  MC_MTM#(lf),SUM(CASE WHEN CHARGE_GROUP = 'Smart Lock' THEN AMOUNT ELSE NULL END) AS  MC_Smart_Lock#(lf),SUM(CASE WHEN CHARGE_GROUP = 'Pet' THEN AMOUNT ELSE NULL END) AS  MC_Pet#(lf)#(lf)FROM MC_FINAL #(lf)GROUP BY TENANT_KEY#(lf))#(lf)--*******************************************************************************************#(lf)SELECT * FROM MC_Final #(lf)--SELECT * FROM MC_GROUP", null, [EnableFolding=true])
+				in
+				    Source
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

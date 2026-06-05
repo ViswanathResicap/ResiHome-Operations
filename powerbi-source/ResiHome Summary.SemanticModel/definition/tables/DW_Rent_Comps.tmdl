@@ -1,0 +1,222 @@
+table DW_Rent_Comps
+	lineageTag: 0470511b-d5ab-4d61-ad04-5578a3b75eae
+
+	column SUBDIVISION_KEY
+		dataType: double
+		lineageTag: b22902f5-69c0-4e55-9b78-1dfa69664f71
+		summarizeBy: sum
+		sourceColumn: SUBDIVISION_KEY
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column SUBDIVISION
+		dataType: string
+		lineageTag: 59092330-1b5d-4ccf-a2ea-8d73b319774f
+		summarizeBy: none
+		sourceColumn: SUBDIVISION
+
+		annotation SummarizationSetBy = Automatic
+
+	column FLOORPLAN_KEY
+		dataType: double
+		lineageTag: 9979b8ff-ad4b-47a4-b1b9-3887c8f1e1db
+		summarizeBy: none
+		sourceColumn: FLOORPLAN_KEY
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column FLOORPLAN
+		dataType: string
+		lineageTag: 986f0bda-69f0-4177-8a68-1117e697c235
+		summarizeBy: none
+		sourceColumn: FLOORPLAN
+
+		annotation SummarizationSetBy = Automatic
+
+	column LISTED_RENT_COUNT
+		dataType: double
+		lineageTag: 036a7245-14e5-4d79-9681-1c9a1a3da24f
+		summarizeBy: sum
+		sourceColumn: LISTED_RENT_COUNT
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column LISTED_DOM_AVG
+		dataType: double
+		lineageTag: 735e50b7-a93c-4ca0-9b97-5459b4c078f7
+		summarizeBy: sum
+		sourceColumn: LISTED_DOM_AVG
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column LISTED_RENT_MIN
+		dataType: double
+		lineageTag: 64e1d58b-a578-41f2-a2b5-e8cdf28de5da
+		summarizeBy: sum
+		sourceColumn: LISTED_RENT_MIN
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column LISTED_RENT_MAX
+		dataType: double
+		lineageTag: 77b11b05-294c-4232-b267-a482a6a04aef
+		summarizeBy: sum
+		sourceColumn: LISTED_RENT_MAX
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column LISTED_RENT_AVG
+		dataType: double
+		lineageTag: 3211e29f-1e4c-47fe-a8f5-4e6f8b722b75
+		summarizeBy: sum
+		sourceColumn: LISTED_RENT_AVG
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column LISTED_RENT_MOST_RECENT
+		dataType: double
+		lineageTag: 2a59430a-cf57-45ab-86ff-2513033414e6
+		summarizeBy: sum
+		sourceColumn: LISTED_RENT_MOST_RECENT
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column LISTED_RENT_MOST_RECENT_DATE
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 969c47f0-4381-4dcf-9864-a4f80dbd4d93
+		summarizeBy: none
+		sourceColumn: LISTED_RENT_MOST_RECENT_DATE
+
+		variation Variation
+			isDefault
+			relationship: 00eae6b9-b0d0-420d-86e9-9811720de649
+			defaultHierarchy: LocalDateTable_dab7dfe7-158a-42c4-923d-cc615f7d3362.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column TENANT_RENT_COUNT
+		dataType: double
+		lineageTag: e8148e79-e4d9-448b-8cda-ab4a5c6b0a70
+		summarizeBy: sum
+		sourceColumn: TENANT_RENT_COUNT
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column TENANT_DOM_AVG
+		dataType: double
+		lineageTag: 908356bb-54de-4be3-8d7b-1c5c75aaf260
+		summarizeBy: sum
+		sourceColumn: TENANT_DOM_AVG
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column TENANT_DOM_MOST_RECENT
+		dataType: double
+		lineageTag: 33dbd702-13d8-4ce2-b2d3-765493a9fb1c
+		summarizeBy: sum
+		sourceColumn: TENANT_DOM_MOST_RECENT
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column TENANT_RENT_MIN
+		dataType: double
+		lineageTag: b3863170-5ce2-4916-9831-3fb34f745f53
+		summarizeBy: sum
+		sourceColumn: TENANT_RENT_MIN
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column TENANT_RENT_MAX
+		dataType: double
+		lineageTag: 3ec0267b-2e50-4942-8c65-4769faf82622
+		summarizeBy: sum
+		sourceColumn: TENANT_RENT_MAX
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column TENANT_RENT_AVG
+		dataType: double
+		lineageTag: 975d5884-41f0-4e6b-9f0d-a19a3425b90e
+		summarizeBy: sum
+		sourceColumn: TENANT_RENT_AVG
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column TENANT_RENT_MOST_RECENT
+		dataType: double
+		lineageTag: 53b77017-1db6-417b-8d2a-6fff050a8ea2
+		summarizeBy: sum
+		sourceColumn: TENANT_RENT_MOST_RECENT
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column TENANT_RENT_MOST_RECENT_DATE
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 17f7c92a-bbf5-4148-a556-5750ddc91041
+		summarizeBy: none
+		sourceColumn: TENANT_RENT_MOST_RECENT_DATE
+
+		variation Variation
+			isDefault
+			relationship: 203a1128-44b3-44ca-8dc8-76b063c0e14f
+			defaultHierarchy: LocalDateTable_ff4b83d0-65b3-4f30-8684-34b3222f3aaa.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column ZIPCODE
+		dataType: string
+		lineageTag: 36c1cc8c-d872-4e5b-b05c-506482e1a9c7
+		summarizeBy: none
+		sourceColumn: ZIPCODE
+
+		annotation SummarizationSetBy = Automatic
+
+	partition DW_Rent_Comps = m
+		mode: import
+		queryGroup: 'DW Sources'
+		source =
+				let
+				    Source = Value.NativeQuery(Snowflake.Databases("ota12822.us-east-1.snowflakecomputing.com","DEVELOPER_WH",[Role="UAT", Implementation="2.0"]){[Name="PROD_REPLICA"]}[Data], "/* =============================================================================#(lf)   RENT COMPS DATASET#(lf)   -----------------------------------------------------------------------------#(lf)   Grain:   One row per zip / subdivision / floorplan / price-type group#(lf)            (final output is SELECT * FROM SUBDIVISION_STATS).#(lf)   CTE chain: MAX_LEASE, Tenant_Listings, PRICE_DATA_RAW (active listings UNION#(lf)            current/past rents), PRICE_DATA, SUBDIVISION_STATS -> final SELECT.#(lf)#(lf)   CLEANUP NOTES:#(lf)     [SYNC]  The single ORGANIZATION_KEY / ORGANIZATION_NAME CASE block (in#(lf)             PRICE_DATA) was updated from the stale single-group form#(lf)             (-1.. -> 'Resicap SFR') to the full six-group roll-up that mirrors#(lf)             the master PROPERTY script. NOTE: the org columns are computed in#(lf)             PRICE_DATA but are NOT carried into SUBDIVISION_STATS (the final#(lf)             output), so this sync has no effect on the delivered result; it is#(lf)             applied for consistency only. DELIBERATE (but non-surfacing) change.#(lf)     No CTEs or joins dropped. The trailing commented-out#(lf)             FINAL_RENT_RECOMMENDATION block is preserved exactly as found.#(lf)#(lf)   ORG SYNC IMPACT: none on final output (org columns dropped before#(lf)        SUBDIVISION_STATS). Internal PRICE_DATA org values now use the six-group#(lf)        roll-up.#(lf)   ============================================================================= */#(lf)#(lf)WITH MAX_LEASE AS (#(lf)#(lf)SELECT#(lf) MAX(T.Lease_ID) LEASE_ID#(lf) ,TLA.Property_key#(lf)FROM PROD_ANALYTICS.DBT_RESICAP.DIM_TENANT T#(lf) LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.FCT_TENANT_LEASING_ACCUM TLA ON TLA.TENANT_KEY = T.Tenant_Key#(lf) LEFT JOIN PROD_REPLICA.HBPM_DBO.TENANTINFORMATIONS TI ON TI.TENANTINFORMATIONID = T.Tenant_Information_id#(lf)#(lf)WHERE 1=1#(lf) AND PRIMARY_TENANT ='Y' #(lf) AND CURRENT_FLAG ='Y'#(lf) AND RENT_DUE_DAY IS NOT NULL#(lf) AND TI._FIVETRAN_DELETED = 'N'#(lf) AND TI.CURRENTRENT >500#(lf)GROUP BY TLA.Property_key )#(lf)#(lf)--************************************************************************************************************#(lf),Tenant_Listings AS (#(lf)#(lf)SELECT #(lf) MIN(RENT_LIST_HIST_ID) RENT_LIST_HIST_KEY#(lf) ,TEN.Lease_ID  #(lf) ,TLA.Property_key#(lf)FROM PROD_ANALYTICS.DBT_RESICAP.DIM_TENANT TEN#(lf) LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.FCT_TENANT_LEASING_ACCUM TLA ON TLA.TENANT_KEY = TEN.Tenant_Key#(lf) LEFT JOIN PROD_REPLICA.HBPM_DBO.TENANTINFORMATIONS TI ON TI.TENANTINFORMATIONID = TEN.Tenant_Information_id#(lf)#(lf) LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.FCT_PROP_RENTAL_LISTING_HIST RLH ON RLH.PROPERTY_KEY  = TLA.Property_Key#(lf)#(lf) WHERE 1=1#(lf) AND PRIMARY_TENANT ='Y' #(lf) AND CURRENT_FLAG ='Y'#(lf) AND RENT_DUE_DAY IS NOT NULL#(lf) AND TI._FIVETRAN_DELETED = 'N'#(lf) AND TI.CURRENTRENT >500 #(lf) #(lf) AND to_date(RLH.LISTING_DATE_KEY::TEXT,'yyyymmdd') <= DATEADD(DAY,10,to_date(COALESCE(TLA.INITIAL_LEASE_FROM_DATE_KEY,TLA.LEASE_FROM_DATE_KEY)::TEXT,'yyyymmdd'))#(lf) AND RLH.LISTING_STATUS <> 'Withdrawn'#(lf) AND RLH.LISTING_STATUS <> 'On Hold'#(lf) #(lf) GROUP BY#(lf)  TEN.Lease_ID  #(lf) ,TLA.Property_key ) #(lf)#(lf)--************************************************************************************************************#(lf),PRICE_DATA_RAW AS (#(lf)#(lf)SELECT #(lf)#(lf)RLH.PROPERTY_KEY #(lf),CURRENT_LIST_PRICE AS RENT_PRICE#(lf),to_date(COALESCE(RLH.RENT_MODIFIED_DATE_KEY,RLH.LISTING_DATE_KEY)::TEXT,'yyyymmdd') AS EXEC_DATE#(lf),'Active Listing' AS Price_Type#(lf),DATEDIFF('day',to_date(RLH.LISTING_DATE_KEY::TEXT,'yyyymmdd'),GETDATE()) DOM#(lf)FROM PROD_ANALYTICS.DBT_RESICAP.FCT_PROP_RENTAL_LISTING_HIST RLH#(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_LISTING DL ON RLH.LISTING_KEY = DL.LISTING_KEY#(lf)#(lf)WHERE 1=1#(lf)AND RLH.LISTING_STATUS ='Active'#(lf)AND DL.IS_PUBLISHED = 'Y'#(lf) #(lf)UNION ALL#(lf)#(lf)SELECT #(lf)ML.Property_Key#(lf),CURRENT_RENT AS RENT_PRICE#(lf),to_date(COALESCE(LATEST_RENEWAL_LEASE_START_DATE_KEY,LEASE_FROM_DATE_KEY)::TEXT,'yyyymmdd') AS EXEC_DATE#(lf),CASE WHEN TEN.TENANT_STATUS = 'Past' THEN 'Past Rent' ELSE 'Current Rent' END AS Price_Type#(lf),DATEDIFF('day',to_date(RLH.LISTING_DATE_KEY::TEXT,'yyyymmdd'),to_date(COALESCE(TLA.INITIAL_LEASE_FROM_DATE_KEY,TLA.LEASE_FROM_DATE_KEY)::TEXT,'yyyymmdd')) DOM#(lf)#(lf)FROM MAX_LEASE ML#(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_TENANT TEN ON TEN.LEASE_ID = ML.LEASE_ID#(lf)#(tab)#(tab)AND TEN.PRIMARY_TENANT ='Y' #(lf)#(tab)#(tab)AND TEN.CURRENT_FLAG ='Y'#(lf)#(tab)#(tab)AND TEN.RENT_DUE_DAY IS NOT NULL#(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.FCT_TENANT_LEASING_ACCUM TLA ON TLA.TENANT_KEY = TEN.TENANT_KEY#(lf)LEFT JOIN Tenant_Listings TL ON TL.Lease_ID = TEN.Lease_ID AND TL.Property_key = TLA.Property_key#(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.FCT_PROP_RENTAL_LISTING_HIST RLH ON RLH.RENT_LIST_HIST_ID = TL.RENT_LIST_HIST_KEY#(lf)WHERE DATEDIFF('day',to_date(RLH.LISTING_DATE_KEY::TEXT,'yyyymmdd'),to_date(COALESCE(TLA.INITIAL_LEASE_FROM_DATE_KEY,TLA.LEASE_FROM_DATE_KEY)::TEXT,'yyyymmdd')) <= 180#(lf)#(lf))#(lf)#(lf)#(lf)--************************************************************************************************************#(lf),PRICE_DATA AS (#(lf)#(lf)SELECT #(lf)PDR.Property_key#(lf),P.Address#(lf),P.ZIPCODE#(lf),PUS.SUBDIVISION_KEY#(lf),SUB.SUBDIVISION#(lf),PUS.FLOORPLAN_KEY#(lf),FP.FLOORPLAN#(lf),CASE#(lf)        WHEN P.ORGANIZATION_KEY IN (-1,18,26,28,48)                   THEN -1#(lf)        WHEN P.ORGANIZATION_KEY IN (27,50,51,52,54,45,55,53,56,57,66) THEN 27#(lf)        WHEN P.ORGANIZATION_KEY IN (58,59)                            THEN 58#(lf)        WHEN P.ORGANIZATION_KEY IN (62,63,64,65,68,69)                THEN 62#(lf)        WHEN P.ORGANIZATION_KEY IN (61,70)                            THEN 61#(lf)        WHEN P.ORGANIZATION_KEY IN (67)                               THEN 67#(lf)        ELSE P.ORGANIZATION_KEY#(lf)     END AS ORGANIZATION_KEY#(lf),CASE#(lf)        WHEN P.ORGANIZATION_KEY IN (-1,18,26,28,48)                   THEN 'RP SFR'#(lf)        WHEN P.ORGANIZATION_KEY IN (27,50,51,52,54,45,55,53,56,57,66) THEN 'RB DRC'#(lf)        WHEN P.ORGANIZATION_KEY IN (58,59)                            THEN 'Hudson Oak'#(lf)        WHEN P.ORGANIZATION_KEY IN (62,63,64,65,68,69)                THEN 'Rocklyn Homes'#(lf)        WHEN P.ORGANIZATION_KEY IN (61,70)                            THEN 'ROI Property Group'#(lf)        WHEN P.ORGANIZATION_KEY IN (67)                               THEN 'Newstar'#(lf)        ELSE O.ORGANIZATION_NAME#(lf)     END AS ORGANIZATION_NAME#(lf),PUS.PORTFOLIO_KEY#(lf),PO.PORTFOLIO_NAME#(lf),PUS.CITY_KEY#(lf),CI.CITY_NAME#(lf),PUS.STATE_KEY#(lf),S.STATE_NAME#(lf),S.STATE_CODE#(lf),COALESCE(PM_AI.Bedrooms, PU.BEDROOMS) AS BEDROOMS#(lf),COALESCE(PM_AI.BATHROOMS, PU.BATHROOMS) AS BATHROOMS#(lf),PU.SQUARE_FOOTAGE#(lf),P.YEAR_BUILT#(lf),PDR.Rent_Price#(lf),PDR.EXEC_DATE#(lf),PDR.PRICE_TYPE#(lf),PDR.DOM#(lf),RANK() OVER( PARTITION BY P.ZIPCODE, PUS.SUBDIVISION_KEY, PUS.FLOORPLAN_KEY, PDR.PRICE_TYPE ORDER BY PDR.EXEC_DATE DESC) AS RECENT_RANK#(lf)#(lf)FROM PRICE_DATA_RAW PDR#(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PROPERTY P ON P.PROPERTY_KEY = PDR.Property_key#(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.FCT_PROPERTY_UNIT_SUMMARY PUS ON PUS.PROPERTY_Key = P.PROPERTY_KEY #(lf)LEFT JOIN PROD_REPLICA.HBPM_DBO.PROPERTIES HBPM ON HBPM.PROPERTYID = P.HBPM_PROPERTY_ID --*REPLCA DB*#(lf)LEFT JOIN PROD_REPLICA.HBPM_DBO.PROPERTYADDLINFOES PM_AI ON PM_AI.PROPERTYID  = HBPM.PROPERTYID AND PM_AI.""_FIVETRAN_DELETED"" = 'N' #(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PROPERTY_UNIT PU ON PU.PROPERTY_UNIT_KEY = PUS.PROPERTY_UNIT_KEY#(lf)#(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_OWNER_ORGANIZATION O ON O.ORGANIZATION_KEY = PUS.ORGANIZATION_KEY #(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PORTFOLIO PO ON PO.PORTFOLIO_KEY = PUS.PORTFOLIO_KEY #(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_SUBDIVISION SUB ON SUB.SUBDIVISION_KEY = PUS.SUBDIVISION_KEY#(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_FLOORPLAN FP ON FP.FLOORPLAN_KEY = PUS.FLOORPLAN_KEY #(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_CITY CI ON CI.CITY_KEY = PUS.CITY_KEY #(lf)LEFT JOIN PROD_REPLICA.HBPM_DBO.Cities PM_CI ON PM_CI.CityID = HBPM.CityID#(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_STATE S ON S.STATE_KEY = PUS.STATE_KEY #(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_COUNTY CO ON CO.COUNTY_KEY = PUS.COUNTY_KEY #(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_REGION R ON R.REGION_KEY = PUS.REGION_KEY #(lf)#(lf)WHERE 1=1#(lf)AND P.PROPERTY_STATE ='Active'#(lf)AND P.Current_Flag = 'Y'#(lf)AND PU.Current_Flag = 'Y'#(lf)AND (HBPM.PROPERTYSTATEID = 26 OR HBPM.PROPERTYSTATEID IS NULL) #(lf)#(lf)--ORDER BY PDR.EXEC_DATE DESC#(lf))#(lf)--SELECT * FROM PRICE_DATA#(lf)--*************************************************************************************#(lf),SUBDIVISION_STATS AS (#(lf)SELECT #(lf) CASE WHEN PD.SUBDIVISION_KEY = 204 THEN 201 ELSE PD.SUBDIVISION_KEY END AS SUBDIVISION_KEY #(lf),CASE WHEN PD.SUBDIVISION = 'Wildwood Landing Ph 2' THEN 'Wildwood Landing' ELSE PD.SUBDIVISION END AS SUBDIVISION#(lf),PD.FLOORPLAN_KEY#(lf),PD.FLOORPLAN#(lf),PD.ZIPCODE#(lf),SUM(CASE WHEN PD.PRICE_TYPE = 'Active Listing' THEN 1 ELSE NULL END) AS LISTED_RENT_COUNT#(lf),ROUND(AVG(CASE WHEN PD.PRICE_TYPE = 'Active Listing' THEN PD.DOM ELSE NULL END),0) AS LISTED_DOM_AVG#(lf),MIN(CASE WHEN PD.PRICE_TYPE = 'Active Listing' THEN PD.RENT_PRICE ELSE NULL END) AS LISTED_RENT_MIN#(lf),MAX(CASE WHEN PD.PRICE_TYPE = 'Active Listing' THEN PD.RENT_PRICE ELSE NULL END) AS LISTED_RENT_MAX#(lf),ROUND(AVG(CASE WHEN PD.PRICE_TYPE = 'Active Listing' THEN PD.RENT_PRICE ELSE NULL END),0) AS LISTED_RENT_AVG#(lf),MAX(CASE WHEN PD.PRICE_TYPE = 'Active Listing' AND PD.RECENT_RANK = 1 THEN PD.RENT_PRICE ELSE NULL END) AS LISTED_RENT_MOST_RECENT#(lf),MAX(CASE WHEN PD.PRICE_TYPE = 'Active Listing' AND PD.RECENT_RANK =  1 THEN PD.EXEC_DATE ELSE NULL END) AS LISTED_RENT_MOST_RECENT_DATE#(lf)#(lf),SUM(CASE WHEN PD.PRICE_TYPE = 'Current Rent' THEN 1 ELSE NULL END) AS TENANT_RENT_COUNT#(lf),ROUND(AVG(CASE WHEN PD.PRICE_TYPE = 'Current Rent' THEN PD.DOM ELSE NULL END),0) AS TENANT_DOM_AVG#(lf),MAX(CASE WHEN PD.PRICE_TYPE = 'Current Rent' AND PD.RECENT_RANK = 1 THEN PD.DOM ELSE NULL END) AS TENANT_DOM_MOST_RECENT#(lf),MIN(CASE WHEN PD.PRICE_TYPE = 'Current Rent' THEN PD.RENT_PRICE ELSE NULL END) AS TENANT_RENT_MIN#(lf),MAX(CASE WHEN PD.PRICE_TYPE = 'Current Rent' THEN PD.RENT_PRICE ELSE NULL END) AS TENANT_RENT_MAX#(lf),ROUND(AVG(CASE WHEN PD.PRICE_TYPE = 'Current Rent' THEN PD.RENT_PRICE ELSE NULL END),0) AS TENANT_RENT_AVG#(lf),MAX(CASE WHEN PD.PRICE_TYPE = 'Current Rent' AND PD.RECENT_RANK = 1 THEN PD.RENT_PRICE ELSE NULL END) AS TENANT_RENT_MOST_RECENT#(lf),MAX(CASE WHEN PD.PRICE_TYPE = 'Current Rent' AND PD.RECENT_RANK =  1 THEN PD.EXEC_DATE ELSE NULL END) AS TENANT_RENT_MOST_RECENT_DATE#(lf)#(lf)#(lf)FROM PRICE_DATA PD#(lf)WHERE 1=1#(lf)AND PD.SUBDIVISION_KEY <> -1#(lf)AND PD.FLOORPLAN_KEY <> -1 #(lf)#(lf)GROUP BY#(lf)PD.ZIPCODE#(lf),CASE WHEN PD.SUBDIVISION_KEY = 204 THEN 201 ELSE PD.SUBDIVISION_KEY END #(lf),CASE WHEN PD.SUBDIVISION = 'Wildwood Landing Ph 2' THEN 'Wildwood Landing' ELSE PD.SUBDIVISION END#(lf),PD.FLOORPLAN_KEY#(lf),PD.FLOORPLAN)#(lf)#(lf)SELECT * FROM SUBDIVISION_STATS#(lf)#(lf)--*************************************************************************************#(lf)/*,FINAL_RENT_RECOMMENDATION AS (#(lf)SELECT #(lf)SUBDIVISION_STATS.*#(lf),ROUND(CASE WHEN LISTED_RENT_COUNT IS NULL #(lf)#(tab)#(tab)AND TENANT_RENT_COUNT IS NOT NULL#(lf)#(tab)#(tab)THEN TENANT_RENT_MAX * (1+ (TRUNCATE(DATEDIFF('day',TENANT_RENT_MOST_RECENT_DATE,GETDATE())/30,0) * .0025))#(lf)#(tab)#(lf)#(tab) WHEN LISTED_RENT_COUNT IS NOT NULL#(lf)  #(tab)    AND TENANT_RENT_COUNT IS NOT NULL#(lf)      #(tab)AND DATEDIFF('day',TENANT_RENT_MOST_RECENT_DATE,GETDATE()) <30#(lf)      #(tab)THEN LISTED_RENT_MAX#(lf)    #(lf)  #(tab)#(tab)ELSE LISTED_RENT_MOST_RECENT END#(lf)  #(tab)    #(lf) * (CASE WHEN TENANT_DOM_AVG IS NOT NULL AND TENANT_DOM_AVG <=35 THEN 1.05 ELSE 1 END ),-.5)#(lf) #(lf)AS RECOMMENDED_RENT#(lf)FROM SUBDIVISION_STATS )#(lf)#(lf)SELECT * FROMFINAL_RENT_RECOMMENDATION#(lf)*/", null, [EnableFolding=true])
+				in
+				    Source
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

@@ -207,6 +207,12 @@
 - **0_1_YR_Offer_Mrkt_Prem** = ```` if(AVERAGE(DW_Renewals[MARKET_RENT])=blank(),blank(),CALCULATE(DIVIDE(AVERAGE(DW_Renewals[RATE_12_MONTH]), AVERAGE(DW_Renewals[MARKET_RENT]), BLANK())-1,FILTER(DW_Renewals,DW_Renewals[RATE_12_MONTH]>0&&DW_Renewals[MARKET_RENT]>0))) ````
 - **0_1_YR_Offer_Rent_Growth** = ```` if(AVERAGE(DW_Renewals[RATE_12_MONTH])=blank(),blank(),CALCULATE(DIVIDE(AVERAGE(DW_Renewals[RATE_12_MONTH]), AVERAGE(DW_Renewals[C_AMOUNT]), BLANK())-1,FILTER(DW_Renewals,DW_Renewals[RATE_12_MONTH]>0&&DW_Renewals[C_AMOUNT]>0))) ````
 
+## DW_Showings  (3 measures)
+
+- **0_Showing_Count_Card** = `COUNT(DW_Showings[LEAD]) + 0`
+- **0_Showing_Count** = `COUNT(DW_Showings[LEAD])`
+- **0_Shows W/W** = `IFERROR((CALCULATE(COUNT(DW_Showings[LEAD]),FILTER(DW_Showings,DW_Showings[ACTIVITY_CREATED_AT]>=(TODAY()-7)&&DW_Showings[ACTIVITY_CREATED_AT]<=(TODAY()-1))) + 0 ) / CALCULATE(COUNT(DW_Showings[LEAD]),FILTER(DW_Showings,DW_Showings[ACTIVITY_CREATED_AT]>=(TODAY()-14)&&DW_Showings[ACTIVITY_CREATED_AT]<=(TODAY()-8))) -1,"N/A")`
+
 ## DW_Tenant  (10 measures)
 
 - **0_% Delinquent** = ```` CALCULATE([0_Distinct_Tenant_Count],DW_Tenant[1_Balance]>0) / IF(HASONEVALUE(SEL_LeaseType[Lease Type]), CALCULATE([0_Distinct_Tenant_Count],filter(ALLEXCEPT(DW_Properties,DW_Properties[ORGANIZATION_NAME],DW_Properties[PORTFOLIO_NAME],DW_Properties[REGION_NAME],DW_Properties[OCCUPANCY_STATUS],DW_Properties[FULL_ADDRESS]),DW_Properties[OCCUPANCY_STATUS_SUMMARY]=SELECTEDVALUE(SEL_LeaseType[Lease Type])),ALLEXCEPT(DW_Tenant,DW_Tenant[TENANT_STATUS])), CALCULATE([0_Distinct_Tenant_Count],ALLEXCEPT(DW_Properties,DW_Properties[ORGANIZATION_NAME],DW_Properties[PORTFOLIO_NAME],DW_Properties[REGION …[truncated]`
@@ -274,4 +280,4 @@
 
 - **0_Value** = `VAR Choice = SELECTEDVALUE(SEL_WO_CHART[Value]) return IF(Choice="Count",[0_TKT_Count],IF(Choice="Invoice Amount",SUM(DW_WO[CLIENT_INVOICE_AMOUNT]),BLANK()))`
 
-_Total: 211 measures across mirrored tables._
+_Total: 214 measures across mirrored tables._
