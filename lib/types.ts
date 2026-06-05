@@ -21,14 +21,14 @@ export interface PropertySummaryRow {
 
 export interface MonthlyTrendRow {
   month: string; // e.g. "May 2026"
-  homes: number;
-  avgRent: number;
-  occBom: number; // %
-  occEom: number; // %
-  collections: number; // %
-  renewal: number; // %
-  turnover: number; // %
-  netTurnCost: number; // $
+  homes: number | null;
+  avgRent: number | null;
+  occBom: number | null; // %
+  occEom: number | null; // %
+  collections: number | null; // %
+  renewal: number | null; // %
+  turnover: number | null; // %
+  netTurnCost: number | null; // $
 }
 
 export interface SummaryCache {
@@ -53,10 +53,10 @@ export interface SummaryCache {
     turnoverPct: number | null;
   };
   gauges: {
-    eomCollections: GaugeData;
-    renewal: GaugeData;
-    netTurnCost: GaugeData;
-    internalMaintenance: GaugeData;
+    eomCollections: GaugeData | null;
+    renewal: GaugeData | null;
+    netTurnCost: GaugeData | null;
+    internalMaintenance: GaugeData | null;
   } | null;
   propertySummary: PropertySummaryRow[];
   monthlyTrend: MonthlyTrendRow[];

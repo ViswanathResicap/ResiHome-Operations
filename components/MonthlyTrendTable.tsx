@@ -1,6 +1,9 @@
 import type { MonthlyTrendRow } from "@/lib/types";
 import { pct, usd, num } from "@/lib/format";
 
+const cell = (v: number | null, fmt: (n: number) => string) =>
+  v === null || v === undefined ? "—" : fmt(v);
+
 // Replicates the monthly-KPI trend pivot (rows = month, the 0_Month measures).
 export function MonthlyTrendTable({ rows }: { rows: MonthlyTrendRow[] }) {
   return (
@@ -23,14 +26,14 @@ export function MonthlyTrendTable({ rows }: { rows: MonthlyTrendRow[] }) {
           {rows.map((r) => (
             <tr key={r.month}>
               <td>{r.month}</td>
-              <td>{num(r.homes)}</td>
-              <td>{usd(r.avgRent)}</td>
-              <td>{pct(r.occBom)}</td>
-              <td>{pct(r.occEom)}</td>
-              <td>{pct(r.collections)}</td>
-              <td>{pct(r.renewal)}</td>
-              <td>{pct(r.turnover)}</td>
-              <td>{usd(r.netTurnCost)}</td>
+              <td>{cell(r.homes, num)}</td>
+              <td>{cell(r.avgRent, (n) => usd(n))}</td>
+              <td>{cell(r.occBom, (n) => pct(n))}</td>
+              <td>{cell(r.occEom, (n) => pct(n))}</td>
+              <td>{cell(r.collections, (n) => pct(n))}</td>
+              <td>{cell(r.renewal, (n) => pct(n))}</td>
+              <td>{cell(r.turnover, (n) => pct(n))}</td>
+              <td>{cell(r.netTurnCost, (n) => usd(n))}</td>
             </tr>
           ))}
         </tbody>

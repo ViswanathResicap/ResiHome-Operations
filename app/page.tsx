@@ -52,19 +52,23 @@ export default async function SummaryPage() {
         </div>
 
         <div className="section-title">Monthly Performance</div>
-        {d.gauges ? (
-          <div className="grid gauge-row">
-            <Gauge g={d.gauges.eomCollections} />
-            <Gauge g={d.gauges.renewal} />
-            <Gauge g={d.gauges.netTurnCost} />
-            <Gauge g={d.gauges.internalMaintenance} />
-          </div>
-        ) : (
-          <div className="card" style={{ color: "var(--muted)" }}>
-            Gauges (EOM Collections · Renewal · Net Turn Cost · Internal
-            Maintenance) — pending live wiring of the <code>0_Month</code> measures.
-          </div>
-        )}
+        <div className="grid gauge-row">
+          {([
+            ["EOM Collections", d.gauges?.eomCollections],
+            ["Renewal", d.gauges?.renewal],
+            ["Net Turn Cost (All)", d.gauges?.netTurnCost],
+            ["Internal Maintenance", d.gauges?.internalMaintenance],
+          ] as const).map(([label, g]) =>
+            g ? (
+              <Gauge key={label} g={g} />
+            ) : (
+              <div key={label} className="card gauge" style={{ color: "var(--muted)" }}>
+                <div className="title">{label}</div>
+                <div style={{ padding: "26px 0", fontSize: 12 }}>pending</div>
+              </div>
+            )
+          )}
+        </div>
 
         <div className="grid kpi-row" style={{ marginTop: 12 }}>
           <KpiCard label="Proj / Actual MIs" value={show(k.projActualMis, num)} />

@@ -1,6 +1,6 @@
 import { connect } from "./snowflake";
-import { DW_PROPERTIES_SQL, DW_LISTINGS_SQL } from "./generated/sql";
-import type { SummaryCache, PropertySummaryRow } from "./types";
+import { DW_PROPERTIES_SQL, DW_LISTINGS_SQL, PM_BOM_SQL } from "./generated/sql";
+import type { SummaryCache, PropertySummaryRow, MonthlyTrendRow } from "./types";
 
 // Page-level filters from the Summary page.json.
 const PAGE_FILTER = `OCCUPANCY_STATUS <> 'Dispositions' AND ORGANIZATION_NAME IS NOT NULL`;
@@ -21,6 +21,7 @@ export async function getLiveSummary(): Promise<SummaryCache> {
     projActualMis: null, netOccupancyGain: null, turnoverPct: null,
   };
   let propertySummary: PropertySummaryRow[] = [];
+  let monthlyTrend: MonthlyTrendRow[] = [];
 
   try {
     // Property-level KPIs (match the card measures over DW_Properties).
@@ -64,6 +65,28 @@ export async function getLiveSummary(): Promise<SummaryCache> {
         FROM l WHERE LISTING_STATUS = 'Active' AND IS_PUBLISHED = 'Y'`);
       kpis.activeListings = numOr(r?.ACTIVE_LISTINGS);
     } catch (e) { console.error("[live] active listings failed:", (e as Error).message); }
+
+    // Monthly trend (last 4 BOM months) — Homes + Avg Rent from PM_BOM (native).
+    // Occupancy/collections/renewal/turnover/net-turn-cost depend on Power BI
+    // calculated columns and are wired in a follow-up (validated vs the report).
+    try {
+      const rows = await conn.query<Record<string, unknown>>(`
+        WITH b AS ( SELECT * FROM ( ${PM_BOM_SQL} ) )
+        SELECT TO_CHAR(BEG_OF_MONTH, 'Mon YYYY') AS MONTH,
+               MIN(BEG_OF_MONTH) AS BOM,
+               COUNT(IFF(OCCUPANCY_STATUS IS NOT NULL, HBPM_PROPERTYID, NULL)) AS HOMES,
+               AVG(CURRENT_RENT) AS AVG_RENT
+        FROM b
+        WHERE BEG_OF_MONTH >= DATEADD('month', -3, DATE_TRUNC('month', CURRENT_DATE()))
+        GROUP BY TO_CHAR(BEG_OF_MONTH, 'Mon YYYY') ORDER BY BOM`);
+      monthlyTrend = rows.map((r) => ({
+        month: String(r.MONTH),
+        homes: numOr(r.HOMES),
+        avgRent: numOr(r.AVG_RENT),
+        occBom: null, occEom: null, collections: null,
+        renewal: null, turnover: null, netTurnCost: null,
+      }));
+    } catch (e) { console.error("[live] monthly trend failed:", (e as Error).message); }
   } finally {
     conn.close();
   }
@@ -72,12 +95,12 @@ export async function getLiveSummary(): Promise<SummaryCache> {
     _meta: {
       source: "SNOWFLAKE",
       generatedAt: new Date().toISOString(),
-      note: "Live property metrics. Leasing/turnover gauges & monthly trend pending (0_Month/DW_Listings measure wiring).",
+      note: "Live: property KPIs, Property Summary, Active Listings, and monthly Homes/Avg Rent. Gauges & remaining trend columns (collections, renewal, turnover, occupancy %, net turn cost) translate Power BI calculated columns and are being wired + validated against the report.",
     },
     filters: { occupancyStatusExcludes: ["Dispositions"], organizationNameExcludes: [null] },
     kpis,
     gauges: null,
     propertySummary,
-    monthlyTrend: [],
+    monthlyTrend,
   };
 }

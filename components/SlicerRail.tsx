@@ -16,9 +16,10 @@ const SLICERS: { title: string; placeholder: string }[] = [
 export function SlicerRail() {
   return (
     <aside className="rail">
-      <div className="brand">
-        ResiHome<small>Operations · Summary</small>
-      </div>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img className="logo" src="/resihome-logo.png" alt="ResiHome" />
+      <div className="accent" />
+      <div className="tagline">OPERATIONS · SUMMARY</div>
       {SLICERS.map((s) => (
         <div className="slicer" key={s.title}>
           <h4>{s.title}</h4>
