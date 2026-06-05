@@ -4,9 +4,7 @@ import { Gauge } from "@/components/Gauge";
 import { SlicerRail } from "@/components/SlicerRail";
 import { PropertySummaryTable } from "@/components/PropertySummaryTable";
 import { MonthlyTrendTable } from "@/components/MonthlyTrendTable";
-import { pct, usd, num } from "@/lib/format";
-
-export const dynamic = "force-dynamic";
+import { pct, num } from "@/lib/format";
 
 export default function SummaryPage() {
   const d = getSummaryCache();
