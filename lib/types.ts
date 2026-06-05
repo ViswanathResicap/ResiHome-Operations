@@ -52,6 +52,7 @@ export interface SummaryCache {
     source: "SAMPLE" | "SNOWFLAKE";
     generatedAt: string;
     note?: string;
+    errors?: string[];
   };
   filters: {
     occupancyStatusExcludes: string[];
