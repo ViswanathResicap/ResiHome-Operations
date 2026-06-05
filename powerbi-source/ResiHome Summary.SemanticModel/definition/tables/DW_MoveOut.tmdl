@@ -1,0 +1,1294 @@
+table DW_MoveOut
+	lineageTag: a7b5f76c-5f7d-4cb3-ae00-78d6bd10e7fc
+
+	measure '0_Distinct MO' = DISTINCTCOUNT(DW_MoveOut[LEASE_ID]) + 0
+		formatString: 0
+		lineageTag: cd8d3d71-1e42-4f57-9a4e-46726dc00404
+
+	measure '0_Distinct MO (Clean)' = DISTINCTCOUNT(DW_MoveOut[LEASE_ID])
+		formatString: 0
+		lineageTag: 7aa8620f-050c-4cca-98ee-667a38f0a1d5
+
+	measure '0_Rent Var (MoveOut)' = ```
+			CALCULATE(DIVIDE(SUM(DW_MoveOut[CURRENT_RENT]), SUM(DW_MoveOut[1_ASM_Blended]), BLANK()),FILTER(DW_MoveOut,DW_MoveOut[CURRENT_RENT]<>BLANK()&&DW_MoveOut[1_ASM_Blended]<>blank())) - 1
+			
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: d5d24142-3c36-4ffd-82b9-2860b12897b4
+
+	column TENANT_KEY
+		dataType: double
+		lineageTag: 9afe5d68-33b5-4658-948a-0cd8e67ee581
+		summarizeBy: sum
+		sourceColumn: TENANT_KEY
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column TENANT_INFORMATION_ID
+		dataType: double
+		lineageTag: 26a28534-cc79-4644-a869-4f5622711652
+		summarizeBy: count
+		sourceColumn: TENANT_INFORMATION_ID
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column LEASE_ID
+		dataType: double
+		lineageTag: cfab57bc-bd49-4492-8b1f-2953314d3e21
+		summarizeBy: count
+		sourceColumn: LEASE_ID
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column LEASE_RANK
+		dataType: double
+		lineageTag: 95f67679-6576-4654-bcd3-3c97fa39fcfe
+		summarizeBy: sum
+		sourceColumn: LEASE_RANK
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column PROPERTY_KEY
+		dataType: double
+		lineageTag: 20e6a406-0e54-49f7-8a15-8a8031f01b05
+		summarizeBy: none
+		sourceColumn: PROPERTY_KEY
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column HBPM_PROPERTY_ID
+		dataType: double
+		lineageTag: 4a43e16a-1d5c-46fc-9116-be8089a4cdb3
+		summarizeBy: count
+		sourceColumn: HBPM_PROPERTY_ID
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column PORTFOLIO_NAME
+		dataType: string
+		lineageTag: c4d309fd-71a2-44d5-a79a-c3496d253b07
+		summarizeBy: none
+		sourceColumn: PORTFOLIO_NAME
+
+		annotation SummarizationSetBy = Automatic
+
+	column REGION_NAME
+		dataType: string
+		lineageTag: 03eaeea8-e343-44fd-8803-cec4f1a0c8ef
+		summarizeBy: none
+		sourceColumn: REGION_NAME
+
+		annotation SummarizationSetBy = Automatic
+
+	column ORGANIZATION_KEY
+		dataType: double
+		lineageTag: 525425c7-c17b-47ce-9d04-30b6659fc51d
+		summarizeBy: sum
+		sourceColumn: ORGANIZATION_KEY
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ORGANIZATION_NAME
+		dataType: string
+		lineageTag: 44f01705-bdcd-4103-85ec-defc3757c346
+		summarizeBy: none
+		sourceColumn: ORGANIZATION_NAME
+
+		annotation SummarizationSetBy = Automatic
+
+	column ADDRESS
+		dataType: string
+		lineageTag: dae7eea5-d81b-4719-8d10-f441d7d9d401
+		summarizeBy: none
+		sourceColumn: ADDRESS
+
+		annotation SummarizationSetBy = Automatic
+
+	column ENTITYID
+		dataType: string
+		lineageTag: d3d717ce-8159-44bb-9c07-96159187e0a7
+		summarizeBy: none
+		sourceColumn: ENTITYID
+
+		annotation SummarizationSetBy = Automatic
+
+	column OCCUPANCY_STATUS
+		dataType: string
+		lineageTag: 40fc5909-44d1-43dd-83cf-c316bf21b79b
+		summarizeBy: none
+		sourceColumn: OCCUPANCY_STATUS
+
+		annotation SummarizationSetBy = Automatic
+
+	column FULL_NAME
+		dataType: string
+		lineageTag: ef31744e-5d2b-45c9-b0c3-c5242eb04ec9
+		summarizeBy: none
+		sourceColumn: FULL_NAME
+
+		annotation SummarizationSetBy = Automatic
+
+	column EMAIL_ADDRESS
+		dataType: string
+		lineageTag: d3b9490d-20bb-45cc-aaf9-470355a01bbc
+		summarizeBy: none
+		sourceColumn: EMAIL_ADDRESS
+
+		annotation SummarizationSetBy = Automatic
+
+	column PHONE_NUMBER
+		dataType: string
+		lineageTag: 7e4580a4-7d91-46ac-ae53-81cda7fef970
+		summarizeBy: none
+		sourceColumn: PHONE_NUMBER
+
+		annotation SummarizationSetBy = Automatic
+
+	column TENANT_STATUS
+		dataType: string
+		lineageTag: 35828990-a75f-4158-87b7-4d595a6acdc5
+		summarizeBy: none
+		sourceColumn: TENANT_STATUS
+
+		annotation SummarizationSetBy = Automatic
+
+	column TENANT_TYPE
+		dataType: string
+		lineageTag: ca529a94-5633-423d-bb82-fcc4a0535ddf
+		summarizeBy: none
+		sourceColumn: TENANT_TYPE
+
+		annotation SummarizationSetBy = Automatic
+
+	column PRIMARY_TENANT
+		dataType: string
+		lineageTag: f7db7e29-4d02-412f-bd17-c76e55d5a222
+		summarizeBy: none
+		sourceColumn: PRIMARY_TENANT
+
+		annotation SummarizationSetBy = Automatic
+
+	column EVICTION_STATUS
+		dataType: string
+		lineageTag: 2f96aa98-f056-403c-86ea-63c433de73ab
+		summarizeBy: none
+		sourceColumn: EVICTION_STATUS
+
+		annotation SummarizationSetBy = Automatic
+
+	column MONTH_TO_MONTH
+		dataType: string
+		lineageTag: 4e7d193d-d79e-485e-9fb3-abf24ef0c5e1
+		summarizeBy: none
+		sourceColumn: MONTH_TO_MONTH
+
+		annotation SummarizationSetBy = Automatic
+
+	column NOTICE_DATE
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: b562cc77-a55d-4abc-9c8f-fa9520a9096c
+		summarizeBy: none
+		sourceColumn: NOTICE_DATE
+
+		variation Variation
+			isDefault
+			relationship: 585e41e8-820b-44d9-b50d-6ece086d46d2
+			defaultHierarchy: LocalDateTable_8621e7b9-643f-4a0e-bf61-1b6764b0bc13.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column CURRENT_RENT
+		dataType: double
+		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
+		lineageTag: b7ec07f9-3e99-499a-95e6-44bc5a1d1bbd
+		summarizeBy: sum
+		sourceColumn: CURRENT_RENT
+
+		annotation SummarizationSetBy = Automatic
+
+	column CURRENT_LEASE_EXPIRATION_DATE
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 2f69f5fa-6e36-41bf-9ead-53c706800c70
+		summarizeBy: none
+		sourceColumn: CURRENT_LEASE_EXPIRATION_DATE
+
+		variation Variation
+			isDefault
+			relationship: 3e3ed0f7-446b-4180-8aa7-a5101effd561
+			defaultHierarchy: LocalDateTable_8195b8ac-1e50-4125-b385-4802f6f2ebe4.'Date Hierarchy'
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column LEASE_SIGNED_DATE
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 92b46a20-22c6-4969-bee7-f23b2f9ca0bf
+		summarizeBy: none
+		sourceColumn: LEASE_SIGNED_DATE
+
+		variation Variation
+			isDefault
+			relationship: 210c6325-48a4-40ce-9200-a7536634945d
+			defaultHierarchy: LocalDateTable_5b387330-6cb0-4324-bdc2-10c6c9abacbb.'Date Hierarchy'
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column LEASE_FROM_DATE
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 3435e477-b2a1-4e3b-804b-6bb429157866
+		summarizeBy: none
+		sourceColumn: LEASE_FROM_DATE
+
+		variation Variation
+			isDefault
+			relationship: 7d8cdf31-fa0c-4bf1-b393-60b2165318b8
+			defaultHierarchy: LocalDateTable_8008d28f-ba17-482b-a874-f548ad35b2f4.'Date Hierarchy'
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column LEASE_TO_DATE
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 141bba65-269e-4d19-a49a-bb35b406e22b
+		summarizeBy: none
+		sourceColumn: LEASE_TO_DATE
+
+		variation Variation
+			isDefault
+			relationship: b151a7b8-d690-4df9-a633-fab98ce378cc
+			defaultHierarchy: LocalDateTable_a81188ba-fc9e-40ad-97bf-5fa08a93c921.'Date Hierarchy'
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column MOVEIN
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 3cdc0218-7ebf-4aba-8f5e-5cc042607f17
+		summarizeBy: none
+		sourceColumn: MOVEIN
+
+		variation Variation
+			isDefault
+			relationship: 2239bb83-e29e-4839-89fc-41d55ab1f912
+			defaultHierarchy: LocalDateTable_742cd519-c7bf-4327-abbb-002bf5d5eab6.'Date Hierarchy'
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+	column MOVEIN_BOM
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: e517360d-7d2c-43cf-ac48-2b5748f34dd8
+		summarizeBy: none
+		sourceColumn: MOVEIN_BOM
+
+		variation Variation
+			isDefault
+			relationship: bca291fb-47fc-4f6f-9df0-0cd99c8df72c
+			defaultHierarchy: LocalDateTable_d09bc68a-f359-46df-9cf8-a1fe5104531b.'Date Hierarchy'
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+	column PURCHASELETTERPOSTEDDATE
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 75c2e445-4e8d-4986-aad4-f87428b4649f
+		summarizeBy: none
+		sourceColumn: PURCHASELETTERPOSTEDDATE
+
+		variation Variation
+			isDefault
+			relationship: e07630cf-6ce9-4ee7-b3ac-3c399a91ef05
+			defaultHierarchy: LocalDateTable_d8c380c6-4886-467e-8398-23fd753299d2.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column DATENOTIFIED
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: a15f5b67-f36c-4d1c-bead-f195c769d82e
+		summarizeBy: none
+		sourceColumn: DATENOTIFIED
+
+		variation Variation
+			isDefault
+			relationship: c4c462a0-e229-4662-bd91-9db351bf619f
+			defaultHierarchy: LocalDateTable_e5185a3c-5ae0-4107-8e1b-0dafcf63d1f4.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column FILEDWITHCOUNTYDATE
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 915f04f1-9c90-4896-9ad5-6ae54c9b4155
+		summarizeBy: none
+		sourceColumn: FILEDWITHCOUNTYDATE
+
+		variation Variation
+			isDefault
+			relationship: 07b3564c-c472-440d-80eb-140b20a800be
+			defaultHierarchy: LocalDateTable_4d000229-f2fb-4126-b66a-de0b9b195545.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column RESIDENTSERVEDDATE
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 42d60d1d-0f7b-47ff-abe1-95dd2849989c
+		summarizeBy: none
+		sourceColumn: RESIDENTSERVEDDATE
+
+		variation Variation
+			isDefault
+			relationship: 6bd2aa26-20f5-4b95-bb08-4e30deff571b
+			defaultHierarchy: LocalDateTable_ab9d7911-5f30-4c57-aea2-4538b456dc18.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column COURTDATESETDATE
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 1feaba0c-ca09-4f99-a463-4033915cffa7
+		summarizeBy: none
+		sourceColumn: COURTDATESETDATE
+
+		variation Variation
+			isDefault
+			relationship: 97b9a37b-e9bf-4e19-90d3-3700351f826a
+			defaultHierarchy: LocalDateTable_0a83fbf2-e460-47f9-8657-ad534ca476f5.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column JUDGEMENTDATE
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 1996ed79-4a00-4756-9c69-64b6a98c93a0
+		summarizeBy: none
+		sourceColumn: JUDGEMENTDATE
+
+		variation Variation
+			isDefault
+			relationship: a09310d8-916d-4684-980a-b12cd5c6a652
+			defaultHierarchy: LocalDateTable_6fc14934-a3a7-448f-9b16-a5c0bbce4dc3.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column LOCKOUTSCHEDULEDDATE
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 00740d98-4442-45e9-837d-b0c1fa7c8663
+		summarizeBy: none
+		sourceColumn: LOCKOUTSCHEDULEDDATE
+
+		variation Variation
+			isDefault
+			relationship: 43268cd2-f21a-453e-9b43-24bf81b5eb49
+			defaultHierarchy: LocalDateTable_d02d48cb-09da-47b3-bb2d-9d23250816b8.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column VACATEDATE
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 06e42ae3-e355-4d9b-b990-ea8791e49d30
+		summarizeBy: none
+		sourceColumn: VACATEDATE
+
+		variation Variation
+			isDefault
+			relationship: 6aafda4d-8923-4243-81d0-5f66f8acd113
+			defaultHierarchy: LocalDateTable_c2be133d-7d5b-41bd-8acf-8f5ee40694c9.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column ANTICIPATEDMOVEOUTDATE
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: ff717bfc-7493-456e-ae1e-16a1b0bc12a7
+		summarizeBy: none
+		sourceColumn: ANTICIPATEDMOVEOUTDATE
+
+		variation Variation
+			isDefault
+			relationship: cbb32955-7664-4117-8b89-8c09febc9264
+			defaultHierarchy: LocalDateTable_55a648bc-3d5c-47e5-9368-ec95aace2823.'Date Hierarchy'
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+	column ISSECTION8
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 31829d20-52b4-49a2-83ad-6b958dfe8281
+		summarizeBy: none
+		sourceColumn: ISSECTION8
+
+		annotation SummarizationSetBy = Automatic
+
+	column ISMONTHTOMONTHLEASE
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: faa34887-fb5e-4da6-af3a-2f12ae929a21
+		summarizeBy: none
+		sourceColumn: ISMONTHTOMONTHLEASE
+
+		annotation SummarizationSetBy = Automatic
+
+	column TENANTDECIDEDMONTHTOMONTH
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 7fb1851f-10d0-481e-a2cb-ff9184fced6d
+		summarizeBy: none
+		sourceColumn: TENANTDECIDEDMONTHTOMONTH
+
+		annotation SummarizationSetBy = Automatic
+
+	column REASONFORNOTRENEWINGID
+		dataType: double
+		lineageTag: 7abe18c2-fd87-4707-abbd-ad911660aaa5
+		summarizeBy: count
+		sourceColumn: REASONFORNOTRENEWINGID
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column MOVEOUTCOMPLETE
+		dataType: string
+		lineageTag: beb3421d-f9aa-4dbd-9f9c-8defd3508705
+		summarizeBy: none
+		sourceColumn: MOVEOUTCOMPLETE
+
+		annotation SummarizationSetBy = Automatic
+
+	column REASONFORNOTRENEWINGNAME
+		dataType: string
+		lineageTag: 0fbde4f4-377a-4220-8e9e-cc421bf2875e
+		summarizeBy: none
+		sourceColumn: REASONFORNOTRENEWINGNAME
+
+		annotation SummarizationSetBy = Automatic
+
+	column MOVEINREADY
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 6369629f-2bd7-4568-bea5-839a0fc976a9
+		summarizeBy: none
+		sourceColumn: MOVEINREADY
+
+		variation Variation
+			isDefault
+			relationship: d55195e8-b8d6-4276-8b15-3a113f9031cc
+			defaultHierarchy: LocalDateTable_0a39b037-6a22-43a5-84bb-5c99d5c962b3.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column MOVE_OUT_FORECAST
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 4dca64ee-e0eb-42b5-b782-8dec8772afcc
+		summarizeBy: none
+		sourceColumn: MOVE_OUT_FORECAST
+
+		variation Variation
+			isDefault
+			relationship: da438d73-cdce-48e9-90e9-a8377badcf9e
+			defaultHierarchy: LocalDateTable_c947eb88-60ae-4639-876a-f6d84c2bd2b4.'Date Hierarchy'
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+	column MOVE_OUT_FORECAST_FILTER
+		dataType: double
+		lineageTag: a5d96769-3e4d-4df0-9c90-166b69a203f6
+		summarizeBy: sum
+		sourceColumn: MOVE_OUT_FORECAST_FILTER
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column PAST_MOVE_OUT
+		dataType: double
+		lineageTag: 9b39482b-69d2-44cf-afaa-ea8cc981acf6
+		summarizeBy: sum
+		sourceColumn: PAST_MOVE_OUT
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column URL_SODA
+		dataType: string
+		lineageTag: 8198330f-27a0-4f15-88e4-63ab5ce2d706
+		summarizeBy: none
+		sourceColumn: URL_SODA
+
+		annotation SummarizationSetBy = Automatic
+
+	column 1_MoveOut_Type = IF(DW_MoveOut[ORGANIZATION_KEY]=-1&&DW_MoveOut[MOVEINREADY]=BLANK(),"Construction","Turn")
+		lineageTag: 162ea994-a666-49af-93ba-dc8b3b790c86
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column MOVEOUT
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: ec941f7c-7332-4a55-9322-647f30eed366
+		summarizeBy: none
+		sourceColumn: MOVEOUT
+
+		variation Variation
+			isDefault
+			relationship: 94d72eeb-f499-4169-b3f1-a37218fe37bd
+			defaultHierarchy: LocalDateTable_de6e387c-aba3-42bf-8eae-7488a7f3d1ea.'Date Hierarchy'
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+	column MOVE_OUT_INDICATOR
+		dataType: double
+		lineageTag: abbf1991-01c6-47c4-9217-d071ed691ec6
+		summarizeBy: sum
+		sourceColumn: MOVE_OUT_INDICATOR
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column MOVEOUTCOMPLETE_INDICATOR
+		dataType: double
+		lineageTag: 03a55d75-7c93-4461-b89c-d97c231ae6ca
+		summarizeBy: sum
+		sourceColumn: MOVEOUTCOMPLETE_INDICATOR
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Full_Address = RELATED(DW_Properties[FULL_ADDRESS])
+		lineageTag: aa4c8eae-3bdc-49d8-a343-25aeedaecdac
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column MO_NOTE
+		dataType: string
+		lineageTag: e2edf691-8ece-4465-967c-e9ef04e20848
+		summarizeBy: none
+		sourceColumn: MO_NOTE
+
+		annotation SummarizationSetBy = Automatic
+
+	column MO_NOTECREATED
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 52cd050d-caa0-418a-9fbf-6b3630e9fb7c
+		summarizeBy: none
+		sourceColumn: MO_NOTECREATED
+
+		variation Variation
+			isDefault
+			relationship: fd22b042-e9bc-4d3e-b7b7-ea0cbafe74cc
+			defaultHierarchy: LocalDateTable_10afd15b-8f07-45b0-b373-9245f97754de.'Date Hierarchy'
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+	column '1_SD Days' = LOOKUPVALUE(SEL_DemandLetters[SD Days],SEL_DemandLetters[State],LEFT(DW_MoveOut[REGION_NAME],2))
+		lineageTag: 7fe6fc8a-ead5-41ec-b98d-f69a34bc2e1b
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column 1_SD_Days_Left = IF(DW_MoveOut[MOVEOUT]<>BLANK()&&DW_MoveOut[MOVEOUTCOMPLETE]="No",DW_MoveOut[1_SD Days]-(TODAY()-DW_MoveOut[MOVEOUT]),BLANK())
+		lineageTag: 08227406-c822-4edc-8219-e3a3ad4d67c6
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column '1_Renewal Result' = CALCULATE(MAX(DW_Renewals[Renewal Result]),FILTER(DW_Renewals,DW_Renewals[TENANT_KEY]=DW_MoveOut[TENANT_KEY]&&COALESCE(DW_Renewals[MOVEOUT],DW_Renewals[C_LEASEEND])=COALESCE(DW_MoveOut[MOVEOUT],DW_MoveOut[CURRENT_LEASE_EXPIRATION_DATE])))
+		lineageTag: 505858ed-cd13-4467-a54d-3e5dad5eff02
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column HBPM_URL
+		dataType: string
+		lineageTag: bf9b8761-f12a-4be6-a2a5-14d2edf2f418
+		summarizeBy: none
+		sourceColumn: HBPM_URL
+
+		annotation SummarizationSetBy = Automatic
+
+	column MOVEOUT_BOM
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: b923aefe-7367-4188-a6dc-cef6b5ce931a
+		summarizeBy: none
+		sourceColumn: MOVEOUT_BOM
+
+		variation Variation
+			isDefault
+			relationship: a0d4cd82-8425-45d7-85fc-bac216fcf486
+			defaultHierarchy: LocalDateTable_fd429f4d-20b6-4058-86f4-464f7a7a56fc.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column EVICITON_AMOD_FLAG
+		dataType: double
+		lineageTag: d1860d3b-414b-4d7d-8516-c5345236537d
+		summarizeBy: sum
+		sourceColumn: EVICITON_AMOD_FLAG
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column DAYS_SINCE_MO
+		dataType: double
+		lineageTag: 1cf5e83d-13a4-430c-a71a-74c3cacfaf5a
+		summarizeBy: sum
+		sourceColumn: DAYS_SINCE_MO
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 1_Scope = CALCULATE(MAX(DW_Turns[HC_SCOPE_COMPLETED_DATE]),FILTER(DW_Turns,DW_Turns[O_TURN_ID]=DW_MoveOut[LEASE_ID]&&DW_Turns[HC_SCOPE_COMPLETED_DATE]>=DW_MoveOut[MOVEOUT]))
+		formatString: Short Date
+		lineageTag: b0368d8d-eca7-42f7-9198-50d16d831415
+		summarizeBy: none
+
+		variation Variation
+			isDefault
+			relationship: f9bc2e54-044c-4dc2-b1bd-6bd47fd543e9
+			defaultHierarchy: LocalDateTable_36aecf9a-25cf-40a2-b61e-1987da6f5039.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column '1_TKT Date' = CALCULATE(MAX(DW_Turns[TKT_CREATED_MIN]),FILTER(DW_Turns,DW_Turns[O_TURN_ID]=DW_MoveOut[LEASE_ID]&&DW_Turns[TKT_CREATED_MIN]>=DW_MoveOut[MOVEOUT]))
+		formatString: Short Date
+		lineageTag: d8700a81-597f-4fde-b4b0-8f80e4cf05de
+		summarizeBy: none
+
+		variation Variation
+			isDefault
+			relationship: bd24568d-ae39-4f53-b75a-be6fe370bc92
+			defaultHierarchy: LocalDateTable_d27264ef-b64c-4f6d-aa1c-6c8f7c5c2107.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column '1_SODA Stage' =
+			IF(DW_MoveOut[MOVEOUT]=BLANK()||DW_MoveOut[MOVEOUTCOMPLETE]="Yes",BLANK(),
+			    IF(DW_MoveOut[1_TKT Date]<>BLANK()||DW_MoveOut[RRQC_RESULT_DATE]=BLANK()||AND(DW_MoveOut[STRATEGY_NAME]="Repair/Sell",DW_MoveOut[1_Scope]<>BLANK()),"Ready to Process",
+			    IF(DW_MoveOut[1_Scope]<>BLANK()&&DW_MoveOut[1_TKT Date]=BLANK(),"Pending TKT/Chargebacks",
+			    IF(DW_MoveOut[1_Scope]=BLANK(),"Pending Scope",BLANK()))))
+		lineageTag: 72694ff1-10b6-4b13-8379-c48fc7b3a6eb
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column RRQC_RESULT_DATE
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 59e4bf58-bdd8-47bb-8369-ed9b0925ebbf
+		summarizeBy: none
+		sourceColumn: RRQC_RESULT_DATE
+
+		variation Variation
+			isDefault
+			relationship: d42e459c-5e08-430a-888f-012bbb35ceaa
+			defaultHierarchy: LocalDateTable_20b091d0-e766-4bba-bfca-e2cfbbf539c7.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column STRATEGY_NAME
+		dataType: string
+		lineageTag: 5c25e28e-479f-4af6-a295-9ca23be8b835
+		summarizeBy: none
+		sourceColumn: STRATEGY_NAME
+
+		annotation SummarizationSetBy = Automatic
+
+	column HBPM_TENANT_URL
+		dataType: string
+		lineageTag: 4517e269-05b8-45a9-a620-cbbb3d98c797
+		summarizeBy: none
+		sourceColumn: HBPM_TENANT_URL
+
+		annotation SummarizationSetBy = Automatic
+
+	column RENTLY_PROPERTY_STATUS
+		dataType: string
+		lineageTag: 987ef054-2006-461b-b88e-3d226d52fbe3
+		summarizeBy: none
+		sourceColumn: RENTLY_PROPERTY_STATUS
+
+		annotation SummarizationSetBy = Automatic
+
+	column SODA_COMPLETION_DATE
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 342d4ef5-a394-496b-bf28-e2ad3fb6531c
+		summarizeBy: none
+		sourceColumn: SODA_COMPLETION_DATE
+
+		variation Variation
+			isDefault
+			relationship: d20458bc-d286-409c-b8f7-c0658a7145fe
+			defaultHierarchy: LocalDateTable_a1b2021b-7291-46b4-a500-0f6ce64c6c55.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column DAY_TO_COMPLETE_SODA
+		dataType: double
+		lineageTag: a3ce3cc9-7eff-4ba6-a538-3f47a7102a88
+		summarizeBy: sum
+		sourceColumn: DAY_TO_COMPLETE_SODA
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column SODA_COMPLETION_DATE_BOM
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 8d35c75c-61c1-4840-8224-3ae22ae1f4f3
+		summarizeBy: none
+		sourceColumn: SODA_COMPLETION_DATE_BOM
+
+		variation Variation
+			isDefault
+			relationship: 7d044bab-d2a7-4867-aab4-ba8526ce1003
+			defaultHierarchy: LocalDateTable_4d0af1eb-39e7-48e6-8b0d-e672a2813a98.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column MOVE_OUT_FORECAST_BOM
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 12d75e9d-5b59-4153-ab05-f27261fa8ab3
+		summarizeBy: none
+		sourceColumn: MOVE_OUT_FORECAST_BOM
+
+		variation Variation
+			isDefault
+			relationship: d4f4d7f5-58ad-4503-ae69-285b66bbc5c9
+			defaultHierarchy: LocalDateTable_6c706249-e952-4b2d-ad12-00489a9c1118.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column '1_Early Term Fee' = CALCULATE(SUM(DW_Tenant_Charges[Charge_Amount]),FILTER(DW_Tenant_Charges,DW_Tenant_Charges[TENANT_KEY]=DW_MoveOut[TENANT_KEY]&&(DW_Tenant_Charges[ACCOUNT_NUMBER]="4550"||DW_Tenant_Charges[ACCOUNT_NUMBER]="4945500")))
+		lineageTag: 9715e6fe-f25b-4606-80e8-5bfa31fad541
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 1_ET_Charge_Flag = IF(DW_MoveOut[1_Early Term Fee]=BLANK()&&(DW_MoveOut[IMPORT_AMOUNT]<>BLANK()),"Needs Fee",BLANK())
+		lineageTag: c803443d-0eb8-4d36-92f1-25d83c954a19
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column 1_Days_To_Evict =
+			IF(and(DW_MoveOut[REASONFORNOTRENEWINGNAME]="Eviction"||DW_MoveOut[REASONFORNOTRENEWINGNAME]="Balance Forgiveness",DW_MoveOut[MOVEOUT]<>BLANK()&&CALCULATE(MAX(DW_Tenant_Receipts[RECEIVED_DATE]),FILTER(DW_Tenant_Receipts,DW_Tenant_Receipts[TENANT_KEY]=DW_MoveOut[TENANT_KEY]&&DW_Tenant_Receipts[CREDITTYPEID]=BLANK()&&DW_Tenant_Receipts[IS_CREDIT]="N"&&DW_Tenant_Receipts[PAID_AMOUNT]>0&&DW_Tenant_Receipts[RECEIVED_DATE]<DW_MoveOut[MOVEOUT]))<>BLANK())
+			,DW_MoveOut[MOVEOUT] - (EOMONTH(CALCULATE(MAX(DW_Tenant_Receipts[RECEIVED_DATE]),FILTER(DW_Tenant_Receipts,DW_Tenant_Receipts[TENANT_KEY]=DW_MoveOut[TENANT_KEY]&&DW_Tenant_Receipts[CREDITTYPEID]=BLANK()&&DW_Tenant_Receipts[IS_CREDIT]="N"&&DW_Tenant_Receipts[PAID_AMOUNT]>0&&DW_Tenant_Receipts[RECEIVED_DATE]<DW_MoveOut[MOVEOUT])),0)+1),
+			BLANK())
+		dataType: int64
+		formatString: 0
+		lineageTag: 1fb3308e-9760-46f1-abfd-5d15726a2609
+		summarizeBy: sum
+
+		changedProperty = DataType
+
+		annotation SummarizationSetBy = Automatic
+
+	column DAYS_OF_NOTICE
+		dataType: double
+		formatString: 0
+		lineageTag: a119770d-e645-4a75-a890-8be3ba84ebca
+		summarizeBy: sum
+		sourceColumn: DAYS_OF_NOTICE
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isDecimal":true}
+
+	column DAYS_MO_BEFORE_EXP
+		dataType: double
+		formatString: 0
+		lineageTag: 4031cf82-201a-46ec-8e4b-6591e0283118
+		summarizeBy: sum
+		sourceColumn: DAYS_MO_BEFORE_EXP
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isDecimal":true}
+
+	column '1_Accelerated Rent' = ```
+			IF(DW_MoveOut[MOVEOUT]<>BLANK()&&DW_MoveOut[REASONFORNOTRENEWINGID]<>3156&&DW_MoveOut[REASONFORNOTRENEWINGID]<>3157&&DW_MoveOut[REASONFORNOTRENEWINGID]<>3158&&DW_MoveOut[REASONFORNOTRENEWINGID]<>3168&&DW_MoveOut[DAYS_MO_BEFORE_EXP]<>BLANK()&&DW_MoveOut[DAYS_MO_BEFORE_EXP]<60&&DW_MoveOut[DAYS_OF_NOTICE]<>BLANK()&&DW_MoveOut[DAYS_OF_NOTICE]<60&&DW_MoveOut[DAYS_OF_NOTICE]>0,
+			                        IF(DW_MoveOut[DAYS_MO_BEFORE_EXP]>=30,MIN(60 - DW_MoveOut[DAYS_OF_NOTICE], 30)*DW_MoveOut[CURRENT_RENT]/30,
+			                        IF(DW_MoveOut[DAYS_MO_BEFORE_EXP]>0,(min(DW_MoveOut[DAYS_MO_BEFORE_EXP],MIN(60 - DW_MoveOut[DAYS_OF_NOTICE], 30))*DW_MoveOut[CURRENT_RENT]/30) + 
+			                            (MIN(60 - DW_MoveOut[DAYS_OF_NOTICE], 30) - min(DW_MoveOut[DAYS_MO_BEFORE_EXP],MIN(60 - DW_MoveOut[DAYS_OF_NOTICE], 30))) * DW_MoveOut[CURRENT_RENT]/30 * 1,
+			                        IF(DW_MoveOut[DAYS_MO_BEFORE_EXP]<=0,MIN(60 - DW_MoveOut[DAYS_OF_NOTICE], 30) * DW_MoveOut[CURRENT_RENT]/30 * 1,                     
+			                        BLANK()))),
+			                        BLANK())
+			```
+		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
+		lineageTag: ff8971f5-94ab-4180-ab7b-4bec86dd7763
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	column '1_Accelerated MTM' = ```
+			IF(DW_MoveOut[MOVEOUT]<>BLANK()&&DW_MoveOut[REASONFORNOTRENEWINGID]<>3156&&DW_MoveOut[REASONFORNOTRENEWINGID]<>3157&&DW_MoveOut[REASONFORNOTRENEWINGID]<>3158&&DW_MoveOut[REASONFORNOTRENEWINGID]<>3168&&DW_MoveOut[DAYS_MO_BEFORE_EXP]<>BLANK()&&DW_MoveOut[DAYS_MO_BEFORE_EXP]<60&&DW_MoveOut[DAYS_OF_NOTICE]<>BLANK()&&DW_MoveOut[DAYS_OF_NOTICE]<60&&DW_MoveOut[DAYS_OF_NOTICE]>0,
+			                        IF(DW_MoveOut[DAYS_MO_BEFORE_EXP]>=30,BLANK(),
+			                        IF(DW_MoveOut[DAYS_MO_BEFORE_EXP]>0, (MIN(60 - DW_MoveOut[DAYS_OF_NOTICE], 30) - min(DW_MoveOut[DAYS_MO_BEFORE_EXP],MIN(60 - DW_MoveOut[DAYS_OF_NOTICE], 30))) * DW_MoveOut[CURRENT_RENT]/30 * .15,
+			                        IF(DW_MoveOut[DAYS_MO_BEFORE_EXP]<=0,MIN(60 - DW_MoveOut[DAYS_OF_NOTICE], 30) * DW_MoveOut[CURRENT_RENT]/30 * .15,                     
+			                        BLANK()))),
+			                        BLANK())
+			```
+		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
+		lineageTag: 1a57e45d-e659-4daf-8f8c-18cf0abdbfaf
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	column IMPORT_TYPE
+		dataType: string
+		lineageTag: a326565c-b4d2-4140-8652-6c65563f33fc
+		summarizeBy: none
+		sourceColumn: IMPORT_TYPE
+
+		annotation SummarizationSetBy = Automatic
+
+	column IMPORT_DUE_DATE
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 1bd4e0d3-26af-4a27-b64f-202ef108ac4f
+		summarizeBy: none
+		sourceColumn: IMPORT_DUE_DATE
+
+		variation Variation
+			isDefault
+			relationship: 6c8c1160-8a3a-4e9a-88af-e68048129020
+			defaultHierarchy: LocalDateTable_36fade96-b880-457a-a35a-0f16caff19b1.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column IMPORT_AMOUNT
+		dataType: double
+		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
+		lineageTag: 04dbc679-6d55-4df6-a303-e554c8fcc902
+		summarizeBy: sum
+		sourceColumn: IMPORT_AMOUNT
+
+		annotation SummarizationSetBy = Automatic
+
+	column IMPORT_GL_ACCOUNT
+		dataType: int64
+		lineageTag: 8a438da6-80e8-4739-ac6b-92cefd1786e1
+		summarizeBy: sum
+		sourceColumn: IMPORT_GL_ACCOUNT
+
+		changedProperty = DataType
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column IMPORT_GL_ACCOUNT_DESC
+		dataType: string
+		lineageTag: e06991c5-4428-45df-bf73-4a35a15391e1
+		summarizeBy: none
+		sourceColumn: IMPORT_GL_ACCOUNT_DESC
+
+		annotation SummarizationSetBy = Automatic
+
+	column IMPORT_DESCRIPTION
+		dataType: string
+		lineageTag: e9a3a7fe-e192-4ab2-8f6e-b0b54eb501e5
+		summarizeBy: none
+		sourceColumn: IMPORT_DESCRIPTION
+
+		annotation SummarizationSetBy = Automatic
+
+	column IMPORT_HBPM_USER
+		dataType: string
+		lineageTag: 110d6cd5-5b0f-47d1-80ab-ba8ac3a01bd0
+		summarizeBy: none
+		sourceColumn: IMPORT_HBPM_USER
+
+		annotation SummarizationSetBy = Automatic
+
+	column IMPORT_TENANT_NOTE
+		dataType: string
+		lineageTag: 9d478fcc-5473-45d6-b576-32e33e066170
+		summarizeBy: none
+		sourceColumn: IMPORT_TENANT_NOTE
+
+		annotation SummarizationSetBy = Automatic
+
+	column IMPORT_TENANT_NOTE_TYPE
+		dataType: string
+		lineageTag: 55b54b00-d2cd-4e2c-9f42-11a56b60941c
+		summarizeBy: none
+		sourceColumn: IMPORT_TENANT_NOTE_TYPE
+
+		annotation SummarizationSetBy = Automatic
+
+	column 1_Balance_All = CALCULATE(SUM(DW_Tenant_Charges[Balance]),FILTER(DW_Tenant_Charges,DW_Tenant_Charges[TENANT_KEY]=DW_moveout[TENANT_KEY]))
+		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
+		lineageTag: b1ceabf8-a3c8-4b0a-ab75-aa7358a8bcf2
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	column '1_Depost Amount' = CALCULATE(SUM(DW_Tenant_Charges[Charge_Amount]),FILTER(DW_Tenant_Charges,DW_Tenant_Charges[TENANT_KEY]=DW_MoveOut[TENANT_KEY]&&DW_Tenant_Charges[GL_ACCOUNT_KEY]=18&&DW_Tenant_Charges[Charge_Amount]>0) )
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: d5bcf0da-ebcf-4bdd-8165-05c7e41db7c6
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	column STATE_CODE
+		dataType: string
+		lineageTag: ad0dd58c-fac4-428e-9269-0d97be0aa7bb
+		summarizeBy: none
+		sourceColumn: STATE_CODE
+
+		annotation SummarizationSetBy = Automatic
+
+	column FIRST_NAME
+		dataType: string
+		lineageTag: aab75c8e-b324-4fb9-8e3f-981a5fe322ee
+		summarizeBy: none
+		sourceColumn: FIRST_NAME
+
+		annotation SummarizationSetBy = Automatic
+
+	column LAST_NAME
+		dataType: string
+		lineageTag: c934b582-0410-4e89-a5b8-9ca03efa437a
+		summarizeBy: none
+		sourceColumn: LAST_NAME
+
+		annotation SummarizationSetBy = Automatic
+
+	column HOLDING_FEE_PAID_DATE
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 4e6ec019-2beb-4d9d-8cd4-0eb250cd01de
+		summarizeBy: none
+		sourceColumn: HOLDING_FEE_PAID_DATE
+
+		variation Variation
+			isDefault
+			relationship: 6f93d5fa-6725-49e5-97c5-0f91810b451c
+			defaultHierarchy: LocalDateTable_e5cae885-c1f0-4130-8bc8-39513c0ae26d.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column DAYS_HOLDINGFEE_MOVEIN
+		dataType: double
+		lineageTag: 5a7caadd-4d96-4f2c-81bc-a4898ab2dca4
+		summarizeBy: sum
+		sourceColumn: DAYS_HOLDINGFEE_MOVEIN
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 1_Concession_Amount = COALESCE(CALCULATE(MAX(DW_Deals[CONCESSION_DOLLAR_AMOUNT]),FILTER(DW_Deals,DW_Deals[PROPERTY_KEY]=DW_MoveOut[PROPERTY_KEY] && DW_Deals[CURRENT_DEAL_STATUS]="Closed Won" && DW_Deals[LEAD_NAME]=DW_MoveOut[FULL_NAME])),0)
+		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
+		lineageTag: 25e0bbb6-fa4a-41a1-a9a2-5a718b1a62e0
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	column 1_DDA = RELATED(SEL_Transcard[DDA])
+		lineageTag: 9f368dd2-0da5-4b8c-b93c-546e28396c3b
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column 1_Acc_Ref_ID = RELATED(SEL_Transcard[Acc Ref ID])
+		lineageTag: 44889e1a-13ab-4526-a88f-11f928c343c7
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column 1_Template_ID = RELATED(SEL_Transcard[Template ID])
+		formatString: 0
+		lineageTag: 1728eb95-605e-440d-831f-41ac33d1fe6d
+		summarizeBy: count
+
+		annotation SummarizationSetBy = Automatic
+
+	column '1_Synovus Template' = RELATED(SEL_Transcard[Synovus Template ID])
+		lineageTag: 25c1359c-f977-41a6-9921-c950047c0ee4
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column '1_Bank Last 4' = RELATED(SEL_Transcard[Bank Account Last 4])
+		lineageTag: 6529789b-43aa-4e11-9666-f34eaa008415
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column '1_SAGE Bank ID' = RELATED(SEL_Transcard[SAGE Bank ID])
+		lineageTag: b9226439-cb73-4308-a05e-e01bfb14c529
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column 1_Rents_Account = RELATED(SEL_Transcard[Rents Account])
+		lineageTag: a52d1b4d-1c4a-4c76-bc64-2ee3157e8ca2
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column 1_ASM_Blended = CALCULATE(MAX(DW_Listings[ASM_BLENDED_UW_RENT]),TOPN(1,FILTER(DW_Listings,DW_Listings[PROPERTY_KEY]=DW_MoveOut[PROPERTY_KEY]),DW_Listings[LISTING_DATE],DESC))
+		lineageTag: 39d04a2d-e6e3-4156-bb58-fa076b505aa4
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column RENT_RESPONSBLE_DATE
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 9202028a-03d1-4c5c-b3b1-3e912ca6836f
+		summarizeBy: none
+		sourceColumn: RENT_RESPONSBLE_DATE
+
+		variation Variation
+			isDefault
+			relationship: 4e80de19-2219-42f4-b188-5bfe242ca0c2
+			defaultHierarchy: LocalDateTable_10699f43-4341-4950-bbe1-f8970123ac84.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column USER_KEY
+		dataType: double
+		lineageTag: d5edf464-2923-452d-80f7-f4f10a90ae23
+		summarizeBy: sum
+		sourceColumn: USER_KEY
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column PROPERTY_UNIT_KEY
+		dataType: double
+		lineageTag: d10639cf-1afa-4a6f-9155-99a24ce521e8
+		summarizeBy: sum
+		sourceColumn: PROPERTY_UNIT_KEY
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column CITY_KEY
+		dataType: double
+		lineageTag: 4e98d61d-4870-4993-82e4-f234a0c14787
+		summarizeBy: sum
+		sourceColumn: CITY_KEY
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column CITY_NAME
+		dataType: string
+		lineageTag: 39200ae3-b100-49dd-8272-63f48f85f2e8
+		summarizeBy: none
+		sourceColumn: CITY_NAME
+
+		annotation SummarizationSetBy = Automatic
+
+	column STATE_KEY
+		dataType: double
+		lineageTag: c1c91c3a-d615-46ad-a433-7024b44982fc
+		summarizeBy: sum
+		sourceColumn: STATE_KEY
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column STATE_NAME
+		dataType: string
+		lineageTag: c0d1d177-afed-4318-9fb3-31e3827346db
+		summarizeBy: none
+		sourceColumn: STATE_NAME
+
+		annotation SummarizationSetBy = Automatic
+
+	column ZIPCODE
+		dataType: string
+		lineageTag: d4a21e8d-d9ee-4e8b-8c2c-2ba399083dc2
+		summarizeBy: none
+		sourceColumn: ZIPCODE
+
+		annotation SummarizationSetBy = Automatic
+
+	column USER_STATUS
+		dataType: string
+		lineageTag: 4644971f-de95-4798-ab3c-3b0547d30271
+		summarizeBy: none
+		sourceColumn: USER_STATUS
+
+		annotation SummarizationSetBy = Automatic
+
+	column LEASE_TERM
+		dataType: double
+		lineageTag: bb43c281-bf64-45c1-9923-30a9c33b37a4
+		summarizeBy: sum
+		sourceColumn: LEASE_TERM
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column INITIAL_RENT_AMOUNT
+		dataType: double
+		lineageTag: 4022ebdb-f551-48cc-b7fb-2dd6d4af8f83
+		summarizeBy: sum
+		sourceColumn: INITIAL_RENT_AMOUNT
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column IS_NOTICE
+		dataType: double
+		lineageTag: 786bc2bc-ca59-436a-8d59-46e5a8db7897
+		summarizeBy: sum
+		sourceColumn: IS_NOTICE
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column IS_UNDER_EVICTION
+		dataType: double
+		lineageTag: fd32682e-6a44-4885-8d84-00ce8d03d549
+		summarizeBy: sum
+		sourceColumn: IS_UNDER_EVICTION
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column EXCLUDE_FILTER
+		dataType: double
+		lineageTag: 64f57b34-15ef-4197-92ab-2cf78631aead
+		summarizeBy: sum
+		sourceColumn: EXCLUDE_FILTER
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column FILED_WITH_COUNTY_STATUS
+		dataType: string
+		lineageTag: 5087bdad-b594-476a-9e23-7456881ceb28
+		summarizeBy: none
+		sourceColumn: FILED_WITH_COUNTY_STATUS
+
+		annotation SummarizationSetBy = Automatic
+
+	column DONOTRENEW
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: bd87dede-63fa-42e9-931d-a7b92ef91d65
+		summarizeBy: none
+		sourceColumn: DONOTRENEW
+
+		annotation SummarizationSetBy = Automatic
+
+	column EARLY_TERM_DAYS
+		dataType: double
+		lineageTag: 7d7d0b4a-dd37-4d6c-94e9-10cc88d44f2a
+		summarizeBy: sum
+		sourceColumn: EARLY_TERM_DAYS
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column RRQC_RESULT
+		dataType: string
+		lineageTag: 587b549b-cc91-4a05-80ee-92a7d0788a9c
+		summarizeBy: none
+		sourceColumn: RRQC_RESULT
+
+		annotation SummarizationSetBy = Automatic
+
+	partition DW_MoveOut-688ddccc-0d12-42ce-9c5e-97f055bd498b = m
+		mode: import
+		queryGroup: 'DW Sources'
+		source =
+				let
+				    Source = Value.NativeQuery(Snowflake.Databases("ota12822.us-east-1.snowflakecomputing.com","DEVELOPER_WH",[Implementation="2.0"]){[Name="PROD_REPLICA"]}[Data], "/* =============================================================================#(lf)   MOVE OUT DATASET#(lf)   -----------------------------------------------------------------------------#(lf)   Grain:   One row per current primary tenant (anchor DIM_TENANT T), carrying#(lf)            move-out / notice / eviction milestones plus the IMPORT_* early-term#(lf)            and rent-responsible charge calculations.#(lf)   CTE chain: MoveOutNotes, RENTLY -> final SELECT off DIM_TENANT.#(lf)#(lf)   CLEANUP NOTES:#(lf)     [SYNC]  The single ORGANIZATION_KEY / ORGANIZATION_NAME CASE block in the#(lf)             final SELECT was updated from the prior three-group form#(lf)             (adding only 58,59 -> 'Hudson Oak') to the full six-group roll-up#(lf)             that mirrors the master PROPERTY script (source of truth).#(lf)             DELIBERATE OUTPUT CHANGE limited to the organization columns.#(lf)     [FLAG]  IMPORT_GL_ACCOUNT returns the integer literals 4550 and 4945500.#(lf)             Unlike the tenant-script '5530-0000' issue, these are written as#(lf)             plain integers (no dash), so they evaluate as intended GL codes and#(lf)             are LEFT UNCHANGED. Noting only so the value is on the record.#(lf)     No CTEs or joins dropped.#(lf)#(lf)   ORG SYNC IMPACT (intended diff vs. original output):#(lf)        added 66                  -> 27 / 'RB DRC'#(lf)        62,63,64,65,68,69         -> 62 / 'Rocklyn Homes'#(lf)        61,70                     -> 61 / 'ROI Property Group'#(lf)        67                        -> 67 / 'Newstar'#(lf)   ============================================================================= */#(lf)#(lf)WITH MoveOutNotes AS (#(lf)#(tab)SELECT#(lf) #(tab)N.NOTEID AS LatestNoteID_MO#(lf) #(tab),N.NOTETEXT AS MO_Note#(lf) #(tab),N.CREATEDDATE  AS MO_NoteCreated#(lf)    ,P.PropertyId#(lf)    ,RANK() OVER( PARTITION BY P.PropertyId ORDER BY N.CREATEDDATE DESC) AS Recent_Rank#(lf)#(lf)#(tab)FROM PROD_REPLICA.HBPM_DBO.NOTES N #(lf)#(tab)LEFT JOIN PROD_REPLICA.HBPM_DBO.NOTETYPES NT ON NT.Id = N.NoteTypeId#(lf)#(tab)LEFT JOIN PROD_REPLICA.HBPM_DBO.LOOKUPMASTERS LM ON LM.LookUpMasterId = N.ObjectTypeId#(lf)#(tab)LEFT JOIN PROD_REPLICA.HBPM_DBO.TENANTINFORMATIONS TI ON TI.UserID = N.ObjectId AND N.ObjectTypeId = 502 AND TI.""_FIVETRAN_DELETED"" = 'N'#(lf)#(tab)LEFT JOIN PROD_REPLICA.HBPM_DBO.PROPERTYADDLINFOES PAI ON PAI.UnitId = TI.UnitId AND PAI.""_FIVETRAN_DELETED"" ='N'#(lf)#(tab)LEFT JOIN PROD_REPLICA.HBPM_DBO.PROPERTIES P ON P.PropertyID = PAI.PropertyId AND P.""_FIVETRAN_DELETED"" ='N'#(lf) #(tab)WHERE N.NoteTypeId = 8#(lf) --#(tab)AND PAI.PROPERTYID = 36301#(lf) #(tab)QUALIFY Recent_Rank = 1)#(lf) #(tab)#(lf) --********************************************************************************************************************************************************#(lf) ,RENTLY AS (#(lf) SELECT#(lf)  MAX(STATUS_TITLE) AS Rently_Property_Status#(lf)  ,TRY_TO_NUMERIC(UNIT_)  AS PM_PropertyID#(lf)  FROM ""PROD_REPLICA"".""RENTLY"".""_3_0_DATA""#(lf)  WHERE 1=1#(lf)  AND TRY_TO_NUMERIC(UNIT_) IS NOT NULL#(lf)  GROUP BY UNIT_#(lf)  )#(lf)  --********************************************************************************************************************************************************#(lf)#(lf)  SELECT#(lf)#(lf) T.TENANT_KEY#(lf),T.TENANT_INFORMATION_ID#(lf),TS.USER_KEY#(lf),T.LEASE_ID#(lf),RANK() OVER (PARTITION BY TS.Property_KEY ORDER BY Lease_ID ASC) AS Lease_Rank #(lf)--,RANK() OVER (PARTITION BY TS.Property_KEY ORDER BY Lease_ID DESC) AS Lease_Rank_Inv#(lf),PU.PROPERTY_UNIT_KEY#(lf),TS.Property_KEY#(lf),P.HBPM_PROPERTY_ID#(lf),PO.Portfolio_Name#(lf),R.REGION_NAME#(lf)#(tab),CASE#(lf)        WHEN P.ORGANIZATION_KEY IN (-1,18,26,28,48)                   THEN -1#(lf)        WHEN P.ORGANIZATION_KEY IN (27,50,51,52,54,45,55,53,56,57,66) THEN 27#(lf)        WHEN P.ORGANIZATION_KEY IN (58,59)                            THEN 58#(lf)        WHEN P.ORGANIZATION_KEY IN (62,63,64,65,68,69)                THEN 62#(lf)        WHEN P.ORGANIZATION_KEY IN (61,70)                            THEN 61#(lf)        WHEN P.ORGANIZATION_KEY IN (67)                               THEN 67#(lf)        ELSE P.ORGANIZATION_KEY#(lf)     END AS ORGANIZATION_KEY#(lf)      #(lf)#(tab),CASE#(lf)        WHEN P.ORGANIZATION_KEY IN (-1,18,26,28,48)                   THEN 'RP SFR'#(lf)        WHEN P.ORGANIZATION_KEY IN (27,50,51,52,54,45,55,53,56,57,66) THEN 'RB DRC'#(lf)        WHEN P.ORGANIZATION_KEY IN (58,59)                            THEN 'Hudson Oak'#(lf)        WHEN P.ORGANIZATION_KEY IN (62,63,64,65,68,69)                THEN 'Rocklyn Homes'#(lf)        WHEN P.ORGANIZATION_KEY IN (61,70)                            THEN 'ROI Property Group'#(lf)        WHEN P.ORGANIZATION_KEY IN (67)                               THEN 'Newstar'#(lf)        ELSE O.ORGANIZATION_NAME#(lf)     END AS ORGANIZATION_NAME#(lf),P.Address#(lf),P.EntityID#(lf),PUS.CITY_KEY#(lf),CI.CITY_NAME#(lf),PUS.STATE_KEY#(lf),S.STATE_NAME#(lf),S.STATE_CODE#(lf),P.ZIPCODE#(lf),CASE WHEN PUS.Occupancy_Status = 'Trustee Lease Honored' THEN 'Trustee Leased' #(lf)      WHEN PUS.Property_Status = 'Tenant Lease' AND PUS.Occupancy_Status = 'Vacant - Future Move In' THEN 'Tenant Leased'#(lf)      ELSE PUS.Occupancy_Status END AS Occupancy_Status#(lf)#(lf),U.FIRST_NAME#(lf),U.LAST_NAME#(lf) ,U.FULL_NAME#(lf),U.USER_STATUS#(lf),U.EMAIL_ADDRESS#(lf),U.PHONE_NUMBER#(lf),T.TENANT_STATUS#(lf),T.TENANT_TYPE#(lf),T.PRIMARY_TENANT#(lf),T.EVICTION_STATUS#(lf),T.MONTH_TO_MONTH#(lf),T.LEASE_TERM#(lf),to_date(T.NOTICE_DATE_KEY::TEXT,'yyyymmdd') AS NOTICE_DATE#(lf),TLA.INITIAL_RENT_AMOUNT#(lf),T.CURRENT_RENT#(lf),to_date(TLA.CURRENT_LEASE_EXPIRATION_DATE_KEY ::TEXT,'yyyymmdd') AS CURRENT_LEASE_EXPIRATION_DATE#(lf),to_date(TLA.LEASE_SIGNED_DATE_KEY::TEXT,'yyyymmdd') AS LEASE_SIGNED_DATE#(lf),to_date(TLA.LEASE_FROM_DATE_KEY::TEXT,'yyyymmdd') AS LEASE_FROM_DATE#(lf),to_date(TLA.LEASE_TO_DATE_KEY::TEXT,'yyyymmdd') AS LEASE_TO_DATE#(lf),RESI_TSUM.IS_NOTICE#(lf),RESI_TSUM.IS_UNDER_EVICTION#(lf)#(lf),DSA.HOLDING_FEE_PAID_DATE #(lf),CASE WHEN TI.MoveIn IS NOT NULL AND DSA.HOLDING_FEE_PAID_DATE IS NOT NULL THEN DATEDIFF(DAY, DSA.HOLDING_FEE_PAID_DATE,TI.MoveIn) #(lf)      ELSE NULL END AS Days_HoldingFee_MoveIn#(lf)#(lf),TI.MoveIn#(lf),DATE_TRUNC('month',TI.MoveIn) MOVEIN_BOM#(lf),CASE #(lf)#(tab)WHEN GREATEST(DATEDIFF(DAY, TI.MoveIn,COALESCE(TI.MoveOut,GETDATE())),0) <=5#(lf)#(tab)AND T.TENANT_STATUS = 'Past'#(lf)#(tab)THEN 1 ELSE 0#(lf)END AS EXCLUDE_FILTER#(lf)#(lf),TI.PurchaseLetterPostedDate#(lf),TI.DateNotified#(lf),TI.FiledWithCountyDate#(lf),CASE WHEN TI.FiledWithCountyDate IS NOT NULL THEN 'Filed on' ELSE 'Not Filed On' END AS Filed_With_County_Status#(lf),TI.ResidentServedDate#(lf),TI.CourtDateSetDate#(lf),TI.JudgementDate#(lf),TI.LockoutScheduledDate#(lf),TI.VacateDate#(lf),TI.AnticipatedMoveOutDate#(lf),TI.IsSection8#(lf),TI.IsMonthtoMonthLease#(lf),TI.TenantDecidedMonthtoMonth#(lf),TI.DoNotRenew#(lf),TI.ReasonForNotRenewingId#(lf),CASE WHEN T.NOTICE_DATE_KEY IS NOT NULL AND TI.MoveOut IS NOT NULL #(lf)      THEN DATEDIFF('day',to_date(T.NOTICE_DATE_KEY::TEXT,'yyyymmdd'),COALESCE(TI.MoveOut,TI.AnticipatedMoveOutDate)) END AS DAYS_OF_NOTICE#(lf)      #(lf) ,CASE WHEN T.NOTICE_DATE_KEY IS NOT NULL AND to_date(TLA.CURRENT_LEASE_EXPIRATION_DATE_KEY ::TEXT,'yyyymmdd') IS NOT NULL #(lf)      THEN DATEDIFF('day',TI.MoveOut,to_date(TLA.CURRENT_LEASE_EXPIRATION_DATE_KEY ::TEXT,'yyyymmdd')) END AS DAYS_MO_BEFORE_EXP#(lf)      #(lf),TI.MoveOut#(lf),DATE_TRUNC('month',TI.MoveOut) MOVEOUT_BOM#(lf),CASE WHEN TI.MoveOut IS NOT NULL THEN 1 ELSE 0 END AS MOVE_OUT_INDICATOR#(lf)#(lf),CASE WHEN TI.MoveOut IS NULL THEN NULL WHEN TI.MoveOutComplte = 'Y' THEN 'Yes' ELSE 'No' END AS MoveOutComplete#(lf),CASE WHEN TI.MoveOut IS NULL THEN NULL WHEN TI.MoveOutComplte = 'Y' THEN 1 ELSE 0 END AS MoveOutComplete_Indicator#(lf)#(lf),DNR.DESCRIPTION AS REASONFORNOTRENEWINGNAME#(lf),AM_PM.MoveInReady#(lf),COALESCE(TI.MoveOut,TI.AnticipatedMoveOutDate,#(lf)#(tab)CASE WHEN (T.MONTH_TO_MONTH = 'Y' OR TI.TENANTDECIDEDMONTHTOMONTH = 1 OR TI.REASONFORNOTRENEWINGID = 3143 )#(lf)#(tab)#(tab)#(tab) AND TI.AnticipatedMoveOutDate IS NULL THEN NULL ELSE #(lf)#(tab)#(tab)     to_date(TLA.CURRENT_LEASE_EXPIRATION_DATE_KEY ::TEXT,'yyyymmdd') END) AS  Move_Out_Forecast#(lf)#(tab)#(tab)     #(lf),DATE_TRUNC('month',COALESCE(TI.MoveOut,TI.AnticipatedMoveOutDate,#(lf)#(tab)CASE WHEN (T.MONTH_TO_MONTH = 'Y' OR TI.TENANTDECIDEDMONTHTOMONTH = 1 OR TI.REASONFORNOTRENEWINGID = 3143 )#(lf)#(tab)#(tab)#(tab) AND TI.AnticipatedMoveOutDate IS NULL THEN NULL ELSE #(lf)#(tab)#(tab)     to_date(TLA.CURRENT_LEASE_EXPIRATION_DATE_KEY ::TEXT,'yyyymmdd') END)) AS  Move_Out_Forecast_BOM#(lf)#(tab)#(tab)     #(lf),CASE WHEN T.TENANT_STATUS = 'Notice'#(lf)      AND (DATEADD('day',30,TI.AnticipatedMoveOutDate) < to_date(TLA.CURRENT_LEASE_EXPIRATION_DATE_KEY ::TEXT,'yyyymmdd'))#(lf)      AND (TI.ReasonForNotRenewingId IS NULL OR TI.ReasonForNotRenewingId NOT IN (3157,3158,3156,3168,3142))#(lf)      THEN DATEDIFF('day',TI.AnticipatedMoveOutDate,to_date(TLA.CURRENT_LEASE_EXPIRATION_DATE_KEY ::TEXT,'yyyymmdd'))#(lf)      ELSE NULL#(lf)      END AS EARLY_TERM_DAYS#(lf)#(lf),CASE #(lf)WHEN TI.MoveOut IS NOT NULL AND TI.MoveOutComplte = 'N' THEN 1#(lf)WHEN TI.MoveOut IS NOT NULL AND TI.MoveOutComplte = 'Y' AND DATEDIFF(DAY,TI.MoveOut,GETDATE()) BETWEEN 0 AND 180 THEN 1#(lf)WHEN TI.MoveOut IS NULL AND T.MONTH_TO_MONTH = 'N' AND COALESCE(TI.MoveOut,TI.AnticipatedMoveOutDate,to_date(TLA.CURRENT_LEASE_EXPIRATION_DATE_KEY ::TEXT,'yyyymmdd')) < GETDATE() THEN 1 #(lf)WHEN DATEDIFF(DAY,COALESCE(TI.MoveOut,TI.AnticipatedMoveOutDate,to_date(TLA.CURRENT_LEASE_EXPIRATION_DATE_KEY ::TEXT,'yyyymmdd')),GETDATE()) BETWEEN -60 AND 30 THEN 1#(lf)ELSE 0#(lf)END AS Move_Out_Forecast_Filter#(lf),CASE #(lf)#(tab)WHEN TI.MoveOut IS NULL#(lf)#(tab)AND ( T.MONTH_TO_MONTH = 'N' OR (T.MONTH_TO_MONTH = 'Y' AND TI.AnticipatedMoveOutDate < GETDATE()) )#(lf)#(tab)AND DATEDIFF(DAY,COALESCE (TI.MoveOut,TI.AnticipatedMoveOutDate,to_date(TLA.CURRENT_LEASE_EXPIRATION_DATE_KEY ::TEXT,'yyyymmdd')),GETDATE()) >= 0 THEN 1 #(lf)#(tab)WHEN TI.MoveOut IS NULL#(lf)#(tab)AND T.MONTH_TO_MONTH = 'Y'#(lf)#(tab)AND DATEDIFF(DAY,COALESCE (TI.MoveOut,TI.AnticipatedMoveOutDate,to_date(TLA.CURRENT_LEASE_EXPIRATION_DATE_KEY ::TEXT,'yyyymmdd')),GETDATE()) >= 0 THEN NULL#(lf)#(tab)ELSE 0 END AS Past_Move_Out#(lf),'https:/honeybadgerpm.com/ReportingModule/ViewReport?reportId=1807&UnitId='||TI.UnitID||'&UserId='||TI.UserID||'#/' AS URL_SODA#(lf),'https://honeybadgerpm.com/PropertyModule#/PropertyDetails/' || HBPM.PROPERTYID || '/' || PM_AI.UnitID ||'/0' AS HBPM_URL#(lf),'https://honeybadgerpm.com/PeopleModule#/TenantDetails/' || U.USER_ID || '/' || T.TENANT_INFORMATION_ID   AS HBPM_TENANT_URL#(lf)#(lf),MO_NOTE.MO_Note#(lf),MO_NOTE.MO_NoteCreated#(lf),CASE WHEN T.TENANT_STATUS = 'Under Eviction' AND TI.AnticipatedMoveOutDate = LAST_DAY(GETDATE()) THEN 1 ELSE 0 END AS EVICITON_AMOD_FLAG#(lf),GREATEST(DATEDIFF('day',TI.MoveOut,GETDATE()),0) AS Days_Since_MO#(lf),RRQC.RRQCPassDate  AS RRQC_Result_Date#(lf),CASE WHEN RRQC.RRQCPassDate IS NOT NULL THEN 'Pass' ELSE NULL END AS RRQC_Result#(lf),AM_STRATEGY.STRATEGYNAME AS STRATEGY_NAME#(lf),Rently.Rently_Property_Status#(lf),CONVERT_TIMEZONE('EST', FTA.SODA_COMPLETION_DATE::date) AS SODA_COMPLETION_DATE#(lf),date_trunc('month',CONVERT_TIMEZONE('EST', FTA.SODA_COMPLETION_DATE::date)) AS SODA_COMPLETION_DATE_BOM#(lf),CASE WHEN TI.MoveOut IS NOT NULL AND FTA.SODA_COMPLETION_DATE IS NOT NULL #(lf)      THEN DATEDIFF('day',TI.MoveOut,CONVERT_TIMEZONE('EST', FTA.SODA_COMPLETION_DATE::date))#(lf)      ELSE NULL #(lf)      END AS DAY_TO_COMPLETE_SODA#(lf) ,'Charge' AS IMPORT_TYPE #(lf) ,GETDATE() AS IMPORT_Due_Date#(lf) #(lf) ,CASE WHEN (DNR.DESCRIPTION = 'Military Transfer' OR T.TENANT_STATUS <> 'Notice') THEN NULL#(lf) #(tab)#(lf) WHEN DATEDIFF(DAY,TI.AnticipatedMoveOutDate, to_date(TLA.CURRENT_LEASE_EXPIRATION_DATE_KEY ::TEXT,'yyyymmdd')) > 60 #(lf) #(tab)  THEN TI.AnticipatedMoveOutDate#(lf)#(lf) #(tab)  WHEN DATEDIFF(DAY,TI.AnticipatedMoveOutDate, to_date(TLA.CURRENT_LEASE_EXPIRATION_DATE_KEY ::TEXT,'yyyymmdd')) <= 60 #(lf)      AND to_date(T.NOTICE_DATE_KEY::TEXT,'yyyymmdd') <= to_date(TLA.CURRENT_LEASE_EXPIRATION_DATE_KEY ::TEXT,'yyyymmdd')#(lf)     #(lf)      THEN GREATEST(#(lf)              LEAST(DATEADD('day',60,to_date(T.NOTICE_DATE_KEY::TEXT,'yyyymmdd')), DATEADD('day',30, to_date(TLA.CURRENT_LEASE_EXPIRATION_DATE_KEY::TEXT,'yyyymmdd'))),#(lf)               to_date(TLA.CURRENT_LEASE_EXPIRATION_DATE_KEY ::TEXT,'yyyymmdd'))#(lf)    #(lf)      WHEN to_date(T.NOTICE_DATE_KEY::TEXT,'yyyymmdd') >= to_date(TLA.CURRENT_LEASE_EXPIRATION_DATE_KEY ::TEXT,'yyyymmdd')#(lf)      THEN DATEADD('day',30,to_date(T.NOTICE_DATE_KEY::TEXT,'yyyymmdd'))#(lf) #(tab)#(lf) END AS RENT_RESPONSBLE_DATE#(lf) #(lf) #(lf) ,CASE WHEN (DNR.DESCRIPTION = 'Military Transfer' OR T.TENANT_STATUS = 'Under Eviction') THEN NULL#(lf)#(tab)  #(lf)      WHEN DATEDIFF(DAY,TI.AnticipatedMoveOutDate, to_date(TLA.CURRENT_LEASE_EXPIRATION_DATE_KEY ::TEXT,'yyyymmdd')) > 60 #(lf)       AND TI.AnticipatedMoveOutDate IS NOT NULL#(lf)       THEN ROUND(T.CURRENT_RENT * 2,2)#(lf)     #(lf)       WHEN DATEDIFF(DAY,TI.AnticipatedMoveOutDate, to_date(TLA.CURRENT_LEASE_EXPIRATION_DATE_KEY ::TEXT,'yyyymmdd')) <= 60 #(lf)          AND to_date(T.NOTICE_DATE_KEY::TEXT,'yyyymmdd') <= to_date(TLA.CURRENT_LEASE_EXPIRATION_DATE_KEY ::TEXT,'yyyymmdd')#(lf)          AND TI.AnticipatedMoveOutDate IS NOT NULL #(lf)          AND T.NOTICE_DATE_KEY IS NOT NULL #(lf)          THEN ROUND(#(lf)          GREATEST(#(lf)            DATEDIFF(DAY,TI.AnticipatedMoveOutDate,#(lf)            GREATEST(#(lf)              LEAST(DATEADD('day',60,to_date(T.NOTICE_DATE_KEY::TEXT,'yyyymmdd')), DATEADD('day',30, to_date(TLA.CURRENT_LEASE_EXPIRATION_DATE_KEY::TEXT,'yyyymmdd'))),#(lf)               to_date(TLA.CURRENT_LEASE_EXPIRATION_DATE_KEY ::TEXT,'yyyymmdd')))#(lf)              ,0)#(lf)          * T.CURRENT_RENT/30,2)#(lf)#(lf)      WHEN to_date(T.NOTICE_DATE_KEY::TEXT,'yyyymmdd') >= to_date(TLA.CURRENT_LEASE_EXPIRATION_DATE_KEY ::TEXT,'yyyymmdd')#(lf)          AND TI.AnticipatedMoveOutDate IS NOT NULL #(lf)          AND T.NOTICE_DATE_KEY IS NOT NULL #(lf)          THEN ROUND(GREATEST(LEAST(30,30 - DATEDIFF('day',to_date(T.NOTICE_DATE_KEY::TEXT,'yyyymmdd'),TI.AnticipatedMoveOutDate)),0) * T.CURRENT_RENT/30,2)#(lf)          #(lf)       ELSE NULL END AS IMPORT_AMOUNT#(lf)       #(lf),CASE WHEN (DNR.DESCRIPTION = 'Military Transfer' OR T.TENANT_STATUS = 'Under Eviction') THEN NULL #(lf)#(tab)   WHEN DATEDIFF(DAY,TI.AnticipatedMoveOutDate,to_date(TLA.CURRENT_LEASE_EXPIRATION_DATE_KEY ::TEXT,'yyyymmdd')) > 60 AND TI.AnticipatedMoveOutDate IS NOT NULL#(lf)       THEN 4550 ELSE 4945500 END AS IMPORT_GL_ACCOUNT#(lf)       #(lf) ,CASE WHEN (DNR.DESCRIPTION = 'Military Transfer' OR T.TENANT_STATUS = 'Under Eviction') THEN NULL #(lf)#(tab)   WHEN DATEDIFF(DAY,TI.AnticipatedMoveOutDate,to_date(TLA.CURRENT_LEASE_EXPIRATION_DATE_KEY ::TEXT,'yyyymmdd')) > 60 AND TI.AnticipatedMoveOutDate IS NOT NULL#(lf)       THEN 'Move Out Charges - Early Termination Fee' ELSE 'Insufficient Notice / Rent Responsible' END AS IMPORT_GL_ACCOUNT_DESC#(lf) #(lf) ,CASE WHEN (DNR.DESCRIPTION = 'Military Transfer' OR T.TENANT_STATUS = 'Under Eviction') THEN NULL #(lf)#(tab)  WHEN DATEDIFF(DAY,TI.AnticipatedMoveOutDate,to_date(TLA.CURRENT_LEASE_EXPIRATION_DATE_KEY ::TEXT,'yyyymmdd')) > 60 AND TI.AnticipatedMoveOutDate IS NOT NULL#(lf)       THEN  'Early Termination Fee'#(lf)     #(lf)        WHEN DATEDIFF(DAY,TI.AnticipatedMoveOutDate, to_date(TLA.CURRENT_LEASE_EXPIRATION_DATE_KEY ::TEXT,'yyyymmdd')) <= 60 #(lf)          AND to_date(T.NOTICE_DATE_KEY::TEXT,'yyyymmdd') <= to_date(TLA.CURRENT_LEASE_EXPIRATION_DATE_KEY ::TEXT,'yyyymmdd')#(lf)          AND TI.AnticipatedMoveOutDate IS NOT NULL #(lf)          AND T.NOTICE_DATE_KEY IS NOT NULL #(lf)       THEN 'Rent Responsible: ' || MONTH(TI.AnticipatedMoveOutDate) || '-' || DAY(TI.AnticipatedMoveOutDate) || ' - ' ||#(lf)       MONTH(GREATEST(#(lf)              LEAST(DATEADD('day',60,to_date(T.NOTICE_DATE_KEY::TEXT,'yyyymmdd')), DATEADD('day',30, to_date(TLA.CURRENT_LEASE_EXPIRATION_DATE_KEY::TEXT,'yyyymmdd'))),#(lf)               to_date(TLA.CURRENT_LEASE_EXPIRATION_DATE_KEY ::TEXT,'yyyymmdd'))) || '-' ||#(lf)       DAY(GREATEST(#(lf)              LEAST(DATEADD('day',60,to_date(T.NOTICE_DATE_KEY::TEXT,'yyyymmdd')), DATEADD('day',30, to_date(TLA.CURRENT_LEASE_EXPIRATION_DATE_KEY::TEXT,'yyyymmdd'))),#(lf)               to_date(TLA.CURRENT_LEASE_EXPIRATION_DATE_KEY ::TEXT,'yyyymmdd')))#(lf)       #(lf)      WHEN to_date(T.NOTICE_DATE_KEY::TEXT,'yyyymmdd') >= to_date(TLA.CURRENT_LEASE_EXPIRATION_DATE_KEY ::TEXT,'yyyymmdd')#(lf)         AND TI.AnticipatedMoveOutDate IS NOT NULL #(lf)         AND T.NOTICE_DATE_KEY IS NOT NULL #(lf)       THEN 'Rent Responsible: ' || MONTH(TI.AnticipatedMoveOutDate) || '-' || DAY(TI.AnticipatedMoveOutDate) || ' - ' ||#(lf)       MONTH(DATEADD('day',30,to_date(T.NOTICE_DATE_KEY::TEXT,'yyyymmdd'))) || '-' || DAY(DATEADD('day',30,to_date(T.NOTICE_DATE_KEY::TEXT,'yyyymmdd')))#(lf)       #(lf)       ELSE NULL END AS IMPORT_DESCRIPTION#(lf) #(lf) , NULL AS IMPORT_HBPM_User#(lf) , NULL AS IMPORT_Tenant_Note#(lf) , NULL AS IMPORT_Tenant_Note_Type#(lf) #(lf)#(lf)FROM PROD_ANALYTICS.DBT_RESICAP.DIM_TENANT T#(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.FCT_TENANT_ACTIVITY TS ON TS.TENANT_KEY = T.TENANT_KEY #(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.FCT_TENANT_LEASING_ACCUM TLA ON TLA.TENANT_KEY = T.Tenant_Key#(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.FCT_DEAL_STATUS_ACCUM DSA ON DSA.DEAL_KEY = TLA.DEAL_KEY #(lf)LEFT JOIN PROD_REPLICA.HBPM_DBO.TENANTINFORMATIONS TI ON TI.TenantInformationId = T.TENANT_INFORMATION_ID#(lf)LEFT JOIN PROD_REPLICA.HBPM_DBO.LOOKUPMASTERS DNR on DNR.LookUpMasterId = TI.ReasonForNotRenewingId#(lf)LEFT JOIN PROD_REPLICA.HBPM_DBO.DEALS PM_D ON PM_D.LEADUSERID = TI.USERID AND PM_D.UNITID =TI.UNITID AND PM_D.SECURITYDEPOSITID IS NOT null#(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_USER U ON U.USER_KEY = TS.USER_KEY#(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PROPERTY P ON P.PROPERTY_KEY = TS.PROPERTY_KEY#(lf)LEFT JOIN PROD_REPLICA.HBPM_DBO.PROPERTIES HBPM ON HBPM.PROPERTYID = P.HBPM_PROPERTY_ID --*REPLCA DB*#(lf)LEFT JOIN PROD_REPLICA.HBPM_DBO.PROPERTYADDLINFOES PM_AI ON PM_AI.PROPERTYID  = HBPM.PROPERTYID AND PM_AI.""_FIVETRAN_DELETED"" = 'N' #(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.FCT_PROPERTY_UNIT_SUMMARY PUS ON PUS.PROPERTY_KEY  = P.PROPERTY_KEY #(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PROPERTY_UNIT PU ON PU.PROPERTY_UNIT_KEY = PUS.PROPERTY_UNIT_KEY#(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PORTFOLIO PO ON PO.PORTFOLIO_KEY = PUS.PORTFOLIO_KEY #(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_REGION R ON R.REGION_KEY = PUS.REGION_KEY #(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_CITY CI ON CI.CITY_KEY = PUS.CITY_KEY #(lf)LEFT JOIN PROD_REPLICA.HBPM_DBO.Cities PM_CI ON PM_CI.CityID = HBPM.CityID#(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_STATE S ON S.STATE_KEY = PUS.STATE_KEY #(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_OWNER_ORGANIZATION O ON O.ORGANIZATION_KEY = PUS.ORGANIZATION_KEY#(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_LEAD L ON L.lead_key = TS.LEAD_KEY #(lf)LEFT JOIN PROD_REPLICA.HBAM_DBO.PROPERTIES HBAM ON HBAM.HBID = P.HBAM_PROPERTY_ID --*REPLCA DB*#(lf)LEFT JOIN PROD_REPLICA.HBAM_DBO.PROPERTYMANAGEMENTS AM_PM ON AM_PM.PROPERTYMANAGEMENTID = HBAM.PropertyManagement_PropertyManagementId AND AM_PM.HBID = HBAM.HBID#(lf)LEFT JOIN (SELECT Max(Id) RRQC_ID ,HBID FROM PROD_REPLICA.HBAM_DBO.RRQCCHANGELOGS GROUP BY HBID) RRQC_MOST_RECENT ON RRQC_MOST_RECENT.HBID = P.HBAM_PROPERTY_ID#(lf)LEFT JOIN PROD_REPLICA.HBAM_DBO.RRQCCHANGELOGS RRQC ON RRQC.ID = RRQC_MOST_RECENT.RRQC_ID#(lf)LEFT JOIN PROD_REPLICA.HBAM_DBO.BidAndAuctions AM_BA ON AM_BA.BIDID = HBAM.BidAndAuction_BidId AND AM_BA.HBID = HBAM.HBID AND AM_BA.""_FIVETRAN_DELETED"" <> 'Y'#(lf)LEFT JOIN PROD_REPLICA.HBAM_DBO.Strategies AM_STRATEGY ON AM_STRATEGY.STRATEGYID = AM_BA.BIDSTRATEGYSTATUS #(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.FCT_TENANT_ACTIVITY FTA ON FTA.Tenant_KEY = T.Tenant_KEY#(lf)#(lf)LEFT JOIN MoveOutNotes MO_Note ON MO_Note.PropertyID = P.HBPM_PROPERTY_ID#(lf)LEFT JOIN Rently Rently ON Rently.PM_PropertyID = P.HBPM_PROPERTY_ID#(lf)#(lf)LEFT JOIN (SELECT #(lf)#(tab)#(tab)FCT_TENANT_SUMMARY_KEY #(lf)#(tab)#(tab),TENANT_INFORMATION_ID #(lf)#(tab)#(tab),AVERAGE_CREDIT_SCORE#(lf)#(tab)#(tab),R_TS.COMBINED_INCOME#(lf)#(tab)#(tab),NUMBER_OF_CHILDREN#(lf)#(tab)#(tab),OCCUPANTS#(lf)#(tab)#(tab),TENANT_AGE#(lf)#(tab)#(tab),MONTHLY_INCOME#(lf)#(tab)#(tab),IS_RETIRED#(lf)#(tab)#(tab),IS_NOTICE#(lf)#(tab)#(tab),IS_UNDER_EVICTION#(lf)#(tab)#(tab)#(lf)#(tab)#(tab)FROM PROD_ANALYTICS.RESICAP.FCT_TENANT_SUMMARY R_TS#(lf)#(tab)#(tab)LEFT JOIN PROD_ANALYTICS.RESICAP.DIM_TENANT R_T ON R_T.TENANT_KEY = R_TS.TENANT_KEY ) RESI_TSUM ON RESI_TSUM.TENANT_INFORMATION_ID = T.TENANT_INFORMATION_ID#(lf)#(tab)#(tab)#(tab)#(tab)#(tab)#(lf)WHERE 1=1#(lf)AND T.CURRENT_FLAG = 'Y'#(lf)AND T.PRIMARY_TENANT = 'Y'#(lf)AND P.PROPERTY_STATE ='Active'#(lf)AND P.EntityID <> ''#(lf)AND TI._FIVETRAN_DELETED <> 'Y'#(lf)AND TI.RENTDUEDAY IS NOT NULL#(lf)--AND (PS.PROPERTY_STATUS_ID NOT IN (53,75) OR PS.PROPERTY_STATUS_ID IS NULL)#(lf)AND PO.Portfolio_KEY NOT IN (1845, 2210, 2207, 2218, 1952,1867, 1916,1852,1771,1919,1873,169)#(lf)AND P.Organization_KEY not IN (16,17)#(lf)AND PO.IS_Active_AM = 'Y'#(lf)AND PO.Current_Flag = 'Y'#(lf)AND P.Current_Flag = 'Y'#(lf)AND PU.Current_Flag = 'Y'#(lf)AND PUS.Occupancy_Status NOT IN ('Property SOLD','Not Managed')#(lf)AND T.TENANT_KEY NOT IN (76191)#(lf)#(lf)--AND P.ENTITYID = 'RPGFL00013'", null, [EnableFolding=true]),
+				    #"Capitalized Each Word" = Table.TransformColumns(Source,{{"FULL_NAME", Text.Proper, type text}})
+				in
+				    #"Capitalized Each Word"
+
+	annotation PBI_ResultType = Exception
+
+	annotation PBI_NavigationStepName = Navigation
+

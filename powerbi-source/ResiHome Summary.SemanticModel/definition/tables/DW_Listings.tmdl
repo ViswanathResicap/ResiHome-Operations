@@ -1,0 +1,1505 @@
+table DW_Listings
+	lineageTag: b97d5fea-c1ff-4902-b9bf-54d7ec0039f6
+
+	measure 0_MoveIns = COUNT(DW_Listings[PROPERTY_KEY]) + 0
+		formatString: 0
+		lineageTag: 45133d63-01d5-4704-871c-d7f914bb11c7
+
+	measure '0_% Listings w/ Leads' = ```
+			CALCULATE(DISTINCTCOUNT(DW_Listings[PROPERTY_KEY]),DW_Listings[1_Leads_L7]<>BLANK()) / CALCULATE(DISTINCTCOUNT(DW_Listings[PROPERTY_KEY])) + 0
+			
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 6f25652b-476b-4ddd-a126-eba3e53b378a
+
+		changedProperty = FormatString
+
+	measure '0_% Listings w/ Apps' = ```
+			CALCULATE(DISTINCTCOUNT(DW_Listings[PROPERTY_KEY]),DW_Listings[1_Applications_Open]<>BLANK()) / CALCULATE(DISTINCTCOUNT(DW_Listings[PROPERTY_KEY])) +0
+			
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: ecd019d5-0e2b-4400-b751-02f3e7502e4d
+
+		changedProperty = FormatString
+
+	measure '0_Rent Var (MI)' = ```
+			CALCULATE(DIVIDE(SUM(DW_Listings[CURRENT_RENT]), SUM(DW_Listings[UNDER_WRITTEN_RENT]), BLANK()),FILTER(DW_Listings,DW_Listings[CURRENT_RENT]<>BLANK()&&DW_Listings[UNDER_WRITTEN_RENT]<>blank())) - 1
+			
+			```
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: f7fe73aa-7b01-4fc6-9d3b-d7e82e2c789c
+
+		changedProperty = FormatString
+
+	measure '0_Rent Var (Lease)' = ```
+			IF(sum(DW_Listings[LAST_LEASE_AMOUNT])=BLANK(),BLANK(), CALCULATE(DIVIDE(SUM(DW_Listings[CURRENT_LIST_PRICE]), SUM(DW_Listings[LAST_LEASE_AMOUNT]), BLANK()),FILTER(DW_Listings,DW_Listings[CURRENT_LIST_PRICE]<>BLANK()&&DW_Listings[LAST_LEASE_AMOUNT]<>blank()))-1)
+			
+			```
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: cd666b58-456b-48e0-8a5b-eb4df968dbff
+
+		changedProperty = FormatString
+
+	measure '0_Listing Count' = ```
+			COUNT(DW_Listings[PROPERTY_KEY]) 
+			```
+		formatString: #,0
+		lineageTag: 00909b8b-bcde-4b3a-9b3e-da591862258e
+
+		changedProperty = FormatString
+
+	measure '0_Listing Var' = ```
+			CALCULATE(DIVIDE(SUM(DW_Listings[CURRENT_LIST_PRICE]), SUM(DW_Listings[ASM_BLENDED_UW_RENT]), BLANK()),FILTER(DW_Listings,DW_Listings[CURRENT_LIST_PRICE]<>BLANK()&&DW_Listings[ASM_BLENDED_UW_RENT]<>BLANK())) -1
+			
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: c3b6a7e9-95b8-4e77-a1b4-8503d90cbc21
+
+		changedProperty = FormatString
+
+	measure '0_Listing Count (Card)' = DISTINCTCOUNT(DW_Listings[PROPERTY_KEY]) + 0
+		formatString: #,0
+		lineageTag: 5d122ab6-3370-4c96-9dba-a64a24febaae
+
+		changedProperty = FormatString
+
+	measure '0_% Listings w/ Showings' = CALCULATE(DISTINCTCOUNT(DW_Listings[PROPERTY_KEY]),FILTER(DW_Listings,DW_Listings[1_Showings_L7]<>BLANK()||DW_Listings[LISTING_DOM]<=3)) / CALCULATE(DISTINCTCOUNT(DW_Listings[PROPERTY_KEY])) + 0
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: 95bf4a79-b707-40d4-a1fd-ec728bb40ed1
+
+		changedProperty = FormatString
+
+	measure '0_% Listings w/ Modifications' = ```
+			CALCULATE(DISTINCTCOUNT(DW_Listings[PROPERTY_KEY]),FILTER(DW_Listings,AND(DW_Listings[Days_Since_Reduction_Active]<=7,DW_Listings[Days_Since_Reduction_Active]<>BLANK())||AND(DW_Listings[Days_On_Market_Active]<=7,DW_Listings[Days_On_Market_Active]<>BLANK()))) / CALCULATE(DISTINCTCOUNT(DW_Listings[PROPERTY_KEY])) 
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: addd75a6-0347-4a2d-9387-3165421d2aa8
+
+		changedProperty = FormatString
+
+	measure 0_List/Sq = ```
+			DIVIDE(SUM(DW_Listings[CURRENT_LIST_PRICE]), SUM(DW_Listings[SQUARE_FOOTAGE]), BLANK())
+			
+			```
+		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
+		lineageTag: 996b2d26-ecb1-4cbe-823f-bb15c693536f
+
+	measure 0_Leads_per_DOM = ```
+			DIVIDE(SUM(DW_Listings[1_Leads_L7_Created]), SUM(DW_Listings[Days_On_Market_Active_Last_Week]), BLANK())
+			
+			```
+		lineageTag: 8d91f088-0faa-4d4d-86a2-270824b7d614
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure '1_Concession %' = ```
+			DIVIDE(SUM(DW_Listings[CONCESSIONAMOUNT]), SUM(DW_Listings[CURRENT_LIST_PRICE]), BLANK())
+			
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 13814bb1-aa72-407e-9fda-c2fa9798b3db
+
+	measure '0_Rent Var (RentCast)' = IF(SUM(DW_Listings[CURRENT_LIST_PRICE])<>BLANK()&&SUM(DW_Listings[1_Rent_Cast_Estimate])<>BLANK(),CALCULATE(SUM(DW_Listings[CURRENT_LIST_PRICE]) / sum(DW_Listings[1_Rent_Cast_Estimate]),FILTER(DW_Listings,DW_Listings[CURRENT_LIST_PRICE]<>BLANK()&&DW_Listings[1_Rent_Cast_Estimate]<>BLANK())) -1,BLANK())
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: 78c0cf21-f50d-40e5-95b1-8836b7a70cf9
+
+	column PROPERTY_KEY
+		dataType: double
+		lineageTag: 7a7dc4b3-456e-4a91-ba81-e1bc89c258f2
+		summarizeBy: none
+		sourceColumn: PROPERTY_KEY
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ADDRESS
+		dataType: string
+		lineageTag: f55eda3b-f93b-40c2-8b06-a97f8a87f83c
+		summarizeBy: none
+		sourceColumn: ADDRESS
+
+		annotation SummarizationSetBy = Automatic
+
+	column PORTFOLIO_NAME
+		dataType: string
+		lineageTag: 6dcf89f8-9a68-4f77-a8a5-83116535afe2
+		summarizeBy: none
+		sourceColumn: PORTFOLIO_NAME
+
+		annotation SummarizationSetBy = Automatic
+
+	column OCCUPANCY_STATUS
+		dataType: string
+		lineageTag: f2624aa7-7e71-4926-b312-398ae9f0e677
+		summarizeBy: none
+		sourceColumn: OCCUPANCY_STATUS
+
+		annotation SummarizationSetBy = Automatic
+
+	column ORGANIZATION_KEY
+		dataType: double
+		lineageTag: 5454d231-f568-4613-8b25-da6a3fe1acb6
+		summarizeBy: sum
+		sourceColumn: ORGANIZATION_KEY
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column INITIAL_LIST_PRICE
+		dataType: double
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: 2ad1cb1a-0009-4a19-a6be-0a243acb1f75
+		summarizeBy: sum
+		sourceColumn: INITIAL_LIST_PRICE
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+	column CURRENT_LIST_PRICE
+		dataType: double
+		formatString: \$#,0;(\$#,0);\$#,0
+		lineageTag: 5cb9aa09-af70-4fca-ad26-41bb95d8d0a5
+		summarizeBy: sum
+		sourceColumn: CURRENT_LIST_PRICE
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+	column CONCESSION_TYPE
+		dataType: string
+		lineageTag: fd6e330b-5317-41a4-8179-99254b7a9fda
+		summarizeBy: none
+		sourceColumn: CONCESSION_TYPE
+
+		annotation SummarizationSetBy = Automatic
+
+	column LISTING_STATUS
+		dataType: string
+		lineageTag: e7613858-afab-4fe7-bb62-f8ebb6ad0b2b
+		summarizeBy: none
+		sourceColumn: LISTING_STATUS
+
+		annotation SummarizationSetBy = Automatic
+
+	column DEAL_KEY
+		dataType: double
+		lineageTag: 4355ffda-0a53-45a5-bc15-1ca3a0a391d8
+		summarizeBy: sum
+		sourceColumn: DEAL_KEY
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column CURRENT_DEAL_STATUS
+		dataType: string
+		lineageTag: e1fc5ed1-1fcd-40ad-b277-a1a32e668d7d
+		summarizeBy: none
+		sourceColumn: CURRENT_DEAL_STATUS
+
+		annotation SummarizationSetBy = Automatic
+
+	column DEAL_ID
+		dataType: double
+		lineageTag: 7031f446-620a-438d-b91a-e8241d07e69b
+		summarizeBy: count
+		sourceColumn: DEAL_ID
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column LEAD_KEY
+		dataType: double
+		lineageTag: 5612b96f-7146-4220-a3ae-63b4cf90b525
+		summarizeBy: sum
+		sourceColumn: LEAD_KEY
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column HOLDING_FEE_DATE_NEW
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: b1108d2b-0b96-4d4a-b16a-05f0aa854d1e
+		summarizeBy: none
+		sourceColumn: HOLDING_FEE_DATE_NEW
+
+		variation Variation
+			isDefault
+			relationship: c12333c3-ff79-49a4-830f-a939d8155aea
+			defaultHierarchy: LocalDateTable_6ded87ec-e360-4921-8771-a368445b4d96.'Date Hierarchy'
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column TENANT_KEY
+		dataType: double
+		lineageTag: b742244b-5e0e-4cb0-8288-2454ebfef712
+		summarizeBy: sum
+		sourceColumn: TENANT_KEY
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column LISTING_DATE
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 2c465521-2319-44c4-b67a-cd31a7150f36
+		summarizeBy: none
+		sourceColumn: LISTING_DATE
+
+		variation Variation
+			isDefault
+			relationship: b16aa56a-7779-4129-b2ab-98faf2d6db10
+			defaultHierarchy: LocalDateTable_61933ed7-977f-4c3b-847c-0c89a65cb8b5.'Date Hierarchy'
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column LISTING_END_DATE
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: f3931fe0-0a84-4ba5-890f-68826149aeac
+		summarizeBy: none
+		sourceColumn: LISTING_END_DATE
+
+		variation Variation
+			isDefault
+			relationship: d3f6ae65-fb77-438b-a231-c79dfd1cc653
+			defaultHierarchy: LocalDateTable_0685b551-bac1-42c2-bcbb-60d62fa1fb89.'Date Hierarchy'
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column RENT_MODIFIED_DATE
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 354dca8c-2f8d-4e45-8108-13f8e45d7568
+		summarizeBy: none
+		sourceColumn: RENT_MODIFIED_DATE
+
+		variation Variation
+			isDefault
+			relationship: 90599aaa-a657-453e-ae39-54209bf28ce1
+			defaultHierarchy: LocalDateTable_d753967d-64dc-46da-94bf-5556e686b87f.'Date Hierarchy'
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column LEASE_START_DATE
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 0485830d-3355-4370-8e99-d1e76ae4c2c8
+		summarizeBy: none
+		sourceColumn: LEASE_START_DATE
+
+		variation Variation
+			isDefault
+			relationship: bc917b9e-276c-49f3-aa6c-769e60cc11e1
+			defaultHierarchy: LocalDateTable_171f4681-c066-4763-9d1e-4a221eb3a9cd.'Date Hierarchy'
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column LEASE_END_DATE
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 9bd86fb4-3713-4bd6-9a64-8c3bad92253d
+		summarizeBy: none
+		sourceColumn: LEASE_END_DATE
+
+		variation Variation
+			isDefault
+			relationship: d21df862-0b64-45af-b8c1-ad5645337607
+			defaultHierarchy: LocalDateTable_32528c26-2141-4f90-af08-f3c8d8f29906.'Date Hierarchy'
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column LEASE_SIGNED_DATE
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 9da5a8bb-808e-46c0-89d9-4e50716e3342
+		summarizeBy: none
+		sourceColumn: LEASE_SIGNED_DATE
+
+		variation Variation
+			isDefault
+			relationship: 9a23497b-972d-432f-a85e-4b7524e5914f
+			defaultHierarchy: LocalDateTable_209ad51d-8a83-4641-bb2d-2a45c12ed32b.'Date Hierarchy'
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column RENT_LIST_HIST_ID
+		dataType: double
+		lineageTag: 19165819-ca49-40c1-b7c2-c731dbe1c965
+		summarizeBy: count
+		sourceColumn: RENT_LIST_HIST_ID
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column DEAL_OWNER
+		dataType: string
+		lineageTag: 2ae211b2-58be-4d08-9a7e-a4bf01b89c0a
+		summarizeBy: none
+		sourceColumn: DEAL_OWNER
+
+		annotation SummarizationSetBy = Automatic
+
+	column 1_Applications = CALCULATE(distinctCOUNT(DW_Deals[DEAL_KEY]),FILTER(DW_deals,DW_Deals[RENT_LIST_HIST_ID]=DW_Listings[RENT_LIST_HIST_ID]&&DW_Deals[APPLICATION_SUBMIT_DATE]<>BLANK()))
+		formatString: 0
+		lineageTag: 3a41e687-01b4-459e-adfa-a82c7774ea37
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	column 1_Leads = CALCULATE(distinctCOUNT(DW_Leads[LEAD_KEY]),FILTER(DW_Leads,DW_Leads[RENT_LIST_HIST_ID]=DW_Listings[RENT_LIST_HIST_ID]&&DW_Leads[PRIMARY_LEAD_ID]=BLANK()))
+		formatString: 0
+		lineageTag: 776bb666-c546-41cc-a2df-16b4fbc8f507
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	column 1_Leads_L7 = CALCULATE(distinctCOUNT(DW_Leads[LEAD_KEY]),FILTER(DW_Leads,DW_Leads[RENT_LIST_HIST_ID]=DW_Listings[RENT_LIST_HIST_ID]&&DW_Leads[PRIMARY_LEAD_ID]=BLANK()&&DW_Leads[LEAD_INTERESTED_DATE]>=(TODAY()-7)&&DW_Leads[LEAD_INTERESTED_DATE]<TODAY()))
+		formatString: 0
+		lineageTag: abbbf3bc-ce0f-454d-b294-a0ee3516f0c8
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	column 1_Applications_Open = CALCULATE(DISTINCTCOUNT(DW_Deals[DEAL_KEY]),FILTER(DW_Deals,DW_Deals[RENT_LIST_HIST_ID]=DW_Listings[RENT_LIST_HIST_ID]&&AND(DW_Deals[APPLICATION_SUBMIT_DATE]<>BLANK(),DW_Deals[CURRENT_DEAL_STATUS]="Under Review"||DW_Deals[CURRENT_DEAL_STATUS]="Full Approval"||DW_Deals[CURRENT_DEAL_STATUS]="Conditional Approval")&&DW_Deals[APP_STAGE]<>"Pending Denial"&&OR(DW_Deals[IS_SECTION_8]=BLANK(),DW_Deals[IS_SECTION_8]=0)))
+		formatString: 0
+		lineageTag: 6d31f36c-c29b-4dfa-a97c-69368fdd2983
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	column '1_Lead / Apps' = IF(DW_Listings[TENANT_KEY]<>BLANK(),max(COALESCE(DW_Listings[1_Leads],1) / COALESCE(DW_Listings[1_Applications],1) ,1),BLANK())
+		formatString: #,0.00
+		lineageTag: da312801-56e6-4319-a292-d67b49aa16b8
+		summarizeBy: sum
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+	column '1_Leads / HF' = IF(DW_Listings[TENANT_KEY]<>BLANK(),COALESCE(DW_Listings[1_Leads],1),BLANK())
+		formatString: #,0.00
+		lineageTag: aea0c798-6445-4c29-9163-252220303706
+		summarizeBy: sum
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Listings Format'
+		dataType: double
+		lineageTag: 424bb25a-cb1f-4d8f-8a60-8795e46103ee
+		summarizeBy: sum
+		sourceColumn: Listings Format
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 'Listings Format_Name'
+		dataType: string
+		lineageTag: e40e0878-c9fe-4503-8250-c082f55f0fd4
+		summarizeBy: none
+		sourceColumn: Listings Format_Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Days Since HF'
+		dataType: double
+		lineageTag: befcc1bf-9968-4fcb-813a-39eda7a590a7
+		summarizeBy: sum
+		sourceColumn: Days Since HF
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 'Days HF-MI'
+		dataType: double
+		lineageTag: a5cba066-aadc-44d0-9d4a-671134a42c58
+		summarizeBy: sum
+		sourceColumn: Days HF-MI
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 'Move-In (BOM)'
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: bab0786c-5b74-4bde-8ab1-3073db5ef05c
+		summarizeBy: none
+		sourceColumn: Move-In (BOM)
+
+		variation Variation
+			isDefault
+			relationship: 82f1f691-bc9f-4785-8368-81537a95b954
+			defaultHierarchy: LocalDateTable_d6fac67d-2dd2-493e-af2b-e2de055f82dd.'Date Hierarchy'
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column 'List (BOM)'
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 8401a721-aba8-4da0-80b3-9de21177855e
+		summarizeBy: none
+		sourceColumn: List (BOM)
+
+		variation Variation
+			isDefault
+			relationship: 63fe557e-b8e9-4df4-8efa-ba62ab6913e7
+			defaultHierarchy: LocalDateTable_a0858ea4-74fd-45f1-821a-373ac33a0d9c.'Date Hierarchy'
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column CURRENT_RENT
+		dataType: double
+		formatString: \$#,0;(\$#,0);\$#,0
+		lineageTag: cefb3827-7428-4024-851f-7332a9af1a3d
+		summarizeBy: sum
+		sourceColumn: CURRENT_RENT
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	column UNDER_WRITTEN_RENT
+		dataType: double
+		formatString: \$#,0;(\$#,0);\$#,0
+		lineageTag: c4c23534-facb-48a9-8c88-a86c7a2fba4b
+		summarizeBy: sum
+		sourceColumn: UNDER_WRITTEN_RENT
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	column LEASING_AGENT
+		dataType: string
+		lineageTag: 2b0d0271-cccf-4897-a741-9f3218d32e9d
+		summarizeBy: none
+		sourceColumn: LEASING_AGENT
+
+		annotation SummarizationSetBy = Automatic
+
+	column FULL_NAME
+		dataType: string
+		lineageTag: f01e07fc-1f8b-4f8c-9400-80bf389a4d0d
+		summarizeBy: none
+		sourceColumn: FULL_NAME
+
+		annotation SummarizationSetBy = Automatic
+
+	column '1_Leads (Since Modified)' = if(DW_Listings[RENT_MODIFIED_DATE]=BLANK(),BLANK(),CALCULATE(distinctCOUNT(DW_Leads[LEAD_KEY]),FILTER(DW_Leads,DW_Leads[RENT_LIST_HIST_ID]=DW_Listings[RENT_LIST_HIST_ID]&&DW_Leads[PRIMARY_LEAD_ID]=BLANK()&&DW_Leads[LEAD_INTERESTED_DATE]>=DW_Listings[RENT_MODIFIED_DATE])))
+		formatString: 0
+		lineageTag: 09a1210d-99b2-4476-a181-750a786b6827
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	column MOST_RECENT_LISTING
+		dataType: string
+		lineageTag: 79351169-3233-4a45-b76b-af315178592e
+		summarizeBy: none
+		sourceColumn: MOST_RECENT_LISTING
+
+		annotation SummarizationSetBy = Automatic
+
+	column Days_Until_MI
+		dataType: double
+		lineageTag: 1f4f05cd-0315-4390-ad73-ff9c7ccd99f6
+		summarizeBy: sum
+		sourceColumn: Days_Until_MI
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ENTITYID
+		dataType: string
+		lineageTag: 0b465d8c-e9cb-4645-b9ff-f82da7ce3554
+		summarizeBy: none
+		sourceColumn: ENTITYID
+
+		annotation SummarizationSetBy = Automatic
+
+	column REGION_NAME
+		dataType: string
+		lineageTag: c941e273-54c2-4a71-ae17-140d0bc90f64
+		summarizeBy: none
+		sourceColumn: REGION_NAME
+
+		annotation SummarizationSetBy = Automatic
+
+	column Transfer_Date
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: da7b0384-f728-4881-b071-9f47e3b117ae
+		summarizeBy: none
+		sourceColumn: Transfer_Date
+
+		variation Variation
+			isDefault
+			relationship: f4072448-6ad3-4842-9b11-105fccb581d2
+			defaultHierarchy: LocalDateTable_d0942cfc-65a9-415d-b87d-8a3645627576.'Date Hierarchy'
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column MOVEINREADY
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 150cfc29-766a-489f-89a2-4091ca8257e0
+		summarizeBy: none
+		sourceColumn: MOVEINREADY
+
+		variation Variation
+			isDefault
+			relationship: 08878b97-b177-428d-a649-d8ead03de043
+			defaultHierarchy: LocalDateTable_833cd914-6f72-44f0-97f7-2fd984d01832.'Date Hierarchy'
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+	column MOVEOUT
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: bb8262c8-8c3b-4383-aabf-8253f47f480d
+		summarizeBy: none
+		sourceColumn: MOVEOUT
+
+		variation Variation
+			isDefault
+			relationship: 0bc06785-9c1a-47a1-ae4e-57874bc3f298
+			defaultHierarchy: LocalDateTable_bc7563c9-87e5-41aa-9b61-806b90f9a240.'Date Hierarchy'
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+	column DAYS_VACANT
+		dataType: double
+		lineageTag: a4d17a74-ccc1-4c81-83f0-717539718e1d
+		summarizeBy: sum
+		sourceColumn: DAYS_VACANT
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ORGANIZATION_NAME
+		dataType: string
+		lineageTag: 7bf2d22c-35ba-4a21-9c21-2f1ed81fc057
+		summarizeBy: none
+		sourceColumn: ORGANIZATION_NAME
+
+		annotation SummarizationSetBy = Automatic
+
+	column LISTING_DOM
+		dataType: double
+		lineageTag: 7bbb87c2-b67a-4737-9d8e-9c1bf419a75a
+		summarizeBy: sum
+		sourceColumn: LISTING_DOM
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Days_On_Market_Active
+		dataType: double
+		lineageTag: 6286f9fd-d819-4d8c-abbc-0bd7fac93a90
+		summarizeBy: sum
+		sourceColumn: Days_On_Market_Active
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Days_On_Market_Active_Bucket
+		dataType: string
+		lineageTag: 4538629a-114b-494f-b033-0b9a33647b96
+		summarizeBy: none
+		sourceColumn: Days_On_Market_Active_Bucket
+		sortByColumn: Days_On_Market_Active_Sort
+
+		changedProperty = SortByColumn
+
+		annotation SummarizationSetBy = Automatic
+
+	column Days_On_Market_Active_Sort
+		dataType: double
+		lineageTag: e9e14c8f-89a6-4cd4-b03d-86471e6a9443
+		summarizeBy: sum
+		sourceColumn: Days_On_Market_Active_Sort
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Days_Since_Reduction_Active
+		dataType: double
+		lineageTag: e90533fa-0445-4e03-8ca7-26fd5a904c18
+		summarizeBy: sum
+		sourceColumn: Days_Since_Reduction_Active
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column BEDROOMS
+		dataType: double
+		lineageTag: ba60a1ad-ba19-4616-9bb9-61b3ebd7eddb
+		summarizeBy: sum
+		sourceColumn: BEDROOMS
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column BATHROOMS
+		dataType: double
+		lineageTag: 015d57be-3bc4-494c-81e9-c096e46eb190
+		summarizeBy: sum
+		sourceColumn: BATHROOMS
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column SQUARE_FOOTAGE
+		dataType: double
+		formatString: 0
+		lineageTag: d832341a-5a66-495f-be95-e1f153bf43a1
+		summarizeBy: sum
+		sourceColumn: SQUARE_FOOTAGE
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isDecimal":true}
+
+	column YEAR_BUILT
+		dataType: double
+		formatString: 0
+		lineageTag: 1c0a3ad7-3718-44a1-8614-51a64dc52785
+		summarizeBy: sum
+		sourceColumn: YEAR_BUILT
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+	column FULL_ADDRESS
+		dataType: string
+		lineageTag: 521dbe70-dd20-4573-a847-dd3a982dbbcd
+		summarizeBy: none
+		sourceColumn: FULL_ADDRESS
+
+		annotation SummarizationSetBy = Automatic
+
+	column CITY_NAME
+		dataType: string
+		lineageTag: 6b8f6540-5716-49ab-9174-01236b47d35c
+		summarizeBy: none
+		sourceColumn: CITY_NAME
+
+		annotation SummarizationSetBy = Automatic
+
+	column STATE_CODE
+		dataType: string
+		lineageTag: 9bf67869-ab3c-4a65-8912-ff45935c3d55
+		summarizeBy: none
+		sourceColumn: STATE_CODE
+
+		annotation SummarizationSetBy = Automatic
+
+	column FLOORPLAN
+		dataType: string
+		lineageTag: 0c6a0709-dd91-4bf5-88ff-24f036ff816d
+		summarizeBy: none
+		sourceColumn: FLOORPLAN
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'vs UW' = IF(DW_Listings[CURRENT_LIST_PRICE]<>BLANK()&&DW_Listings[ASM_BLENDED_UW_RENT]<>BLANK(),DW_Listings[CURRENT_LIST_PRICE]/DW_Listings[ASM_BLENDED_UW_RENT] -1 ,blank())
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: 46e02920-d3e1-40c6-9518-09132dbfcbfd
+		summarizeBy: sum
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+	column 1_Open_WO = CALCULATE(AVERAGE('DW_Off Market'[2_MM_WO_Open_Count]),FILTER('DW_Off Market','DW_Off Market'[PROPERTY_KEY]=DW_Listings[PROPERTY_KEY]))
+		lineageTag: fd1c18d7-6e97-4094-9fdf-9c2d1a011605
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 1_Open_WO_Filter = IF(DW_Listings[1_Open_WO]>0,"Yes","No")
+		lineageTag: d37c3d1f-9025-4d8b-bb23-3109b18ff7f7
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column N_LIST_PRICE
+		dataType: double
+		lineageTag: 74aefc02-b239-42ca-8137-b03c7c3fbeea
+		summarizeBy: sum
+		sourceColumn: N_LIST_PRICE
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column O_LIST_PRICE
+		dataType: double
+		lineageTag: 7ab89290-9071-4433-bb7b-c27950ad2782
+		summarizeBy: sum
+		sourceColumn: O_LIST_PRICE
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column PRICE_CHANGE
+		dataType: double
+		formatString: \$#,0;(\$#,0);\$#,0
+		lineageTag: 0c6730b9-da3b-44ae-ab31-dc2f49f07570
+		summarizeBy: sum
+		sourceColumn: PRICE_CHANGE
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+	column CONCESSION_TYPE_ID
+		dataType: double
+		lineageTag: bcebde48-bfa5-451f-9ef4-d77d0e329e80
+		summarizeBy: count
+		sourceColumn: CONCESSION_TYPE_ID
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column CONCESSION_TYPE_COMBINED
+		dataType: string
+		lineageTag: 93ad4e2c-d344-4f5d-b5cd-ebc8519f2ad9
+		summarizeBy: none
+		sourceColumn: CONCESSION_TYPE_COMBINED
+
+		annotation SummarizationSetBy = Automatic
+
+	column CONCESSIONENDDATE
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 7ec79e54-7201-4113-a7d7-4902cb16dc58
+		summarizeBy: none
+		sourceColumn: CONCESSIONENDDATE
+
+		variation Variation
+			isDefault
+			relationship: 0629d4b3-2625-4dfa-a83f-61d1238f9d3f
+			defaultHierarchy: LocalDateTable_33c1902c-07f9-4047-94c5-26562e491d2d.'Date Hierarchy'
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column CONCESSIONMONTHSOFF
+		dataType: double
+		lineageTag: 200fa038-44c8-4144-8126-386d01864d51
+		summarizeBy: sum
+		sourceColumn: CONCESSIONMONTHSOFF
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column CONCESSIONAMOUNT
+		dataType: double
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: be1623df-1582-40fb-9a75-9f84b7f1952e
+		summarizeBy: sum
+		sourceColumn: CONCESSIONAMOUNT
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+	column LISTING_DESCRIPTION
+		dataType: string
+		lineageTag: 8a82783c-d0e9-4902-9242-f4915e4dd26b
+		summarizeBy: none
+		sourceColumn: LISTING_DESCRIPTION
+
+		annotation SummarizationSetBy = Automatic
+
+	column 1_Showings_L7 = CALCULATE(COUNTROWS(DW_Showings),FILTER(DW_Showings,DW_Showings[RENT_LIST_HIST_ID]=DW_Listings[RENT_LIST_HIST_ID]&&DW_Showings[ACTIVITY_CREATED_AT]>=(TODAY()-7)&&DW_Showings[ACTIVITY_CREATED_AT]<TODAY()&&DW_Showings[ACTIVITY_CREATED_AT]>=DW_Listings[LISTING_DATE]))
+		formatString: 0
+		lineageTag: c0a3cb15-d818-4f44-be4e-5ca7dc50cc58
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	column LEAD_EMAIL
+		dataType: string
+		lineageTag: 7d04aabd-9ae9-408c-ac33-54c4244067c3
+		summarizeBy: none
+		sourceColumn: LEAD_EMAIL
+
+		annotation SummarizationSetBy = Automatic
+
+	column LEAD_PHONE
+		dataType: string
+		lineageTag: 34420773-7b5e-40cb-9cb2-f9b593199a0f
+		summarizeBy: none
+		sourceColumn: LEAD_PHONE
+
+		annotation SummarizationSetBy = Automatic
+
+	column 1_Leads_L14 = CALCULATE(distinctCOUNT(DW_Leads[LEAD_KEY]),FILTER(DW_Leads,DW_Leads[RENT_LIST_HIST_ID]=DW_Listings[RENT_LIST_HIST_ID]&&DW_Leads[PRIMARY_LEAD_ID]=BLANK()&&DW_Leads[LEAD_INTERESTED_DATE]>=(TODAY()-14)&&DW_Leads[LEAD_INTERESTED_DATE]<TODAY()))
+		formatString: 0
+		lineageTag: fd2f51f6-c1ca-4e04-99f9-529815688628
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	column 1_Leads_RM_C = IF(DW_Listings[RENT_MODIFIED_DATE]=BLANK(),BLANK(),CALCULATE(distinctCOUNT(DW_Leads[LEAD_KEY]),FILTER(DW_Leads,DW_Leads[RENT_LIST_HIST_ID]=DW_Listings[RENT_LIST_HIST_ID]&&DW_Leads[PRIMARY_LEAD_ID]=BLANK()&&DW_Leads[LEAD_CREATED_DATE]>=(DW_Listings[RENT_MODIFIED_DATE])&&DW_Leads[LEAD_CREATED_DATE]>=DW_Listings[LISTING_DATE])))
+		formatString: 0
+		lineageTag: 0d251d52-1632-442c-a009-1ea8f10b43ca
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	column 1_Turn_Listing = IF(CALCULATE(COUNTROWS(DW_Turns),FILTER(DW_Turns,DW_Turns[RENT_LIST_HIST_KEY]=DW_Listings[RENT_LIST_HIST_ID]&&DW_Turns[1_RRQC after MO]=0))>=1,"Yes","No")
+		lineageTag: 396d5497-544f-4573-8ac4-0a4b02372045
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column FMI_FLAG
+		dataType: double
+		lineageTag: 3676edb1-ac97-4a0b-b396-6a4c4d27032c
+		summarizeBy: sum
+		sourceColumn: FMI_FLAG
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column LAST_LEASE_START
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 322fde38-51a2-424d-b6a1-c6510a14c962
+		summarizeBy: none
+		sourceColumn: LAST_LEASE_START
+
+		variation Variation
+			isDefault
+			relationship: 24c99e59-ffab-4a8e-b863-f2cf1703928f
+			defaultHierarchy: LocalDateTable_b2d8763c-4926-4b3e-8d9d-c9f1dba9c8be.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column LAST_LEASE_AMOUNT
+		dataType: double
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: 17efe392-94d2-4c3e-a610-c95e932f9a26
+		summarizeBy: sum
+		sourceColumn: LAST_LEASE_AMOUNT
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+	column HBPM_URL
+		dataType: string
+		lineageTag: 219be1c1-e66d-496f-9631-85cb85335833
+		summarizeBy: none
+		sourceColumn: HBPM_URL
+
+		annotation SummarizationSetBy = Automatic
+
+	column 1_Showings_L14 = CALCULATE(COUNTROWS(DW_Showings),FILTER(DW_Showings,DW_Showings[RENT_LIST_HIST_ID]=DW_Listings[RENT_LIST_HIST_ID]&&DW_Showings[ACTIVITY_CREATED_AT]>=(TODAY()-14)&&DW_Showings[ACTIVITY_CREATED_AT]<TODAY()&&DW_Showings[ACTIVITY_CREATED_AT]>=DW_Listings[LISTING_DATE]&&DW_Showings[ACCESS]="self_registered_viewing"))
+		formatString: 0
+		lineageTag: 5d57139f-6a39-4a26-98c7-a28cd8373922
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	column ONMARKETNOTE
+		dataType: string
+		lineageTag: 69030348-d619-42e3-9892-b601d5dd8f55
+		summarizeBy: none
+		sourceColumn: ONMARKETNOTE
+
+		annotation SummarizationSetBy = Automatic
+
+	column ONMARKETNOTECREATED
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 65d434bf-a54d-4053-ad1a-6691127a83cd
+		summarizeBy: none
+		sourceColumn: ONMARKETNOTECREATED
+
+		variation Variation
+			isDefault
+			relationship: 4415f554-e474-4457-8b76-c852b0d11913
+			defaultHierarchy: LocalDateTable_d4fe3a7c-db36-4192-be22-dd1c9fb41feb.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column ONMARKETNOTE_DAYS
+		dataType: double
+		lineageTag: bbe4975e-ace9-40e1-892c-041700bb3878
+		summarizeBy: sum
+		sourceColumn: ONMARKETNOTE_DAYS
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ONMARKETNOTE_ADDED_BY
+		dataType: string
+		lineageTag: a1d053a6-b7cf-4d87-81e6-6906691b2118
+		summarizeBy: none
+		sourceColumn: ONMARKETNOTE_ADDED_BY
+
+		annotation SummarizationSetBy = Automatic
+
+	column 1_Leads_L7_Created = CALCULATE(distinctCOUNT(DW_Leads[LEAD_KEY]),FILTER(DW_Leads,DW_Leads[RENT_LIST_HIST_ID]=DW_Listings[RENT_LIST_HIST_ID]&&DW_Leads[PRIMARY_LEAD_ID]=BLANK()&&DW_Leads[LEAD_CREATED_DATE]>=(TODAY()-7)&&DW_Leads[LEAD_CREATED_DATE]<(TODAY())))
+		formatString: 0
+		lineageTag: 0f7b2396-bfbd-44c0-8b79-c9480d72d3e8
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	column ASM_RECALCULATED_NOI
+		dataType: double
+		lineageTag: 8a20e986-11fa-456b-9ab3-94de2e4f387a
+		summarizeBy: sum
+		sourceColumn: ASM_RECALCULATED_NOI
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ASM_COST_BASIS
+		dataType: double
+		lineageTag: 04172977-73cf-4e94-b460-75651fea7057
+		summarizeBy: sum
+		sourceColumn: ASM_COST_BASIS
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column UW_DAYS_SINCE_UPDATE
+		dataType: double
+		lineageTag: a1559c68-f5a8-4aaf-84a3-5f027b3c230e
+		summarizeBy: sum
+		sourceColumn: UW_DAYS_SINCE_UPDATE
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ASM_BLENDED_UW_RENT
+		dataType: double
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: 72779709-3226-4704-9262-17b3178aa332
+		summarizeBy: sum
+		sourceColumn: ASM_BLENDED_UW_RENT
+
+		annotation SummarizationSetBy = Automatic
+
+	column PM_MIR
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: db0cfab0-80f0-4774-8408-a7a7b16c9d90
+		summarizeBy: none
+		sourceColumn: PM_MIR
+
+		variation Variation
+			isDefault
+			relationship: ad74fd15-82ec-47f2-9b7b-f27bc1f0cfca
+			defaultHierarchy: LocalDateTable_3440f4d3-3ffd-44dd-afe9-e74b747fb5f6.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column IS_PUBLISHED
+		dataType: string
+		lineageTag: 02c4ae93-5f89-4871-ac93-3af6e4f73880
+		summarizeBy: none
+		sourceColumn: IS_PUBLISHED
+
+		annotation SummarizationSetBy = Automatic
+
+	column PRE_LEASING
+		dataType: string
+		lineageTag: 2ea9285b-9912-4e6e-af9a-9c8162a5c9a3
+		summarizeBy: none
+		sourceColumn: PRE_LEASING
+
+		annotation SummarizationSetBy = Automatic
+
+	column LISTING_PRICE_MODIFICATION_DATE
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: facf3028-0073-42e3-81ff-13042b3adb39
+		summarizeBy: none
+		sourceColumn: LISTING_PRICE_MODIFICATION_DATE
+
+		variation Variation
+			isDefault
+			relationship: f6a5a1bd-0cc2-4eee-9532-285d1d2a44fc
+			defaultHierarchy: LocalDateTable_e474a73c-9b83-42d7-83e5-a25245bf4282.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column LISTING_STATE
+		dataType: string
+		lineageTag: 61d0cdd3-c024-4969-84c5-d4ddac4e1098
+		summarizeBy: none
+		sourceColumn: LISTING_STATE
+
+		annotation SummarizationSetBy = Automatic
+
+	column LISTING_KEY
+		dataType: double
+		lineageTag: bc8e0f2a-2de9-47a5-99ad-e982198449cc
+		summarizeBy: none
+		sourceColumn: LISTING_KEY
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column APP_STAGE
+		dataType: string
+		lineageTag: 09f155f6-71ba-45ff-899b-df2443d3c87b
+		summarizeBy: none
+		sourceColumn: APP_STAGE
+
+		annotation SummarizationSetBy = Automatic
+
+	column LEASE_DRAFTING_STATUS
+		dataType: string
+		lineageTag: 61877bde-3295-4aec-80c9-3e226d345a82
+		summarizeBy: none
+		sourceColumn: LEASE_DRAFTING_STATUS
+
+		annotation SummarizationSetBy = Automatic
+
+	column CODE_READY
+		dataType: string
+		lineageTag: 537b1a62-fee8-43eb-a833-c1e8cf9d1d96
+		summarizeBy: none
+		sourceColumn: CODE_READY
+
+		annotation SummarizationSetBy = Automatic
+
+	column LEAD_NAME
+		dataType: string
+		lineageTag: c4f9557a-c5d9-40e5-8a43-f2b4dac38545
+		summarizeBy: none
+		sourceColumn: LEAD_NAME
+
+		annotation SummarizationSetBy = Automatic
+
+	column URL_HUBSPOT
+		dataType: string
+		lineageTag: 3349def9-e348-45b6-b6e1-3df092242da5
+		summarizeBy: none
+		sourceColumn: URL_HUBSPOT
+
+		annotation SummarizationSetBy = Automatic
+
+	column ASM_NET_YIELD
+		dataType: double
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 9a36a4d3-b5f9-4b5f-b3e9-cea17a56e607
+		summarizeBy: sum
+		sourceColumn: ASM_NET_YIELD
+
+		annotation SummarizationSetBy = Automatic
+
+	column 1_Flag_LSD_Prior_MIR = ```
+			IF(DW_Listings[LEASE_START_DATE]<>BLANK()&&DW_Listings[LEASE_START_DATE]<DW_Listings[PM_MIR],"Flag",BLANK()) 
+			```
+		lineageTag: 3e8bf03d-2b00-4b47-969f-cd0ef419bf13
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column Days_On_Market_Active_Last_Week
+		dataType: double
+		lineageTag: 08b661dc-242e-4994-9243-ef51b2257e01
+		summarizeBy: sum
+		sourceColumn: Days_On_Market_Active_Last_Week
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column '1_Lock Status' = ```
+			 CALCULATE(MAX(DW_Properties[RENTLY_SH_LOCK_STATUS]),FILTER(DW_Properties,DW_Properties[PROPERTY_KEY]=DW_Listings[PROPERTY_KEY]))
+			```
+		lineageTag: b7d515e2-bde5-4e06-9363-149f5a9066a9
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column '1_Renew Check' =
+			IF((DW_Listings[LISTING_STATUS]="Active"||DW_Listings[LISTING_STATUS]="Deposit Taken")&&DW_Listings[IS_PUBLISHED]="Y"&&DW_Listings[LISTING_STATE]="Active"&&DW_Listings[OCCUPANCY_STATUS]="Tenant Leased",
+			
+			CALCULATE(MAX(DW_Renewals[Renewal Result]),FILTER(DW_Renewals,DW_Renewals[PROPERTY_KEY]=DW_Listings[PROPERTY_KEY]&&DW_Renewals[TENANTSTATUS]="Current"&&DW_Renewals[Renewal Result]<>"Pending"&&DW_Renewals[Renewal Result]<>"DNR"&&DW_Renewals[Renewal Result]<>"Notice")))
+		lineageTag: a35bda0a-0b51-45eb-a7f7-dfd2a06017e7
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column 1_Deal_Lost =
+			IF(DW_Listings[Listings Format_Name]="Deal Lost",CALCULATE(MAX(DW_Deals[DEAL_LOST_REASON]),FILTER(DW_Deals,DW_Deals[RENT_LIST_HIST_ID]=DW_Listings[RENT_LIST_HIST_ID]&&DW_Deals[HF Date]=
+			
+			CALCULATE(MAX(DW_Deals[HF Date]),FILTER(DW_Deals,DW_Deals[RENT_LIST_HIST_ID]=DW_Listings[RENT_LIST_HIST_ID]&&DW_Deals[CURRENT_DEAL_STATUS]="Deal Lost")))),BLANK())
+		lineageTag: 4139ad64-9dff-4e36-8274-3d257f4c03c2
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column 1_Hub_Status = CALCULATE(MAX(DW_Properties[RENTLY_SH_HUB_STATUS]),FILTER(DW_Properties,DW_Properties[PROPERTY_KEY] = DW_Listings[PROPERTY_KEY]))
+		lineageTag: 8512c03a-04b2-4af7-9098-f001e249129e
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column 1_Hub_Lock = ```
+			CALCULATE(MAX(DW_Properties[RENTLY_SH_HUB_STATUS]),FILTER(DW_Properties,DW_Properties[PROPERTY_KEY]=DW_Listings[PROPERTY_KEY]))
+			
+			```
+		lineageTag: 6aac6d0d-d707-463f-a83e-86f475667cda
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column LEASE_START_DATE_BOM
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 196b2982-f921-451a-b40b-fba721bb8ab7
+		summarizeBy: none
+		sourceColumn: LEASE_START_DATE_BOM
+
+		variation Variation
+			isDefault
+			relationship: 2a06d336-5b67-4101-b172-cbfa6b7c6de4
+			defaultHierarchy: LocalDateTable_ac3cda55-6e7f-4134-831a-0705e2d9e10e.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column PM_MIR_BOM
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: c5384668-cf3d-4a62-9998-a7c987ea707b
+		summarizeBy: none
+		sourceColumn: PM_MIR_BOM
+
+		variation Variation
+			isDefault
+			relationship: 64770e47-90cc-4440-b702-abfd4212d540
+			defaultHierarchy: LocalDateTable_7ec17943-c5b0-4235-92f3-d0158712e243.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column SECTION_8
+		dataType: string
+		lineageTag: 154c6425-44ee-47fb-8eac-c8c9be4ec046
+		summarizeBy: none
+		sourceColumn: SECTION_8
+
+		annotation SummarizationSetBy = Automatic
+
+	column 1_Leads_L14_Created = CALCULATE(distinctCOUNT(DW_Leads[LEAD_KEY]),FILTER(DW_Leads,DW_Leads[RENT_LIST_HIST_ID]=DW_Listings[RENT_LIST_HIST_ID]&&DW_Leads[PRIMARY_LEAD_ID]=BLANK()&&DW_Leads[LEAD_CREATED_DATE]>=(TODAY()-14)&&DW_Leads[LEAD_CREATED_DATE]<(TODAY())))
+		formatString: 0
+		lineageTag: 6a989315-4722-4eb2-9b5d-3cb3911eb9c0
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	column 1_AMOD = CALCULATE(MAX('DW_Renewals'[ANTICIPATEDMOVEOUTDATE]))
+		formatString: Short Date
+		lineageTag: 7d9274f8-53cd-4036-97c5-24f7a5568915
+		summarizeBy: none
+
+		variation Variation
+			isDefault
+			relationship: d5996b7d-9836-49d9-a8ab-aa515eecb6c2
+			defaultHierarchy: LocalDateTable_175b05c0-857b-4887-8204-baa11037619e.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column '1_App Submit Date' = CALCULATE(MAX('DW_Leads'[APPLICATION_SUBMIT_DATE]))
+		formatString: Short Date
+		lineageTag: a53cf99e-bb06-41e8-8171-ebc545174238
+		summarizeBy: none
+
+		variation Variation
+			isDefault
+			relationship: 3a1a0d57-efe6-4fa4-8fd2-d743a4e9a8d4
+			defaultHierarchy: LocalDateTable_52609cbb-1c68-4807-8d4d-784a36ef789b.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column 1_Rent_Cast_Estimate = LOOKUPVALUE(GS_RentCast[RentCast Estimate],GS_RentCast[LISTING KEY],DW_Listings[LISTING_KEY])
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: 0ad85837-cf58-4be6-b4c9-2e1e9746e3ec
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	column SUBDIVISION
+		dataType: string
+		lineageTag: 9dfacc8f-3dc7-4f02-8bb6-8e2bf9b78614
+		summarizeBy: none
+		sourceColumn: SUBDIVISION
+
+		annotation SummarizationSetBy = Automatic
+
+	column MOVE_IN_FEE_PAYMENT_LINK
+		dataType: string
+		lineageTag: dfdd16f4-98a1-4785-b0e8-de981e7dac45
+		summarizeBy: none
+		sourceColumn: MOVE_IN_FEE_PAYMENT_LINK
+
+		annotation SummarizationSetBy = Automatic
+
+	column MOVE_IN_CHARGES_PAID
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: f15486f3-7e0a-407f-bcf3-2c27c6473934
+		summarizeBy: none
+		sourceColumn: MOVE_IN_CHARGES_PAID
+
+		variation Variation
+			isDefault
+			relationship: 3535e1ca-b631-401d-b731-15642e2e094e
+			defaultHierarchy: LocalDateTable_87662544-9e08-42e5-b912-ca49004ec834.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column MOVE_IN_CHARGES_REFERENCE_ID
+		dataType: string
+		lineageTag: 226055a4-05cf-4c8f-9946-b80e92969c3a
+		summarizeBy: none
+		sourceColumn: MOVE_IN_CHARGES_REFERENCE_ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column FIRST_NAME
+		dataType: string
+		lineageTag: 7e99991d-ac30-4049-86f2-81c5cab87603
+		summarizeBy: none
+		sourceColumn: FIRST_NAME
+
+		annotation SummarizationSetBy = Automatic
+
+	column LAST_NAME
+		dataType: string
+		lineageTag: dd95d95a-99d4-41b8-82df-69ef9c8ff0bf
+		summarizeBy: none
+		sourceColumn: LAST_NAME
+
+		annotation SummarizationSetBy = Automatic
+
+	column FCT_PRO_RENTAL_LISTING_HIST_KEY
+		dataType: double
+		lineageTag: 1d2d1d45-6fba-4b46-8097-9f04eba1d1a1
+		summarizeBy: sum
+		sourceColumn: FCT_PRO_RENTAL_LISTING_HIST_KEY
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column PROPERTY_UNIT_KEY
+		dataType: double
+		lineageTag: 085bfb27-7549-41a3-ac78-236343f2e3cd
+		summarizeBy: sum
+		sourceColumn: PROPERTY_UNIT_KEY
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column STATE_NAME
+		dataType: string
+		lineageTag: 0cf9702a-a6e4-4db9-8506-72e0c5224bbe
+		summarizeBy: none
+		sourceColumn: STATE_NAME
+
+		annotation SummarizationSetBy = Automatic
+
+	column ZIPCODE
+		dataType: string
+		lineageTag: b4b47555-fe1b-40e7-a54a-e73c765deef9
+		summarizeBy: none
+		sourceColumn: ZIPCODE
+
+		annotation SummarizationSetBy = Automatic
+
+	column COUNTY_NAME
+		dataType: string
+		lineageTag: 40e3326d-7d70-4777-acba-a2c432e72680
+		summarizeBy: none
+		sourceColumn: COUNTY_NAME
+
+		annotation SummarizationSetBy = Automatic
+
+	column PORTFOLIO_KEY
+		dataType: double
+		lineageTag: c2a95e36-9059-4f11-bb9e-68a989272cf2
+		summarizeBy: sum
+		sourceColumn: PORTFOLIO_KEY
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column AGENT_EMAIL
+		dataType: string
+		lineageTag: 7e841073-4edb-4000-ac1b-9eed7f0daf2d
+		summarizeBy: none
+		sourceColumn: AGENT_EMAIL
+
+		annotation SummarizationSetBy = Automatic
+
+	column APP_ID
+		dataType: double
+		lineageTag: d27575fc-01ff-4cbb-9d23-e2b8857bd650
+		summarizeBy: count
+		sourceColumn: APP_ID
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ASM_IN_PLACE_RENT
+		dataType: double
+		lineageTag: 6c88547e-c0ce-4b7a-ad81-56e46785c946
+		summarizeBy: sum
+		sourceColumn: ASM_IN_PLACE_RENT
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ASM_BUDGET_RENT
+		dataType: double
+		lineageTag: 9d37f376-ad88-4814-b964-94f54a335cc1
+		summarizeBy: sum
+		sourceColumn: ASM_BUDGET_RENT
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ASM_ORIGINAL_UW_RENT
+		dataType: double
+		lineageTag: 4dc7b395-8699-480b-a512-854e38e209af
+		summarizeBy: sum
+		sourceColumn: ASM_ORIGINAL_UW_RENT
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column PCD_FLAG
+		dataType: string
+		lineageTag: 1be90368-1bb6-4ebd-8ed4-b6365a052bc4
+		summarizeBy: none
+		sourceColumn: PCD_FLAG
+
+		annotation SummarizationSetBy = Automatic
+
+	partition DW_Listings-cfa09832-2273-49d7-96c8-5f8649df663d = m
+		mode: import
+		queryGroup: 'DW Sources'
+		source =
+				let
+				    Source = Value.NativeQuery(Snowflake.Databases("ota12822.us-east-1.snowflakecomputing.com","DEVELOPER_WH",[Role="UAT", Implementation="2.0"]){[Name="PROD_REPLICA"]}[Data], "/* =============================================================================#(lf)   LISTINGS DATASET#(lf)   -----------------------------------------------------------------------------#(lf)   Grain:   One row per rental-listing-history record (anchor#(lf)            FCT_PROP_RENTAL_LISTING_HIST RLH), enriched with the matched active#(lf)            Deal, Tenant, price-change history, on-market notes, ASM/UW figures.#(lf)   CTE chain: UW_RENT_MAX/UW_RENT, OnMarketNote, LIST_CHANGE, HHI, DEALS,#(lf)            TENANT, ListDeal, LEASE_HIST -> final SELECT.#(lf)#(lf)   CLEANUP NOTES:#(lf)     [SYNC]  The two ORGANIZATION_KEY / ORGANIZATION_NAME CASE blocks (in DEALS#(lf)             and in the final SELECT) were updated from the prior three-group#(lf)             form (adding only 58,59 -> 'Hudson Oak') to the full six-group#(lf)             roll-up that mirrors the master PROPERTY script (source of truth).#(lf)             DELIBERATE OUTPUT CHANGE limited to the organization columns.#(lf)     The TENANT CTE selects raw P.ORGANIZATION_KEY / O.ORGANIZATION_NAME (no#(lf)     CASE); those columns are NOT surfaced in the final SELECT, so they are left#(lf)     untouched. No CTEs or joins dropped; HHI is defined-but-unused in the#(lf)     original and preserved as-is.#(lf)#(lf)   ORG SYNC IMPACT (intended diff vs. original output):#(lf)        added 66                  -> 27 / 'RB DRC'#(lf)        62,63,64,65,68,69         -> 62 / 'Rocklyn Homes'#(lf)        61,70                     -> 61 / 'ROI Property Group'#(lf)        67                        -> 67 / 'Newstar'#(lf)   ============================================================================= */#(lf)#(lf)WITH UW_RENT_MAX AS (#(lf)#(tab)SELECT #(lf)#(tab)MAx(RENTLOGID) RENTLOGID #(lf)#(tab), ENTITYID1#(lf)#(tab)FROM PROD_REPLICA.HBPM_DBO.RENTLOGS#(lf)#(tab)GROUP BY ENTITYID1) #(lf)#(tab)#(lf),UW_RENT AS (#(lf)#(tab)SELECT #(lf)#(tab) RentLogs.ENTITYID1 AS HBPM_UnitID#(lf)#(tab),RentLogs.ORIGINALVALUE AS UW_Rent_Prior#(lf)#(tab),RentLogs.UPDATEVALUE AS UW_Rent_Current#(lf)#(tab),RentLogs.OCCUREDON  AS UW_Update_Date#(lf)#(tab)FROM UW_RENT_MAX#(lf)#(tab)LEFT JOIN PROD_REPLICA.HBPM_DBO.RENTLOGS RentLogs ON RentLogs.RENTLOGID = UW_RENT_MAX.RentLogID#(lf)#(tab))#(lf)#(lf)--******************************************************************************************************************************************#(lf),OnMarketNote AS (#(lf)#(tab)#(tab)SELECT DISTINCT #(lf)#(tab) #(tab)N.NOTEID AS LatestNoteID#(lf)#(tab) #(tab),N.NOTETEXT AS OnMarketNote#(lf)#(tab) #(tab),N.CREATEDDATE  AS OnMarketNoteCreated#(lf)#(tab) #(tab),DATEDIFF('Day',N.CREATEDDATE,GETDATE()) OnMarketNote_Days#(lf)#(tab)    ,P.PropertyId#(lf)#(tab)    ,U.FIRSTNAME || ' ' || U.LASTNAME AS OnMarketNote_Added_By#(lf)#(tab)    ,RANK() OVER( PARTITION BY P.PropertyId ORDER BY N.CREATEDDATE DESC) AS Recent_Rank#(lf)#(tab)#(lf)#(tab)#(tab)FROM PROD_REPLICA.HBPM_DBO.NOTES N #(lf)#(tab)#(tab)LEFT JOIN PROD_REPLICA.HBPM_DBO.NOTETYPES NT ON NT.Id = N.NoteTypeId#(lf)#(tab)#(tab)LEFT JOIN PROD_REPLICA.HBPM_DBO.LOOKUPMASTERS LM ON LM.LookUpMasterId = N.ObjectTypeId#(lf)#(tab)#(tab)LEFT JOIN PROD_REPLICA.HBPM_DBO.PROPERTIES P ON P.PropertyID = N.ObjectID AND P.""_FIVETRAN_DELETED"" ='N'#(lf)#(tab)#(tab)LEFT JOIN PROD_REPLICA.HBPM_DBO.USERS U ON U.USERID  = N.ADDEDBY #(lf)#(tab) #(tab)WHERE N.NoteTypeId = 19#(lf)#(tab) --#(tab)AND PAI.PROPERTYID = 36301#(lf)#(tab) #(tab)QUALIFY Recent_Rank = 1)#(lf)--**************************************************************************************************#(lf),LIST_CHANGE AS ( #(lf)#(lf)SELECT #(lf)LP.PROPERTY_LISTING_ID#(lf),LP.LISTING_PRICE_CHANGE#(lf),RANK() OVER(PARTITION BY LP.PROPERTY_LISTING_ID ORDER BY LP.ETL_UPDATE_DATE DESC, LISTING_PRICE_CHANGE DESC ) RECENT_RANK#(lf),LP.INITIAL_LIST_PRICE#(lf),LP.CURRENT_LIST_PRICE AS N_LIST_PRICE#(lf),LP2.CURRENT_LIST_PRICE AS O_LIST_PRICE#(lf),LP.CURRENT_LIST_PRICE - LP2.CURRENT_LIST_PRICE AS PRICE_CHANGE#(lf),TO_DATE(CONVERT_TIMEZONE('EST',LP.ETL_UPDATE_DATE::date)) AS PRICE_CHANGE_DATE#(lf),LP.ETL_UPDATE_DATE #(lf)#(lf)FROM PROD_ANALYTICS.DBT_RESICAP.FCT_PROP_LIST_STATUS_PRICE_HIST LP#(lf)LEFT JOIN (SELECT#(lf)            CURRENT_LIST_PRICE#(lf)           ,PROPERTY_LISTING_ID#(lf)#(tab)#(tab)   ,ROW_NUMBER() OVER(PARTITION BY PROPERTY_LISTING_ID ORDER BY CHANGED_DATE_TIME DESC) RECENT_SUB_RANK#(lf)#(tab)#(tab)FROM PROD_ANALYTICS.DBT_RESICAP.FCT_PROP_LIST_STATUS_PRICE_HIST#(lf)#(tab)#(tab)WHERE INDEX_CHANGE_TYPE IN ('List Price', 'New')#(lf)#(tab)#(tab)QUALIFY RECENT_SUB_RANK = 2#(lf)#(tab)) LP2 ON LP2.PROPERTY_LISTING_ID = LP.PROPERTY_LISTING_ID#(lf)#(lf)WHERE#(lf)1=1#(lf)AND LP.INDEX_CHANGE_TYPE = 'List Price'#(lf)AND LP.LISTING_PRICE_CHANGE <> 0#(lf)--AND LP.PROPERTY_LISTING_ID = 6831744085#(lf)#(lf)QUALIFY RECENT_RANK = 1  )#(lf)--*****************************************************************************#(lf),HHI AS (Select #(lf)#(lf)D.Deal_ID #(lf),CASE WHEN sum(C_INC.Annual_Income) <30000 THEN NULL #(lf)#(tab)  WHEN  sum(C_INC.Annual_Income) > 1000000 THEN NULL #(lf)#(tab)  ELSE  sum(C_INC.Annual_Income) END AS HHI#(lf)#(lf)FROM PROD_REPLICA.HUBSPOT.DEAL D#(lf)LEFT JOIN PROD_REPLICA.HUBSPOT.DEAL_CONTACT DC ON DC.DEAL_ID = D.DEAL_ID#(lf)LEFT JOIN (SELECT#(lf)#(tab)#(tab)#(tab)#(tab)CONTACT_ID#(lf)#(tab)#(tab)#(tab)#(tab),COALESCE (#(lf)#(tab)#(tab)#(tab)#(tab)#(tab)SUM(CASE WHEN NAME = 'total_yearly_income' THEN value ELSE null END),#(lf)#(tab)#(tab)#(tab)#(tab)#(tab)SUM(CASE WHEN NAME = 'annual_salary' THEN value ELSE null END)) AS Annual_Income#(lf)#(tab)#(tab)#(tab)#(tab)FROM PROD_REPLICA.HUBSPOT.COntact_PROPERTY_HISTORY#(lf)#(tab)#(tab)#(tab)#(tab)#(lf)#(tab)#(tab)#(tab)#(tab)WHERE 1=1 #(lf)#(tab)#(tab)#(tab)#(tab)AND NAME IN ('annual_salary','total_yearly_income')#(lf)#(tab)#(tab)#(tab)#(tab)GROUP BY CONTACT_ID ) C_INC ON C_INC.Contact_ID = DC.Contact_ID#(lf)#(tab)#(tab)#(tab)#(tab)#(lf)WHERE 1=1 #(lf)GROUP BY D.DEAL_ID)#(lf)#(lf)---***********************************************************************************************************************#(lf),DEALS AS (SELECT #(lf)#(lf)P.PROPERTY_KEY#(lf)#(tab),CASE#(lf)        WHEN P.ORGANIZATION_KEY IN (-1,18,26,28,48)                   THEN -1#(lf)        WHEN P.ORGANIZATION_KEY IN (27,50,51,52,54,45,55,53,56,57,66) THEN 27#(lf)        WHEN P.ORGANIZATION_KEY IN (58,59)                            THEN 58#(lf)        WHEN P.ORGANIZATION_KEY IN (62,63,64,65,68,69)                THEN 62#(lf)        WHEN P.ORGANIZATION_KEY IN (61,70)                            THEN 61#(lf)        WHEN P.ORGANIZATION_KEY IN (67)                               THEN 67#(lf)        ELSE P.ORGANIZATION_KEY#(lf)     END AS ORGANIZATION_KEY#(lf)      #(lf)#(tab),CASE#(lf)        WHEN P.ORGANIZATION_KEY IN (-1,18,26,28,48)                   THEN 'RP SFR'#(lf)        WHEN P.ORGANIZATION_KEY IN (27,50,51,52,54,45,55,53,56,57,66) THEN 'RB DRC'#(lf)        WHEN P.ORGANIZATION_KEY IN (58,59)                            THEN 'Hudson Oak'#(lf)        WHEN P.ORGANIZATION_KEY IN (62,63,64,65,68,69)                THEN 'Rocklyn Homes'#(lf)        WHEN P.ORGANIZATION_KEY IN (61,70)                            THEN 'ROI Property Group'#(lf)        WHEN P.ORGANIZATION_KEY IN (67)                               THEN 'Newstar'#(lf)        ELSE O.ORGANIZATION_NAME#(lf)     END AS ORGANIZATION_NAME#(lf)#(tab)      #(lf),P.HBPM_PROPERTY_ID #(lf),P.EntityID#(lf),P.Address#(lf),PUS.Under_written_rent#(lf)#(lf),REC.RECEIEVABLE_ID#(lf),PO.PORTFOLIO_NAME#(lf),R.REGION_NAME#(lf)#(lf),D.SECURITY_DEPOSIT_ID#(lf),D.DEAL_KEY#(lf),D.DEAL_ID#(lf),COALESCE(D.CURRENT_DEAL_STATUS,HUB_DEAL.DEAL_STAGE) AS CURRENT_DEAL_STATUS#(lf),HUB_DEAL.APP_ID#(lf),HUB_DEAL.APP_STAGE AS APP_STAGE#(lf)#(lf),D.COMBINED_INCOME * 12  AS COMBINED_INCOME#(lf),DSH.LEAD_KEY#(lf),D.APPLICATION_SUBMITTED_DATE::date AS Application_Submit_Date#(lf),date_trunc('month',D.APPLICATION_SUBMITTED_DATE::date) as ""App Submit (BOM)""#(lf),CONVERT_TIMEZONE('EST', APPLICATION_STARTED_DATE::date) AS Application_Started_Date#(lf),date_trunc('month',CONVERT_TIMEZONE('EST', APPLICATION_STARTED_DATE )::date) as App_Started_BOM#(lf)#(lf),DATEDIFF(DAY, COALESCE(D.APPLICATION_SUBMITTED_DATE ,to_date(L.Application_SUBMIT_Date_KEY::TEXT,'yyyymmdd'),CONVERT_TIMEZONE('EST', APPLICATION_STARTED_DATE::date),to_date(DSH.DEAL_CREATE_DATE_KEY::TEXT,'yyyymmdd')),GETDATE())  AS DAYS_SINCE_APP_SUBMIT#(lf)#(lf),L.First_Name ||  ' '  || L.Last_Name AS Lead_Name#(lf),L.First_Name#(lf),L.Last_Name#(lf),L.PRIMARY_LEAD_ID#(lf),D.EMail#(lf),L.PHONE#(lf),to_date(L.CREATED_DATE_KEY::TEXT,'yyyymmdd') AS Lead_Created_Date#(lf),DATE_TRUNC('month', to_date(L.CREATED_DATE_KEY::TEXT,'yyyymmdd') ) AS ""1_Lead (BOM)""#(lf)#(lf),to_date(DSH.DEAL_CREATE_DATE_KEY::TEXT,'yyyymmdd') AS DEAL_CREATE_DATE#(lf),to_date(DSH.APPLICATION_APPROVED_DATE_KEY::TEXT,'yyyymmdd') AS APPLICATION_APPROVED_DATE#(lf),to_date(DSH.DEAL_WON_DATE_KEY::TEXT,'yyyymmdd') AS DEAL_WON_DATE#(lf),COALESCE(HUB_DEAL.PROPERTY_HOLDING_FEE_TRANSACTION_DATE,to_date(PAY.HOLDING_FEE_DATE_NEW::TEXT,'yyyymmdd'),to_date(DSH.HOLDING_FEE_PAID_DATE_KEY::TEXT,'yyyymmdd')) AS HOLDING_FEE_DATE_NEW#(lf),to_date(DSH.LEASE_SIGNED_DATE_KEY::TEXT,'yyyymmdd') AS LEASE_SIGNED_DATE#(lf),to_date(DSH.CONVERT_TO_RESIDENT_DATE_KEY::TEXT,'yyyymmdd') AS CONVERT_TO_RESIDENT_DATE#(lf),to_date(DSH.EXPECTED_MOVE_IN_DATE_KEY::TEXT,'yyyymmdd') AS EXPECTED_MOVE_IN_DATE#(lf),COALESCE(to_date(DSH.LEASE_START_DATE_KEY::TEXT,'yyyymmdd'),#(lf)#(tab)#(tab)  to_date(DSH.EXPECTED_MOVE_IN_DATE_KEY::TEXT,'yyyymmdd') ) AS LEASE_START_DATE#(lf),to_date(DSH.LEASE_END_DATE_KEY::TEXT,'yyyymmdd') AS LEASE_END_DATE#(lf),U.USER_KEY#(lf),TLA.Tenant_key#(lf),COALESCE(to_date(TLA.INITIAL_LEASE_FROM_DATE_KEY::TEXT,'yyyymmdd'),#(lf)#(tab)#(tab)  to_date(TLA.LEASE_FROM_DATE_KEY::TEXT,'yyyymmdd') ) AS TENANT_MOVE_IN#(lf)#(lf),D.DEAL_OWNER AS DEAL_OWNER#(lf),L.CONTACT_OWNER#(lf),D.AVERAGE_CREDIT_SCORE#(lf)#(lf),L.SOURCE#(lf) ,'https://app.hubspot.com/contacts/22536354/record/0-3/' || D.DEAL_ID AS URL_HUBSPOT#(lf),CASE WHEN DSH.CONVERT_TO_RESIDENT_DATE_KEY IS NOT NULL THEN 'Net HF' ELSE COALESCE(PAY.REFUNDED_FLAG, 'Net HF') END AS REFUNDED_FLAG #(lf)#(lf),PM_AI.MOVEINREADY AS PM_MIR#(lf),AM_CONS.PROJECTEDCOMPLETIONDATE#(tab)#(lf),DATEADD(DAY,7,AM_CONS.PROJECTEDCOMPLETIONDATE) PCD_PLUS_SEVEN#(tab)#(tab)#(lf),DSH.LISTING_KEY#(lf)#(lf) ,HUB_DEAL.PROPERTY_LEASE_DRAFTING_STATUS AS LEASE_DRAFTING_STATUS#(lf) ,HUB_DEAL.PROPERTY_MOVE_IN_FEE_PAYMENT_LINK AS MOVE_IN_FEE_PAYMENT_LINK#(lf) ,HUB_DEAL.PROPERTY_MOVE_IN_CHARGES_PAID AS MOVE_IN_CHARGES_PAID#(lf) ,HUB_DEAL.PROPERTY_DF_REFERENCE_NUMBER AS MOVE_IN_CHARGES_REFERENCE_ID#(lf) ,HUB_DEAL.PROPERTY_IS_SECTION_8 AS IS_SECTION_8#(lf) ,HUB_DEAL.PROPERTY_CONCESSION_DOLLAR_AMOUNT AS CONCESSION_DOLLAR_AMOUNT#(lf)  ,HUB_DEAL.PROPERTY_DENIAL_DISPUTE#(lf)  ,HUB_DEAL.PROPERTY_DENIAL_DISPUTE_COMMENTS#(lf)  ,HUB_DEAL.PROPERTY_DENIAL_DISPUTE_REASON#(lf) ,HUB_DEAL.PROPERTY_APPLICATION_DENIAL_REASON#(lf) ,DEAL_LOST.DEAL_LOST_REASON#(lf)#(lf)FROM PROD_ANALYTICS.DBT_RESICAP.DIM_DEAL D#(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.FCT_DEAL_STATUS_ACCUM DSH ON DSH.DEAL_KEY  = D.Deal_Key#(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_LEAD L ON L.LEAD_KEY = DSH.Lead_Key#(lf)#(lf)LEFT JOIN (SELECT#(lf)#(tab)#(tab)#(tab)#(tab)Deal_ID #(lf)#(tab)#(tab)#(tab)#(tab),Value AS RECEIEVABLE_ID#(lf)#(tab)#(tab)#(tab)#(tab)FROM PROD_REPLICA.HUBSPOT.DEAL_PROPERTY_HISTORY#(lf)#(tab)#(tab)#(tab)#(tab)#(lf)#(tab)#(tab)#(tab)#(tab)WHERE 1=1#(lf)#(tab)#(tab)#(tab)#(tab)--AND DEAL_ID =8496423848#(lf)#(tab)#(tab)#(tab)#(tab)AND NAME = 'account_receivable'#(lf)#(tab)#(tab)#(tab)#(tab)AND _FIVETRAN_ACTIVE = 'Y') REC ON REC.DEAL_ID = D.DEAL_ID#(tab)#(lf)#(tab)#(tab)#(tab)#(tab)#(lf)LEFT JOIN (SELECT Charge_DATE_KEY, Property_Key, Receivable_ID, Amount #(lf)#(tab)#(tab)#(tab)FROM PROD_ANALYTICS.DBT_RESICAP.FCT_LEASING_TRANSACTION#(lf)#(tab)#(tab)#(tab)WHERE #(lf)#(tab)#(tab)#(tab)TRANSACTION_TYPE = 'Charges' #(lf)#(tab)#(tab)#(tab)--AND IS_REVERSED = 'N' #(lf)#(tab)#(tab)#(tab)AND Amount >= 500 #(lf)#(tab)#(tab)#(tab)AND GL_ACCOUNT_KEY IN (18)#(lf)#(tab)#(tab)#(tab)) CHG ON CHG.Receivable_ID = TRY_CAST(REC.RECEIEVABLE_ID AS INTEGER)#(lf)#(lf)LEFT JOIN (SELECT#(lf)#(lf)#(tab)#(tab)#(tab)LT.PROPERTY_KEY#(lf)#(tab)#(tab)#(tab),MIN(LT.RECEIVED_ON_DATE_KEY) AS HOLDING_FEE_DATE_NEW#(lf)#(tab)#(tab)#(tab),REFUND.REFUNDED_FLAG#(lf)#(tab)#(tab)#(tab),MIN(LT.PAID_BY_USER_KEY) AS PAID_BY_USER_KEY #(lf)#(tab)#(tab)    ,LT.RECEIVABLE_ID#(lf)#(tab)#(tab)    ,LT.TENANT_KEY#(lf)#(tab)#(tab)#(tab),LT.AMOUNT#(lf)#(tab)#(tab)#(tab)FROM PROD_ANALYTICS.DBT_RESICAP.FCT_LEASING_TRANSACTION LT#(lf)#(tab)#(tab)#(tab)LEFT JOIN #(tab)#(lf)#(tab)#(tab)#(tab)#(tab)(SELECT#(lf)#(tab)#(tab)#(tab)#(tab) 'Refunded' AS REFUNDED_FLAG #(lf)#(tab)#(tab)#(tab)#(tab),PROPERTY_KEY#(lf)#(tab)#(tab)#(tab)#(tab),PAID_BY_USER_KEY#(lf)#(tab)#(tab)#(tab)#(tab),AMOUNT FROM PROD_ANALYTICS.DBT_RESICAP.FCT_LEASING_TRANSACTION#(lf)#(tab)#(tab)#(tab)#(tab)#(tab)WHERE 1=1 #(lf)#(tab)#(tab)#(tab)#(tab)#(tab)AND TRANSACTION_TYPE = 'Payment' ) REFUND ON REFUND.PROPERTY_KEY = LT.PROPERTY_KEY #(lf)#(tab)#(tab)#(tab)#(tab)#(tab)#(tab)#(tab)#(tab)#(tab)#(tab)#(tab)#(tab)#(tab)#(tab)#(tab)#(tab)AND REFUND.PAID_BY_USER_KEY = LT.PAID_BY_USER_KEY#(lf)#(tab)#(tab)#(tab)#(tab)#(tab)#(tab)#(tab)#(tab)#(tab)#(tab)#(tab)#(tab)#(tab)#(tab)#(tab)#(tab)AND REFUND.AMOUNT = (LT.AMOUNT*-1)#(lf)#(tab)#(tab)#(tab)WHERE 1=1#(lf)#(tab)#(tab)#(tab)AND LT.TRANSACTION_TYPE = 'Payment' #(lf)#(tab)#(tab)#(tab)AND LT.Amount >= 500#(lf)#(tab)#(tab)#(tab)AND LT.GL_ACCOUNT_KEY IN (18,-1) -- SD#(lf)#(tab)#(tab)#(tab)AND LT.RECEIVABLE_ID =1739849#(lf)#(tab)#(tab)--#(tab)AND LT.PAID_BY_USER_KEY = 1663341#(lf)#(tab)#(tab)#(tab)GROUP BY#(lf)#(tab)#(tab)#(tab) LT.PROPERTY_KEY#(lf)#(tab)#(tab)#(tab),LT.RECEIVABLE_ID#(lf)#(tab)#(tab)#(tab),LT.TENANT_KEY#(tab)#(lf)#(tab)#(tab)#(tab),LT.AMOUNT#(lf)            ,REFUND.REFUNDED_FLAG#(lf)            ) PAY ON PAY.Receivable_ID = TRY_CAST(REC.RECEIEVABLE_ID AS INTEGER) AND PAY.Amount = CHG.Amount#(lf)#(lf)#(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_USER U ON U.USER_KEY = CASE WHEN DSH.User_key <> -1 THEN DSH.User_key#(lf)#(tab)#(tab)#(tab)#(tab)#(tab)#(tab)#(tab)#(tab)#(tab)#(tab)#(tab)#(tab)#(tab)#(tab)#(tab)#(tab)#(tab) ELSE Pay.PAID_BY_USER_KEY END#(lf)#(tab)#(tab)#(tab)#(tab)#(tab)#(tab)#(tab)#(tab)#(tab)#(tab)#(tab)#(tab)#(tab)#(tab)#(tab)#(tab)#(tab)#(tab)#(tab) #(lf)LEFT JOIN (SELECT TLA.* #(lf)#(tab)#(tab)FROM PROD_ANALYTICS.DBT_RESICAP.FCT_TENANT_LEASING_ACCUM TLA#(lf)#(tab)#(tab)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_TENANT T ON T.Tenant_KEY = TLA.Tenant_key#(lf)#(tab)#(tab)LEFT JOIN PROD_REPLICA.HBPM_DBO.TENANTINFORMATIONS TI ON TI.TENANTINFORMATIONID  = T.TENANT_INFORMATION_ID#(lf)#(tab)#(tab)WHERE TI._FIVETRAN_DELETED <> 'Y'#(lf)#(tab)#(tab)AND RENTDUEDAY IS NOT NULL#(lf)#(tab)#(tab)AND T.TENANT_KEY NOT IN (70575) ) TLA ON TLA.USER_KEY = U.User_key#(lf)#(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PROPERTY P ON #(lf)#(lf)P.PROPERTY_KEY = COALESCE ( PAY.Property_Key,#(lf)#(tab)#(tab)#(tab)#(tab)#(tab)#(tab)#(tab)#(tab)#(tab)CASE WHEN DSH.PROPERTY_KEY <> -1 THEN DSH.PROPERTY_KEY#(lf)#(tab)#(tab)#(tab)#(tab)#(tab)#(tab)#(tab)#(tab)#(tab)ELSE TLA.PROPERTY_KEY END)#(lf)#(tab)#(tab)#(tab)#(tab)#(tab)#(tab)#(tab)#(tab)#(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.FCT_PROPERTY_UNIT_SUMMARY PUS ON PUS.PROPERTY_KEY  = P.PROPERTY_KEY #(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PROPERTY_UNIT PU ON PU.PROPERTY_UNIT_KEY = PUS.PROPERTY_UNIT_KEY#(lf)LEFT JOIN PROD_REPLICA.HBPM_DBO.PROPERTIES HBPM ON HBPM.PROPERTYID = P.HBPM_PROPERTY_ID --*REPLCA DB*#(lf)LEFT JOIN PROD_REPLICA.HBPM_DBO.PROPERTYADDLINFOES PM_AI ON PM_AI.PROPERTYID  = HBPM.PROPERTYID AND PM_AI.""_FIVETRAN_DELETED"" = 'N' #(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PORTFOLIO PO ON PO.PORTFOLIO_KEY = PUS.PORTFOLIO_KEY #(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_REGION R ON R.REGION_KEY = PUS.REGION_KEY #(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_OWNER_ORGANIZATION O ON O.ORGANIZATION_KEY = PUS.ORGANIZATION_KEY #(lf)LEFT JOIN PROD_REPLICA.HBAM_DBO.PROPERTIES HBAM ON HBAM.HBID = P.HBAM_PROPERTY_ID --*REPLCA DB*#(lf)LEFT JOIN PROD_REPLICA.HBAM_DBO.CONSTRUCTIONS AM_CONS ON AM_CONS.CONSTRUCTIONID = HBAM.CONSTRUCTION_CONSTRUCTIONID AND AM_CONS.HBID = HBAM.HBID AND AM_CONS.""_FIVETRAN_DELETED"" <> 'Y'#(lf)#(lf) LEFT JOIN (SELECT#(lf)               DEAL_ID#(lf)              ,VALUE AS DEAL_LOST_REASON#(lf)              FROM ""PROD_REPLICA"".""HUBSPOT_2"".""DEAL_PROPERTY_HISTORY""#(lf)              WHERE 1=1#(lf)              AND name = 'deal_lost_reason'#(lf)              AND _FIVETRAN_ACTIVE = 'TRUE') DEAL_LOST ON DEAL_LOST.DEAL_ID = D.DEAL_ID#(lf)#(lf)#(lf)--REPLICA Section Start#(lf)#(lf)LEFT JOIN (#(lf)#(lf)SELECT #(lf)  APP.PROPERTY_HOLDING_FEE_TRANSACTION_DATE#(lf) ,CAST(COALESCE(HD.DEAL_PIPELINE_STAGE_ID,APP.PROPERTY_HS_PIPELINE_STAGE) AS INT) AS DEAL_PIPELINE_STAGE_ID#(lf) ,COALESCE(D.DEAL_KEY,APP.APP_ID) AS DEAL_KEY_JOIN#(lf) ,DPS.Label AS DEAL_STAGE#(lf) ,APP_ID#(lf)  ,CASE #(lf)  WHEN APP.PROPERTY_HS_PIPELINE_STAGE = 59173506 THEN 'Aplication Started'#(lf)  WHEN APP.PROPERTY_HS_PIPELINE_STAGE = 93217140 THEN 'Needs New Property'        #(lf)  WHEN APP.PROPERTY_HS_PIPELINE_STAGE = 59173507 THEN 'Under Review'#(lf)  WHEN APP.PROPERTY_HS_PIPELINE_STAGE = 59187121 THEN 'Conditional Approval'#(lf)  WHEN APP.PROPERTY_HS_PIPELINE_STAGE = 59187122 THEN 'Full Approval'#(lf)  WHEN APP.PROPERTY_HS_PIPELINE_STAGE = 59187127 THEN 'Denial'#(lf)  WHEN APP.PROPERTY_HS_PIPELINE_STAGE = 59187123 THEN 'Pre-Lease Compliance'#(lf)  WHEN APP.PROPERTY_HS_PIPELINE_STAGE = 59187124 THEN 'Lease Drafting'#(lf)  WHEN APP.PROPERTY_HS_PIPELINE_STAGE = 59187125 THEN 'Lease Executed'#(lf)  WHEN APP.PROPERTY_HS_PIPELINE_STAGE = 59187126 THEN 'Move-In Scheduled'#(lf)  WHEN APP.PROPERTY_HS_PIPELINE_STAGE = 59187128 THEN 'Closed Lost'#(lf)  ELSE NULL#(lf)  END AS APP_STAGE#(lf) ,rank () over ( partition by COALESCE(D.DEAL_KEY,APP.APP_ID) ORDER BY HD.PROPERTY_HS_LASTMODIFIEDDATE, APP.APP_ID DESC) AS DEAL_RANK #(lf) ,HD.PROPERTY_LEASE_DRAFTING_STATUS#(lf) ,HD.PROPERTY_LEASE_SIGNED_DATE#(lf) ,HD.PROPERTY_MOVE_IN_FEE_PAYMENT_LINK#(lf) ,HD.PROPERTY_MOVE_IN_CHARGES_PAID#(lf) ,HD.PROPERTY_DF_REFERENCE_NUMBER#(lf) ,HD.PROPERTY_IS_SECTION_8#(lf) ,HD.PROPERTY_CONCESSION_DOLLAR_AMOUNT#(lf) ,APP.PROPERTY_DENIAL_DISPUTE#(lf) ,APP.PROPERTY_DENIAL_DISPUTE_COMMENTS#(lf) ,APP.PROPERTY_DENIAL_DISPUTE_REASON#(lf) ,APP.PROPERTY_APPLICATION_DENIAL_REASON#(lf) #(lf) FROM PROD_ANALYTICS.DBT_RESICAP.DIM_DEAL D#(lf)  LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.FCT_DEAL_STATUS_ACCUM DSH ON DSH.DEAL_KEY  = D.Deal_Key#(lf)  LEFT JOIN PROD_REPLICA.HUBSPOT_2.DEAL HD ON HD.DEAL_ID = D.DEAL_ID#(lf)#(lf)  LEFT JOIN PROD_REPLICA.HUBSPOT_2.APPLICATION_TO_DEAL ATD ON ATD.TO_ID = D.DEAL_ID#(lf)   FULL JOIN (#(lf)  #(lf)    SELECT DISTINCT A.ID AS APP_ID, A.PROPERTY_UNIT_ID, A.PROPERTY_HS_PIPELINE_STAGE, A.PROPERTY_HOLDING_FEE_TRANSACTION_DATE, P.PROPERTY_KEY, A.PROPERTY_DENIAL_DISPUTE, A.PROPERTY_DENIAL_DISPUTE_COMMENTS, A.PROPERTY_DENIAL_DISPUTE_REASON, A.PROPERTY_APPLICATION_DENIAL_REASON#(lf)     #(lf)    FROM PROD_REPLICA.HUBSPOT_2.APPLICATION A              #(lf)    LEFT JOIN (select *,#(lf)              rank () over ( partition by FROM_ID ORDER BY _FIVETRAN_SYNCED DESC ) AS RECENT_RANK#(lf)              FROM PROD_REPLICA.HUBSPOT_2.APPLICATION_TO_PROPERTIES#(lf)              Qualify RECENT_RANK =1 ) ATP ON ATP.FROM_ID = A.ID#(lf)              LEFT JOIN PROD_REPLICA.HUBSPOT_2.PROPERTIES H_P ON H_P.ID = ATP.TO_ID#(lf)              LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PROPERTY P ON P.HBPM_PROPERTY_ID = H_P.PROPERTY_PROPERTY_ID#(lf)    WHERE IS_INTEGER(A.PROPERTY_HS_PIPELINE_STAGE)  ='True'#(lf)    AND A.PROPERTY_UNIT_ID IS NOT NULL#(lf)    AND APP_ID NOT IN (8472470544,8657787708,8657665830,6854090788)) --merged bad data        #(lf)              APP ON APP.APP_ID = ATD.FROM_ID AND APP.PROPERTY_KEY = DSH.PROPERTY_KEY#(lf)  #(lf)   LEFT JOIN #(lf)      (SELECT * FROM PROD_REPLICA.HUBSPOT_2.DEAL_PIPELINE_STAGE #(lf)                  WHERE _FIVETRAN_DELETED = 'N') DPS#(lf)       ON DPS.STAGE_ID = HD.DEAL_PIPELINE_STAGE_ID#(lf)   #(lf)  WHERE 1=1#(lf)  --AND DEAL_KEY_JOIN = 206925#(lf)  QUALIFY DEAL_RANK = 1 ) HUB_DEAL ON HUB_DEAL.DEAL_KEY_JOIN = D.DEAL_KEY#(lf)--Replica Section End       #(lf)#(lf)WHERE 1=1#(lf)#(lf)--AND HD.IS_DELETED <>'Y'#(lf)--AND COALESCE(D.CURRENT_DEAL_STATUS,HUB_DEAL.DEAL_STAGE) IS NOT NULL#(lf)AND P.Property_KEY IS NOT NULL#(lf)AND D.DEAL_PIPELINE <> 'Tour Pipeline'#(lf)AND D.DEAL_PIPELINE <> 'Renewals'#(lf)AND D.CURRENT_flag = 'Y'#(lf)AND (L.CURRENT_Flag = 'Y' OR DSH.LEAD_KEY = -1)#(lf)AND (L.IS_MERGED_LEAD IS NULL OR IS_MERGED_LEAD = 'N')#(lf)AND DSH.LEAD_KEY  IS NOT NULL#(lf)----AND L.Application_SUBMIT_Date_KEY IS NOT null#(lf)AND (TLA.TENANT_INFORMATION_ID <> 36986 OR TLA.TENANT_INFORMATION_ID IS NULL)#(lf)#(lf)#(lf)#(lf)AND (HBAM.PROPERTYSTATUSID >9 OR HBAM.PROPERTYSTATUSID IS NULL) --out of bid#(lf)AND P.PROPERTY_STATE ='Active'#(lf)AND P.EntityID <> ''#(lf)AND (HBAM.PROPERTYSTATUSID NOT IN (53,75) OR HBAM.PROPERTYSTATUSID IS NULL)#(lf)AND PO.Portfolio_KEY NOT IN (223,598,147,102,109,28,603,169,602,170,58,54,169)#(lf)AND PUS.Organization_KEY not IN (16,17)#(lf)AND PO.IS_Active_AM = 'Y'#(lf)AND PO.Current_Flag = 'Y'#(lf)AND P.Current_Flag = 'Y'#(lf)AND PU.Current_Flag = 'Y'#(lf)AND PUS.Occupancy_Status NOT IN ('Not Managed')#(lf)AND (HBPM.PROPERTYSTATEID = 26 OR HBPM.PROPERTYSTATEID IS NULL) #(lf)#(lf)--AND DSH.HOLDING_FEE_PAID_DATE_KEY >= 20220201#(lf)--AND TLA.Tenant_Key = 4099#(lf)--AND D.deal_KEY = 105610#(lf))#(lf)--Select * from Deals       #(lf)--WHERE Deals.DEAL_ID = 9871310690      #(tab)#(lf) --**********************************************************************************************************************************             #(tab)#(lf),TENANT AS (#(lf) #(lf)SELECT#(lf)#(lf)T.TENANT_KEY#(lf),T.TENANT_INFORMATION_ID#(lf),U.USER_KEY#(lf),T.LEASE_ID#(lf),RANK() OVER (PARTITION BY TS.Property_KEY ORDER BY Lease_ID ASC) AS Lease_Rank #(lf),PU.PROPERTY_UNIT_KEY#(lf),TS.Property_KEY#(lf),P.HBPM_PROPERTY_ID#(lf),PO.Portfolio_Name#(lf),P.ORGANIZATION_KEY#(lf),O.ORGANIZATION_NAME#(lf),P.Address#(lf),P.EntityID#(lf),PUS.Occupancy_Status#(lf)#(lf),U.FULL_NAME#(lf),U.USER_STATUS#(lf),U.EMAIL_ADDRESS#(lf),U.PHONE_NUMBER#(lf),T.TENANT_STATUS#(lf),T.TENANT_TYPE#(lf),T.PRIMARY_TENANT#(lf),T.EVICTION_STATUS#(lf),T.VEHICLES#(lf),T.PETS#(lf),T.MONTH_TO_MONTH#(lf),T.LEASE_TERM#(lf),to_date(T.NOTICE_DATE_KEY::TEXT,'yyyymmdd') AS NOTICE_DATE#(lf),TLA.INITIAL_RENT_AMOUNT#(lf),T.CURRENT_RENT#(lf)--,to_date(Deals.HOLDING_FEE_DATE_NEW::TEXT,'yyyymmdd') AS ""HOLDING_FEE_DATE_NEW""#(lf),to_date(TLA.CURRENT_LEASE_EXPIRATION_DATE_KEY ::TEXT,'yyyymmdd') AS CURRENT_LEASE_EXPIRATION_DATE#(lf),to_date(TLA.LEASE_SIGNED_DATE_KEY::TEXT,'yyyymmdd') AS LEASE_SIGNED_DATE#(lf),to_date(TLA.LEASE_FROM_DATE_KEY::TEXT,'yyyymmdd') AS LEASE_FROM_DATE#(lf),to_date(TLA.LEASE_TO_DATE_KEY::TEXT,'yyyymmdd') AS LEASE_TO_DATE#(lf)#(lf),to_date(T.DOB_DATE_KEY::TEXT,'yyyymmdd') AS DOB#(lf),CASE WHEN COALESCE(RESI_TSUM.AVERAGE_CREDIT_SCORE, PM_D.AVERAGECREDITSCORE, DEALS.AVERAGE_CREDIT_SCORE) > 850 THEN NULL #(lf) ELSE COALESCE(RESI_TSUM.AVERAGE_CREDIT_SCORE, PM_D.AVERAGECREDITSCORE, DEALS.AVERAGE_CREDIT_SCORE)  END AS AVERAGE_CREDIT_SCORE#(lf),COALESCE(RESI_TSUM.COMBINED_INCOME,PM_D.COMBINEDINCOME,DEALS.COMBINED_INCOME) COMBINEDINCOME#(lf),RESI_TSUM.NUMBER_OF_CHILDREN#(lf),RESI_TSUM.OCCUPANTS#(lf),RESI_TSUM.TENANT_AGE#(lf),RESI_TSUM.MONTHLY_INCOME#(lf),RESI_TSUM.IS_RETIRED#(lf),RESI_TSUM.IS_NOTICE#(lf),RESI_TSUM.IS_UNDER_EVICTION#(lf),HUB_PETS.PETS AS ""PETS_AMOUNT""#(lf)#(lf),TI.MoveIn#(lf),TI.MoveOut#(lf),TI.PurchaseLetterPostedDate#(lf),TI.DateNotified#(lf),TI.FiledWithCountyDate#(lf),TI.ResidentServedDate#(lf),TI.CourtDateSetDate#(lf),TI.JudgementDate#(lf),TI.LockoutScheduledDate#(lf),TI.VacateDate#(lf),TI.AnticipatedMoveOutDate#(lf),TI.IsSection8#(lf),TI.IsMonthtoMonthLease#(lf),TI.TenantDecidedMonthtoMonth#(lf),TI.DoNotRenew#(lf),TI.ReasonForNotRenewingId#(lf),DNR.DESCRIPTION AS REASONFORNOTRENEWINGNAME#(lf),PUS.Under_written_rent#(lf)#(lf)FROM PROD_ANALYTICS.DBT_RESICAP.DIM_TENANT T#(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.FCT_TENANT_ACTIVITY TS ON TS.TENANT_KEY = T.TENANT_KEY #(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.FCT_TENANT_LEASING_ACCUM TLA ON TLA.TENANT_KEY = T.Tenant_Key#(lf)LEFT JOIN PROD_REPLICA.HBPM_DBO.TENANTINFORMATIONS TI ON TI.TenantInformationId = T.TENANT_INFORMATION_ID#(lf)LEFT JOIN PROD_REPLICA.HBPM_DBO.LOOKUPMASTERS DNR on DNR.LookUpMasterId = TI.ReasonForNotRenewingId#(lf)LEFT JOIN PROD_REPLICA.HBPM_DBO.DEALS PM_D ON PM_D.LEADUSERID = TI.USERID AND PM_D.UNITID =TI.UNITID AND PM_D.SECURITYDEPOSITID IS NOT null#(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_USER U ON U.USER_KEY = TS.USER_KEY#(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PROPERTY P ON P.PROPERTY_KEY = TS.PROPERTY_KEY#(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.FCT_PROPERTY_UNIT_SUMMARY PUS ON PUS.PROPERTY_KEY  = P.PROPERTY_KEY #(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PROPERTY_UNIT PU ON PU.PROPERTY_UNIT_KEY = PUS.PROPERTY_UNIT_KEY#(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PORTFOLIO PO ON PO.PORTFOLIO_KEY = PUS.PORTFOLIO_KEY #(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_OWNER_ORGANIZATION O ON O.ORGANIZATION_KEY = PUS.ORGANIZATION_KEY#(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_LEAD L ON L.lead_key = TS.LEAD_KEY #(lf)#(lf)#(lf)LEFT JOIN DEALS ON Deals.User_key = TS.USER_KEY AND (Deals.Current_Deal_Status = 'Deal Won' OR Deals.Current_Deal_Status = 'Closed Won') AND Deals.PRoperty_key = P.Property_key AND Deals.SECURITY_DEPOSIT_ID IS NOT null#(lf)#(tab)#(tab)#(tab)#(lf)LEFT JOIN (SELECT C.ID, COUNT(PET.ID) PETS#(lf)#(tab)#(tab)#(tab)FROM PROD_REPLICA.HUBSPOT.PET #(lf)#(tab)#(tab)#(tab)LEFT JOIN PROD_REPLICA.HUBSPOT.PET_TO_CONTACT PTC ON PTC.FROM_ID = PET.ID#(lf)#(tab)#(tab)#(tab)LEFT JOIN PROD_REPLICA.HUBSPOT.CONTACT C ON C.ID = PTC.TO_ID #(lf)#(tab)#(tab)#(tab)GROUP BY C.ID) HUB_PETS ON HUB_PETS.ID = L.LEAD_ID#(lf)#(tab)#(lf)LEFT JOIN (SELECT #(lf)#(tab)#(tab)#(tab)FCT_TENANT_SUMMARY_KEY #(lf)#(tab)#(tab)#(tab),TENANT_INFORMATION_ID #(lf)#(tab)#(tab)#(tab),AVERAGE_CREDIT_SCORE#(lf)#(tab)#(tab)#(tab),COMBINED_INCOME#(lf)#(tab)#(tab)#(tab),NUMBER_OF_CHILDREN#(lf)#(tab)#(tab)#(tab),OCCUPANTS#(lf)#(tab)#(tab)#(tab),TENANT_AGE#(lf)#(tab)#(tab)#(tab),MONTHLY_INCOME#(lf)#(tab)#(tab)#(tab),IS_RETIRED#(lf)#(tab)#(tab)#(tab),IS_NOTICE#(lf)#(tab)#(tab)#(tab),IS_UNDER_EVICTION#(lf)#(tab)#(tab)#(tab)FROM PROD_ANALYTICS.RESICAP.FCT_TENANT_SUMMARY R_TS#(lf)#(tab)#(tab)#(tab)LEFT JOIN PROD_ANALYTICS.RESICAP.DIM_TENANT R_T ON R_T.TENANT_KEY = R_TS.TENANT_KEY ) RESI_TSUM ON RESI_TSUM.TENANT_INFORMATION_ID = T.TENANT_INFORMATION_ID#(lf)#(tab)#(tab)#(tab)#(tab)#(tab)#(tab)#(lf)WHERE 1=1#(lf)AND T.CURRENT_FLAG = 'Y'#(lf)AND T.PRIMARY_TENANT = 'Y'#(lf)#(lf)AND T.Tenant_Status <> 'Future'#(lf)AND P.PROPERTY_STATE ='Active'#(lf)AND P.EntityID <> ''#(lf)AND TI._FIVETRAN_DELETED <> 'Y'#(lf)--AND (PS.PROPERTY_STATUS_ID NOT IN (53,75) OR PS.PROPERTY_STATUS_ID IS NULL)#(lf)AND PO.Portfolio_KEY NOT IN (1845, 2210, 2207, 2218, 1952,1867, 1916,1852,1771,1919,1873)#(lf)AND P.Organization_KEY not IN (16,17)#(lf)AND PO.IS_Active_AM = 'Y'#(lf)AND PO.Current_Flag = 'Y'#(lf)AND P.Current_Flag = 'Y'#(lf)AND PU.Current_Flag = 'Y'#(lf)AND PUS.Occupancy_Status NOT IN ('Property SOLD','Not Managed') #(lf)AND TI.RENTDUEDAY IS NOT NULL#(lf)AND T.TENANT_KEY NOT IN (70575,76191)--bad DATA#(lf)AND TLA.FCT_TENANT_LEASING_ACCUM_KEY NOT IN (25236)) --bad DATA )#(lf)--AND T.TENANT_KEY NOT  (76191,76190))#(lf)--SELECT * FROM Tenant#(lf)--**************************************************************************************            #(tab)        #(tab)#(lf),ListDeal AS (#(lf)#(lf)SELECT#(lf)#(lf)RLH.FCT_PRO_RENTAL_LISTING_HIST_KEY#(lf),MIN(Deals.Deal_ID) DEAL_ID#(lf)#(lf)FROM PROD_ANALYTICS.DBT_RESICAP.FCT_PROP_RENTAL_LISTING_HIST RLH#(lf)LEFT JOIN Deals ON Deals.PROPERTY_KEY = RLH.PROPERTY_KEY #(lf)#(lf)#(lf)WHERE 1=1#(lf)AND RLH.LISTING_STATUS NOT IN ('Withdrawn', 'On Hold')#(lf)AND (Deals.Current_Deal_Status IN ('Pre-Lease Compliance','Lease Drafting','Lease Executed','Move-In Scheduled','Lease Signed (Working)','Lease Start Day','Post Move-In')#(lf)   OR Deals.APP_STAGE IN ('Pre-Lease Compliance','Lease Drafting','Lease Executed','Move-In Scheduled','Lease Signed (Working)','Lease Start Day','Post Move-In'))#(lf)AND Deals.Current_Deal_Status NOT IN ('Deal Lost', 'Rejected','Closed Lost','Property Listed')#(lf)#(lf)AND APP_STAGE IS NOT NULL#(lf)AND DEALS.LISTING_KEY = RLH.LISTING_KEY#(lf)--AND DEALS.REFUNDED_FLAG IS NULL#(lf)--AND LISTING_DATE_KEY >  20220101 #(lf)--AND RLH.PRoperty_Key = 68292880#(lf)--AND RENT_LIST_HIST_ID = 6831764523#(lf)#(lf)GROUP BY FCT_PRO_RENTAL_LISTING_HIST_KEY#(lf))#(lf)#(lf)     #(lf)/*SELECT * FROM ListDeal #(lf)WHERE#(lf)-- RLH.Property_Key =15602#(lf)FCT_PRO_RENTAL_LISTING_HIST_KEY = 19164#(lf)*/#(lf)#(lf)#(lf)#(lf)--**************************************************************************************#(lf),LEASE_HIST AS #(lf)(#(lf)SELECT DISTINCT#(lf)P.PROPERTY_KEY #(lf),to_date(TLA.LEASE_FROM_DATE_KEY::TEXT,'yyyymmdd') AS LEASE_FROM_DATE#(lf),TLH.AMOUNT#(lf),RANK () OVER (PARTITION BY P.PROPERTY_KEY ORDER BY DATE_TRUNC('day',CREATED) DESC, TLH.LEASESTART DESC, TLA.LEASE_FROM_DATE_KEY DESC, TLH.AMOUNT ASC )  RANK_1#(lf)FROM PROD_REPLICA.HBPM_DBO.TENANTLEASINGHISTORIES TLH#(lf)LEFT JOIN PROD_REPLICA.HBPM_DBO.TENANTINFORMATIONS TI ON TI.TenantInformationId = TLH.TenantInformationId#(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_TENANT T ON T.TENANT_INFORMATION_ID = TI.TenantInformationId AND T.Current_FLAG = 'Y'#(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.FCT_TENANT_LEASING_ACCUM TLA ON TLA.TENANT_KEY = T.Tenant_Key#(lf)LEFT JOIN PROD_REPLICA.HBPM_DBO.PROPERTYADDLINFOES PAI ON PAI.UnitId = TI.UnitId AND PRIMARYTENANT = 'TRUE'#(lf)LEFT JOIN PROD_REPLICA.HBPM_DBO.PROPERTIES HBPM ON HBPM.PropertyId = PAI.PropertyId#(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PROPERTY P ON P.HBPM_PROPERTY_ID = HBPM.PROPERTYID AND P.Current_FLAG = 'Y'#(lf)LEFT JOIN (SELECT Max(Id) RRQC_ID ,HBID FROM PROD_REPLICA.HBAM_DBO.RRQCCHANGELOGS GROUP BY HBID) RRQC_MOST_RECENT ON RRQC_MOST_RECENT.HBID = P.HBAM_PROPERTY_ID#(lf)LEFT JOIN PROD_REPLICA.HBAM_DBO.RRQCCHANGELOGS RRQC ON RRQC.ID = RRQC_MOST_RECENT.RRQC_ID#(lf)#(lf)WHERE 1=1#(lf)AND TLA.LEASE_FROM_DATE_KEY IS NOT NULL#(lf)AND T.Tenant_Status <> 'Future'#(lf)AND TLH.AMOUNT <> 0#(lf)AND TLH.AMOUNT >= 500#(lf)AND RRQC.RRQCPassDate IS NOT NULL #(lf)AND to_date(TLA.LEASE_FROM_DATE_KEY::TEXT,'yyyymmdd') >= RRQC.RRQCPassDate#(lf)--AND P.PRoperty_key = 183910#(lf)QUALIFY RANK_1 = 1)#(lf)--**************************************************************************************#(lf)#(lf)SELECT DISTINCT #(lf)#(lf)RLH.FCT_PRO_RENTAL_LISTING_HIST_KEY#(lf)#(lf),RLH.PROPERTY_KEY#(lf),PU.PROPERTY_UNIT_KEY#(lf),P.EntityID#(lf),R.Region_Name#(lf),COALESCE(PM_AI.Bedrooms, PU.BEDROOMS) AS BEDROOMS#(lf),COALESCE(PM_AI.BATHROOMS, PU.BATHROOMS) AS BATHROOMS#(lf),PU.SQUARE_FOOTAGE#(lf),P.Year_Built#(lf),P.ADDRESS || ', ' || CI.CITY_NAME || ', ' || S.STATE_NAME || ' ' || P.ZIPCODE AS Full_Address#(lf),P.ADDRESS#(lf),CI.CITY_NAME#(lf),S.STATE_NAME#(lf),S.STATE_CODE#(lf),P.ZIPCODE#(lf),CO.COUNTY_NAME#(lf),SUB.SUBDIVISION#(lf),P.FloorPlan#(lf),COALESCE(to_date(P.TRANSFER_DATE_KEY::TEXT,'yyyymmdd'),to_date(P.PURCHASE_DATE_KEY::TEXT,'yyyymmdd')) AS ""Transfer_Date""#(lf),AM_PM.MoveInReady#(lf),PM_AI.MOVEINREADY AS PM_MIR#(lf),DATE_TRUNC('month',COALESCE(PM_AI.MOVEINREADY,GETDATE())) AS PM_MIR_BOM#(lf)#(lf),MO.MoveOut#(lf)#(lf),CASE  WHEN RLH.LISTING_STATUS <> 'Active' THEN NULL#(lf)#(tab)   WHEN PUS.Occupancy_Status = 'Tenant Leased' #(lf)#(tab)   THEN NULL#(lf)#(tab)   WHEN RRQC.RRQCPassDate IS NULL THEN 0#(lf)#(tab)   ELSE DATEDIFF(DAY,GREATEST(#(lf)#(tab)#(tab)COALESCE(RRQC.RRQCPassDate,to_date(P.TRANSFER_DATE_KEY::TEXT,'yyyymmdd'),to_date(P.PURCHASE_DATE_KEY::TEXT,'yyyymmdd'))#(lf)#(tab)#(tab),COALESCE(MO.MoveOut,'1900-01-01')),#(lf)#(tab)#(tab)GETDATE()) END AS Days_Vacant#(tab)#(lf)#(tab)#(tab)#(lf),RLH.PORTFOLIO_KEY#(lf),PO.Portfolio_Name#(lf),PUS.Occupancy_Status#(lf)#(tab),CASE#(lf)        WHEN P.ORGANIZATION_KEY IN (-1,18,26,28,48)                   THEN -1#(lf)        WHEN P.ORGANIZATION_KEY IN (27,50,51,52,54,45,55,53,56,57,66) THEN 27#(lf)        WHEN P.ORGANIZATION_KEY IN (58,59)                            THEN 58#(lf)        WHEN P.ORGANIZATION_KEY IN (62,63,64,65,68,69)                THEN 62#(lf)        WHEN P.ORGANIZATION_KEY IN (61,70)                            THEN 61#(lf)        WHEN P.ORGANIZATION_KEY IN (67)                               THEN 67#(lf)        ELSE P.ORGANIZATION_KEY#(lf)     END AS ORGANIZATION_KEY#(lf)      #(lf)#(tab),CASE#(lf)        WHEN P.ORGANIZATION_KEY IN (-1,18,26,28,48)                   THEN 'RP SFR'#(lf)        WHEN P.ORGANIZATION_KEY IN (27,50,51,52,54,45,55,53,56,57,66) THEN 'RB DRC'#(lf)        WHEN P.ORGANIZATION_KEY IN (58,59)                            THEN 'Hudson Oak'#(lf)        WHEN P.ORGANIZATION_KEY IN (62,63,64,65,68,69)                THEN 'Rocklyn Homes'#(lf)        WHEN P.ORGANIZATION_KEY IN (61,70)                            THEN 'ROI Property Group'#(lf)        WHEN P.ORGANIZATION_KEY IN (67)                               THEN 'Newstar'#(lf)        ELSE O.ORGANIZATION_NAME#(lf)     END AS ORGANIZATION_NAME#(lf)#(tab)      #(lf),TO_date(RLH.LISTING_DATE_KEY::TEXT,'YYYYMMDD') AS LISTING_DATE#(lf),TO_date(RLH.LISTING_END_DATE_KEY::TEXT,'YYYYMMDD') AS LISTING_END_DATE#(lf),CASE WHEN TO_date(RLH.LISTING_END_DATE_KEY::TEXT,'YYYYMMDD') >= LC.PRICE_CHANGE_DATE THEN NULL#(lf)      ELSE LC.PRICE_CHANGE_DATE END AS RENT_MODIFIED_DATE#(lf)      #(lf),COALESCE(HL.PROPERTY_LISTING_AGENT_FULL_NAME,RLH.LEASING_AGENT) AS LEASING_AGENT#(lf),COALESCE(HL.PROPERTY_LISTING_AGENT_EMAIL,RL_U.EmailAddress) AS AGENT_EMAIL#(lf),RLH.INITIAL_LIST_PRICE#(lf),RLH.CURRENT_LIST_PRICE#(lf)#(lf),RLH.CONCESSION_TYPE_ID AS CONCESSION_TYPE_ID#(lf),RLH.CONCESSION_TYPE AS CONCESSION_TYPE#(lf),CASE WHEN RLH.CONCESSION_TYPE_ID = 4471 THEN ROUND(RLH.CONCESSION_MONTHS_OFF,1) || ' ' || RLH.CONCESSION_TYPE#(lf)#(tab)  WHEN RLH.CONCESSION_TYPE_ID = 4470 THEN ROUND(RLH.CONCESSION_AMOUNT,0) || ' ' || RLH.CONCESSION_TYPE#(lf)#(tab)  ELSE RLH.CONCESSION_TYPE #(lf)#(tab)  END AS CONCESSION_TYPE_COMBINED#(lf),to_date(RLH.CONCESSION_END_DATE_KEY::text,'yyyymmdd') AS CONCESSIONENDDATE#(lf),RLH.CONCESSION_MONTHS_OFF AS CONCESSIONMONTHSOFF#(lf),RLH.CONCESSION_AMOUNT AS CONCESSIONAMOUNT#(lf)#(lf),RLH.LISTING_STATUS#(lf),RLH.RENT_LIST_HIST_ID#(lf),D.DEAL_KEY#(lf),D.CURRENT_DEAL_STATUS#(lf),D.APP_STAGE#(lf),D.DEAL_ID#(lf),COALESCE (D.LEASE_START_DATE,Tenant.LEASE_FROM_DATE) AS LEASE_START_DATE#(lf),DATE_TRUNC('month',COALESCE (D.LEASE_START_DATE,Tenant.LEASE_FROM_DATE)) AS LEASE_START_DATE_BOM#(lf),COALESCE(D.LEASE_END_DATE,Tenant.LEASE_TO_DATE) AS LEASE_END_DATE#(lf),COALESCE(D.LEASE_SIGNED_DATE,Tenant.LEASE_SIGNED_DATE) AS LEASE_SIGNED_DATE#(lf),D.LEAD_KEY#(lf),D.HOLDING_FEE_DATE_NEW#(lf),U.FULL_NAME #(lf),D.EMAIL AS LEAD_EMAIL#(lf),D.LEAD_NAME #(lf),D.PHONE AS LEAD_PHONE#(lf),D.First_Name#(lf),D.Last_Name#(lf),Tenant.TENANT_KEY#(lf),D.Deal_Owner#(lf),CASE WHEN D.IS_SECTION_8 = 1 THEN 'Yes' ELSE 'No' END AS Section_8#(lf),Tenant.CURRENT_RENT#(lf),PUS.Under_written_rent#(lf),D.APP_ID#(lf),D.URL_HUBSPOT#(lf)#(lf),CASE WHEN (PUS.Occupancy_Status <> 'Vacant - Future Move In' AND RLH.LISTING_STATUS <> 'Deposit Taken') THEN NULL#(lf)#(tab)  WHEN D.CURRENT_DEAL_STATUS IS NULL OR (D.CURRENT_DEAL_STATUS = 'Closed Lost' AND (D.APP_STAGE IS NULL OR D.APP_STAGE = 'Closed Lost')) THEN -2#(lf)#(tab)  WHEN COALESCE (D.LEASE_START_DATE,Tenant.LEASE_FROM_DATE) < DAte(GETDATE()) AND COALESCE (D.LEASE_START_DATE,Tenant.LEASE_FROM_DATE) IS NOT NULL AND D.CURRENT_DEAL_STATUS <> 'Closed Lost' THEN -1#(lf)#(tab)  WHEN D.LEASE_START_DATE IS NULL AND D.CURRENT_DEAL_STATUS = 'Closed Lost' THEN 1#(lf)#(tab)  ELSE 2#(lf)#(tab)  END AS ""Listings Format""#(lf)#(tab)  #(lf),CASE WHEN (PUS.Occupancy_Status <> 'Vacant - Future Move In' AND RLH.LISTING_STATUS <> 'Deposit Taken') THEN NULL#(lf)#(tab)  WHEN D.CURRENT_DEAL_STATUS IS NULL OR (D.CURRENT_DEAL_STATUS = 'Closed Lost' AND (D.APP_STAGE IS NULL OR D.APP_STAGE = 'Closed Lost')) THEN 'Deal Lost'#(lf)#(tab)  WHEN COALESCE (D.LEASE_START_DATE,Tenant.LEASE_FROM_DATE) < DATE(GETDATE()) AND COALESCE (D.LEASE_START_DATE,Tenant.LEASE_FROM_DATE) IS NOT NULL AND D.CURRENT_DEAL_STATUS <> 'Closed Lost'  THEN 'Past Scheduled Move-In'#(lf)#(tab)  WHEN D.LEASE_START_DATE IS NULL AND D.CURRENT_DEAL_STATUS = 'Closed Lost' THEN 'Needs Move-In Date'#(lf)#(tab)  ELSE 'On Track'#(lf)#(tab)  END AS ""Listings Format_Name""#(lf)#(lf),CASE WHEN (PUS.Occupancy_Status <> 'Vacant - Future Move In' AND RLH.LISTING_STATUS <> 'Deposit Taken') THEN NULL#(lf)      WHEN D.HOLDING_FEE_DATE_NEW IS null THEN NULL#(lf)      ELSE DATEDIFF(DAY, D.HOLDING_FEE_DATE_NEW, GETDATE() )#(lf)      END AS ""Days Since HF""#(lf)      #(lf),CASE WHEN D.LEASE_START_DATE IS NULL THEN NULL#(lf)      WHEN D.HOLDING_FEE_DATE_NEW IS Null THEN NULL#(lf)      WHEN D.LEASE_START_DATE >= D.HOLDING_FEE_DATE_NEW THEN  DATEDIFF(DAY, D.HOLDING_FEE_DATE_NEW, D.LEASE_START_DATE)#(lf)      END AS ""Days HF-MI""#(lf)      #(lf) ,CASE WHEN D.LEASE_START_DATE IS NULL THEN NULL#(lf) #(tab)   WHEN TENANT.TENANT_KEY IS NULL THEN NULL #(lf) #(tab)   ELSE DATE_TRUNC('month',D.LEASE_START_DATE)#(lf) #(tab)   END AS ""Move-In (BOM)""#(lf) #(tab)#(lf),CASE WHEN RLH.LISTING_DATE_KEY IS NULL THEN NULL#(lf)      ELSE DATE_TRUNC('month',TO_date(RLH.LISTING_DATE_KEY::TEXT, 'YYYYMMDD'))#(lf) #(tab)  END AS ""List (BOM)""#(lf) #(tab)  #(lf),CASE WHEN RANK() OVER (PARTITION BY RLH.PROPERTY_KEY #(lf)#(tab)#(tab)#(tab)  ORDER BY RLH.RENT_LIST_HIST_ID DESC) = 1 THEN 'Yes' ELSE 'No' END AS MOST_RECENT_LISTING#(lf)#(tab)  #(lf),CASE WHEN D.LEASE_START_DATE IS NOT NULL THEN DATEDIFF(DAY,GETDATE(), D.LEASE_START_DATE ) #(lf)#(tab)  ELSE NULL END AS ""Days_Until_MI""#(lf)#(lf),CASE WHEN RLH.LISTING_STATUS ='Active' THEN DATEDIFF('day',to_date(RLH.LISTING_DATE_KEY::TEXT,'yyyymmdd'),GETDATE())  ELSE NULL END AS Listing_DOM#(lf)#(lf)#(lf),CASE WHEN RLH.LISTING_DATE_KEY IS NULL THEN NULL #(lf)#(tab)  WHEN RLH.LISTING_STATUS <> 'Active' THEN NULL#(lf)#(tab)  ELSE DATEDIFF(DAY,to_date(RLH.LISTING_DATE_KEY::TEXT,'yyyymmdd'),GETDATE())#(lf)#(tab)  END AS ""Days_On_Market_Active""#(lf)#(tab)  #(lf),CASE WHEN RLH.LISTING_DATE_KEY IS NULL THEN NULL #(lf)#(tab)  WHEN RLH.LISTING_STATUS <> 'Active' THEN NULL#(lf)#(tab)  ELSE LEAST(7,DATEDIFF(DAY,to_date(RLH.LISTING_DATE_KEY::TEXT,'yyyymmdd'),GETDATE())-1)#(lf)#(tab)  END AS ""Days_On_Market_Active_Last_Week""#(lf)#(lf),CASE WHEN RLH.LISTING_DATE_KEY IS NULL THEN NULL #(lf)#(tab)  WHEN RLH.LISTING_STATUS <> 'Active' THEN NULL#(lf)#(tab)  ELSE #(lf)#(tab)  TO_VARCHAR(TRUNCATE (DATEDIFF(DAY,to_date(RLH.LISTING_DATE_KEY::TEXT,'yyyymmdd'),GETDATE())/10 ) * 10) || ' - ' ||#(lf)#(tab)  TO_VARCHAR(TRUNCATE (DATEDIFF(DAY,to_date(RLH.LISTING_DATE_KEY::TEXT,'yyyymmdd'),GETDATE())/10 ) * 10 + 10)#(lf)#(tab)  END AS ""Days_On_Market_Active_Bucket""#(lf)#(lf),CASE WHEN RLH.LISTING_DATE_KEY IS NULL THEN NULL #(lf)#(tab)  WHEN RLH.LISTING_STATUS <> 'Active' THEN NULL#(lf)#(tab)  ELSE #(lf)#(tab)  TRUNCATE (DATEDIFF(DAY,to_date(RLH.LISTING_DATE_KEY::TEXT,'yyyymmdd'),GETDATE())/10 ) * 10#(lf)#(tab)  END AS ""Days_On_Market_Active_Sort""#(lf)#(tab)  #(lf),CASE WHEN RLH.LISTING_DATE_KEY IS NULL THEN NULL#(lf)#(tab)  WHEN TO_date(RLH.LISTING_END_DATE_KEY::TEXT,'YYYYMMDD') >= LC.PRICE_CHANGE_DATE THEN NULL#(lf)#(tab)  WHEN RLH.LISTING_STATUS <> 'Active' THEN NULL#(lf)#(tab)  ELSE DATEDIFF(DAY,LC.PRICE_CHANGE_DATE,GETDATE())#(lf)#(tab)  END AS ""Days_Since_Reduction_Active""#(lf)#(lf) --,CASE WHEN PM_AI.MOVEINREADY >= GETDATE() THEN 0 ELSE#(lf) --DATETEDIFF('day',GREATEST(COALESCE(HCV.INSPECTION_COMPLETED_DATE,to_date(RLH.LISTING_DATE_KEY::TEXT,'yyyymmdd')),to_date(RLH.LISTING_DATE_KEY::TEXT,'yyyymmdd'),PM_AI.MOVEINREADY),GETDATE()) END AS Days_Since_Vacancy_Check#(lf)--,HCV.REPORT_STATUS AS HC_VACANCY_STATUS#(lf)#(lf),LC.N_LIST_PRICE#(lf),LC.O_LIST_PRICE#(lf),CASE WHEN LC.PRICE_CHANGE_DATE IS NOT NULL#(lf)#(tab)THEN COALESCE(LC.PRICE_CHANGE, RLH.CURRENT_LIST_PRICE - RLH.INITIAL_LIST_PRICE)#(lf)#(tab)ELSE NULL#(lf)#(tab)END AS PRICE_CHANGE#(lf)#(lf)#(lf),HF.Description AS LISTING_DESCRIPTION#(lf),CASE WHEN DL.LISTING_STATE = 'Inactive' AND PUS.Occupancy_Status = 'Tenant Leased' THEN 0#(lf)#(tab)  WHEN (RLH.LISTING_STATUS ='Deposit Taken' OR PUS.Occupancy_Status = 'Vacant - Future Move In')#(lf)      THEN 1 #(lf)      WHEN RLH.LISTING_STATUS IN ('Active','Leased') #(lf)      AND D.CURRENT_DEAL_STATUS IN ('Pre-Lease Compliance','Lease Drafting','Lease Signed (Working)','Move-in Scheduled','Lease Start Day')#(lf)      THEN 1#(lf)ELSE 0 END AS FMI_FLAG#(lf)#(lf),LEASE_HIST.LEASE_FROM_DATE  AS LAST_LEASE_START#(lf)--,LEASE_HIST.AMOUNT      AS LAST_LEASE_AMOUNT#(lf),HL.PROPERTY_LAST_LEASE_RATE     AS LAST_LEASE_AMOUNT#(lf),'https://honeybadgerpm.com/PropertyModule#/PropertyDetails/' || HBPM.PROPERTYID || '/' || PM_AI.UnitID ||'/0' AS HBPM_URL#(lf)#(lf),ONN.OnMarketNote#(lf),ONN.OnMarketNoteCreated#(lf),ONN.OnMarketNote_Days#(lf),ONN.OnMarketNote_Added_By#(lf)#(tab)#(lf),ASM.""Recalculated NOI"" AS ASM_Recalculated_NOI#(lf),ASM.""In Place Rent""  AS ASM_In_Place_Rent#(lf),ASM.""Budget Rent""  AS ASM_Budget_Rent#(lf),COALESCE(ASM.""Original UW rent"",PUS.Under_written_rent) AS ASM_Original_UW_Rent#(lf),UWP.""Projected cost basis"" AS ASM_Cost_Basis#(lf),CASE WHEN ASM.""Recalculated NOI"" IS NOT NULL AND UWP.""Projected cost basis"" IS NOT NULL #(lf) THEN ASM.""Recalculated NOI"" / UWP.""Projected cost basis""#(lf) ELSE NULL END AS ASM_Net_Yield#(lf)#(lf),CASE WHEN UW_Rent.UW_Update_Date IS NOT NULL THEN DATEDIFF('day',UW_Rent.UW_Update_Date,GETDATE())#(lf)      ELSE NULL END AS UW_Days_Since_Update#(lf)--,COALESCE( LEASE_HIST.AMOUNT,ASM.""Original UW rent"",PUS.Under_written_rent) AS ASM_Blended_UW_Rent#(lf),COALESCE( HL.PROPERTY_LAST_LEASE_RATE,ASM.""Original UW rent"",PUS.Under_written_rent) AS ASM_Blended_UW_Rent#(lf)#(lf),CASE WHEN D.LEASE_START_DATE <= DATEADD(DAY,6,AM_CONS.PROJECTEDCOMPLETIONDATE) #(lf)      AND AM_CONS.PROJECTEDCOMPLETIONDATE IS NOT NULL #(lf)      AND D.LEASE_START_DATE IS NOT NULL#(lf)      THEN 'LSD Needs Pushed'#(lf)      ELSE 'LSD Good '#(lf)      END AS PCD_FLAG#(lf)#(lf)#(lf),DL.IS_PUBLISHED as IS_PUBLISHED#(lf),DL.IS_PRELEASING AS PRE_LEASING#(lf),DL.LISTING_STATE#(lf),DL.LISTING_KEY#(lf)#(lf),DL.LISTING_PRICE_MODIFICATION_DATE AS LISTING_PRICE_MODIFICATION_DATE#(lf)#(lf) ,D.LEASE_DRAFTING_STATUS#(lf) ,D.MOVE_IN_FEE_PAYMENT_LINK#(lf) ,D.MOVE_IN_CHARGES_PAID#(lf) ,D.MOVE_IN_CHARGES_REFERENCE_ID#(lf)#(lf) #(lf) ,CASE #(lf)   WHEN D.CURRENT_DEAL_STATUS IN ('Lease Drafting','Lease Signed (Working)','Move-In Scheduled','Lease Executed','Lease Start Day' )#(lf)   OR D.APP_STAGE IN ('Lease Drafting','Lease Signed (Working)','Move-In Scheduled','Lease Executed','Lease Start Day' ) THEN#(lf)    (CASE WHEN D.LEASE_DRAFTING_STATUS <> 'Completed' THEN 'Pending Lease Signature'#(lf)     WHEN D.LEASE_DRAFTING_STATUS = 'Completed' AND D.MOVE_IN_CHARGES_PAID IS NULL THEN 'Pending Move-In Charges'#(lf)     WHEN D.LEASE_DRAFTING_STATUS = 'Completed' AND D.MOVE_IN_CHARGES_PAID IS NOT NULL THEN 'CODE READY' END)#(lf)   ELSE NULL#(lf) END AS CODE_READY#(lf) #(lf)      #(lf)FROM PROD_ANALYTICS.DBT_RESICAP.FCT_PROP_RENTAL_LISTING_HIST RLH#(lf)LEFT JOIN PROD_REPLICA.HUBSPOT_2.CUSTOM_LISTING HL ON HL.ID = RLH.Rent_LIST_HIST_ID#(lf)LEFT JOIN ListDeal LD ON LD.FCT_PRO_RENTAL_LISTING_HIST_KEY = RLH.FCT_PRO_RENTAL_LISTING_HIST_KEY#(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_LISTING DL ON RLH.LISTING_KEY = DL.LISTING_KEY#(lf)LEFT JOIN Deals D ON D.Deal_ID = LD.Deal_ID#(lf)#(tab)AND (D.Current_Deal_Status IN ('Pre-Lease Compliance','Lease Drafting','Lease Executed','Move-In Scheduled','Lease Signed (Working)','Lease Start Day','Post Move-In')#(lf)         OR D.APP_STAGE IN ('Pre-Lease Compliance','Lease Drafting','Lease Executed','Move-In Scheduled','Lease Signed (Working)','Lease Start Day','Post Move-In'))#(lf) #(tab)AND D.APP_STAGE IS NOT NULL#(lf) #(tab)AND D.Current_Deal_Status NOT IN ('Deal Lost', 'Rejected','Closed Lost','Property Listed')#(lf)#(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PROPERTY P ON P.PROPERTY_KEY = RLH.PROPERTY_KEY AND P.CURRENT_FLAG = 'Y'#(lf)LEFT JOIN PROD_REPLICA.HBPM_DBO.PROPERTIES HBPM ON HBPM.PROPERTYID = P.HBPM_PROPERTY_ID --*REPLCA DB*#(lf)LEFT JOIN PROD_REPLICA.HBAM_DBO.PROPERTIES HBAM ON HBAM.HBID = P.HBAM_PROPERTY_ID --*REPLCA DB*#(lf)LEFT JOIN PROD_REPLICA.HBAM_DBO.CONSTRUCTIONS AM_CONS ON AM_CONS.CONSTRUCTIONID = HBAM.CONSTRUCTION_CONSTRUCTIONID AND AM_CONS.HBID = HBAM.HBID AND AM_CONS.""_FIVETRAN_DELETED"" <> 'Y'#(lf)LEFT JOIN (SELECT Max(Id) RRQC_ID ,HBID FROM PROD_REPLICA.HBAM_DBO.RRQCCHANGELOGS GROUP BY HBID) RRQC_MOST_RECENT ON RRQC_MOST_RECENT.HBID = P.HBAM_PROPERTY_ID#(lf)LEFT JOIN PROD_REPLICA.HBAM_DBO.RRQCCHANGELOGS RRQC ON RRQC.ID = RRQC_MOST_RECENT.RRQC_ID#(lf)#(lf)LEFT JOIN PROD_REPLICA.HBPM_DBO.USERS PM_U ON PM_U.UserID = HBPM.ASSIGNEDUSERID #(lf)LEFT JOIN PROD_REPLICA.HBPM_DBO.PROPERTYADDLINFOES PM_AI ON PM_AI.PROPERTYID  = HBPM.PROPERTYID AND PM_AI.""_FIVETRAN_DELETED"" = 'N' #(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.FCT_PROPERTY_UNIT_SUMMARY PUS ON PUS.PROPERTY_KEY  = P.PROPERTY_KEY #(lf)#(tab)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PROPERTY_UNIT PU ON PU.PROPERTY_UNIT_KEY = PUS.PROPERTY_UNIT_KEY#(lf)#(tab)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PORTFOLIO PO ON PO.PORTFOLIO_KEY = PUS.PORTFOLIO_KEY #(lf)#(tab)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_REGION R ON R.REGION_KEY = PUS.REGION_KEY #(lf)#(tab)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_OWNER_ORGANIZATION O ON O.ORGANIZATION_KEY = PUS.ORGANIZATION_KEY #(lf)#(tab)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_CITY CI ON CI.CITY_KEY = PUS.CITY_KEY #(lf)#(tab)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_STATE S ON S.STATE_KEY = PUS.STATE_KEY #(lf)#(tab)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_COUNTY CO ON CO.COUNTY_KEY = PUS.COUNTY_KEY #(lf)#(tab)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_SUBDIVISION SUB ON SUB.SUBDIVISION_KEY = PUS.SUBDIVISION_KEY #(lf)LEFT JOIN PROD_REPLICA.HBAM_DBO.PROPERTYMANAGEMENTS AM_PM ON AM_PM.PROPERTYMANAGEMENTID = HBAM.PropertyManagement_PropertyManagementId AND AM_PM.HBID = HBAM.HBID AND AM_PM.""_FIVETRAN_DELETED"" <> 'Y'#(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_USER U ON U.USER_KEY = D.USER_KEY#(lf)LEFT JOIN TENANT ON TENANT.USER_KEY = D.USER_KEY #(lf)#(lf)LEFT JOIN (SELECT#(lf)#(tab)#(tab)#(tab)MAX(TI.MoveOut) MoveOut#(lf)#(tab)#(tab)#(tab),TLA.Property_key#(lf)#(tab)#(tab)#(tab)FROM PROD_ANALYTICS.DBT_RESICAP.DIM_TENANT T#(lf)#(tab)#(tab)#(tab)#(tab)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.FCT_TENANT_LEASING_ACCUM TLA ON TLA.TENANT_KEY = T.Tenant_Key#(lf)#(tab)#(tab)#(tab)#(tab)LEFT JOIN PROD_REPLICA.HBPM_DBO.TENANTINFORMATIONS TI ON TI.TENANTINFORMATIONID = T.Tenant_Information_id#(lf)#(tab)#(tab)#(tab)WHERE 1=1#(lf)#(tab)#(tab)#(tab)#(tab)AND PRIMARY_TENANT ='Y' #(lf)#(tab)#(tab)#(tab)#(tab)AND CURRENT_FLAG ='Y'#(lf)#(tab)#(tab)#(tab)#(tab)AND RENT_DUE_DAY IS NOT NULL#(lf)#(tab)#(tab)#(tab)#(tab)AND TI._FIVETRAN_DELETED = 'N'#(lf)#(tab)#(tab)#(tab)#(tab)AND TI.MoveOut IS NOT NULL#(lf)#(tab)#(tab)#(tab)GROUP BY TLA.Property_key ) MO ON MO.PRoperty_key = P.Property_key#(lf)#(tab)#(tab)#(lf)#(lf)LEFT JOIN LIST_CHANGE LC ON LC.PROPERTY_LISTING_ID = RLH.RENT_LIST_HIST_ID#(lf)LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_HOME_FEATURE HF ON HF.HOME_FEATURE_KEY = RLH.HOME_FEATURE_KEY#(lf)#(lf)LEFT JOIN PROD_REPLICA.HBPM_DBO.RENTALLISTINGENTRIES DL_RL ON DL_RL.ID = RLH.RENT_LIST_HIST_ID -- Replica#(lf)LEFT JOIN PROD_REPLICA.HBPM_DBO.""USERS"" RL_U ON RL_U.USERID = DL_RL.LEASINGAGENTID #(lf)LEFT JOIN PROD_REPLICA.HBPM_DBO.LOOKUPMASTERS DL_CT ON DL_CT.LOOKUPMASTERID = DL_RL.CONCESSIONTYPEID -- Replica#(lf)LEFT JOIN LEASE_HIST ON LEASE_HIST.Property_key = P.Property_key#(lf)LEFT JOIN ONMarketNote ONN ON ONN.PropertyID = P.HBPM_PROPERTY_ID#(tab)#(tab)#(lf)#(lf)LEFT JOIN PROD_ANALYTICS.BI_DATASET_VIEWS.VW_ASM_ACQUISITION_AM ASM ON ASM.""EntityID"" = P.EntityID#(lf)LEFT JOIN PROD_ANALYTICS.BI_DATASET_VIEWS.VW_ASM_UNDERWRITING_PROPERTIES UWP ON UWP.""Entity ID"" = P.EntityID AND UWP.""Source.Name"" = 'AAA_DATA_TABLE'#(lf)LEFT JOIN UW_RENT ON UW_Rent.HBPM_UnitID = PM_AI.UnitID#(tab)#(lf)#(lf)WHERE 1=1#(lf)AND RLH.LISTING_KEY IS NOT null#(lf)--AND RLH.LISTING_STATUS NOT IN ('Withdrawn', 'On Hold')#(lf)AND (RLH.LISTING_DATE_KEY IS NOT NULL OR RLH.LISTING_STATUS NOT IN ('Active'))#(lf)AND P.PROPERTY_STATE ='Active'#(lf)AND P.EntityID <> ''#(lf)AND RLH.CURRENT_LIST_PRICE <> 0#(lf)--AND (PS.PROPERTY_STATUS_ID NOT IN (53,75) OR PS.PROPERTY_STATUS_ID IS NULL)#(lf)AND PO.Portfolio_KEY NOT IN (1845, 2210, 2207, 2218, 1952,1867, 1916,1852,1771,1919,1873)#(lf)AND P.Organization_KEY not IN (16,17)#(lf)AND PO.IS_Active_AM = 'Y'#(lf)AND PO.Current_Flag = 'Y'#(lf)AND P.Current_Flag = 'Y'#(lf)AND PU.Current_Flag = 'Y'#(lf)AND PUS.Occupancy_Status NOT IN ('Property SOLD','Not Managed') #(lf)AND RENT_LIST_HIST_ID NOT IN (8831,5319)", null, [EnableFolding=true]),
+				    #"Renamed Columns" = Table.RenameColumns(Source,{{"MOVEINREADY", "MOVEINREADY"}}),
+				    #"Replaced Value" = Table.ReplaceValue(#"Renamed Columns",0,null,Replacer.ReplaceValue,{"PRICE_CHANGE"}),
+				    #"Filtered Rows" = Table.SelectRows(#"Replaced Value", each [RENT_LIST_HIST_ID] <> 8831),
+				    #"Filtered Rows1" = Table.SelectRows(#"Filtered Rows", each [LISTING_KEY] <> null and [LISTING_KEY] <> "")
+				in
+				    #"Filtered Rows1"
+
+	annotation PBI_ResultType = Exception
+
+	annotation PBI_NavigationStepName = Navigation
+

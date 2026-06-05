@@ -1,0 +1,849 @@
+table DW_Leads
+	lineageTag: d69c5392-61db-4108-8c5b-48a32550e8eb
+
+	measure 0_Leads_Card = CALCULATE(DISTINCTCOUNT(DW_Leads[LEAD_KEY])) +0
+		formatString: #,0
+		lineageTag: f31c7e90-cf60-4c5c-9892-f7d51b3f33ff
+
+		changedProperty = FormatString
+
+	measure 0_Leads = ```
+			CALCULATE(DISTINCTCOUNT(DW_Leads[LEAD_key]),DW_Leads[PRIMARY_LEAD_ID]=BLANK())
+			
+			```
+		formatString: #,0
+		lineageTag: fa3c307b-ab48-4f55-b07d-6708abf0e1dc
+
+		changedProperty = FormatString
+
+	measure '0_Leads W/W' = ```
+			VAR thisWeek = CALCULATE(DISTINCTCOUNT(DW_Leads[LEAD_KEY]), DW_Leads[LEAD_CREATED_DATE] >= TODAY()-7, DW_Leads[LEAD_CREATED_DATE] <= TODAY()-1)
+			VAR lastWeek = CALCULATE(DISTINCTCOUNT(DW_Leads[LEAD_KEY]), DW_Leads[LEAD_CREATED_DATE] >= TODAY()-14, DW_Leads[LEAD_CREATED_DATE] <= TODAY()-8)
+			RETURN DIVIDE(thisWeek, lastWeek)
+			
+			```
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: ffb33839-5026-48eb-8151-89ab73aa80d4
+
+	column LEAD_KEY
+		dataType: double
+		lineageTag: cae9f9bc-ff72-4ac8-b5a5-96c36622f76f
+		summarizeBy: sum
+		sourceColumn: LEAD_KEY
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column PROPERTY_KEY
+		dataType: double
+		lineageTag: 687514c1-c77b-49d3-ab65-33f4273a2b06
+		summarizeBy: none
+		sourceColumn: PROPERTY_KEY
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column LEAD_ID
+		dataType: double
+		lineageTag: a46c95f0-f731-4b1f-aa58-5d78fa73ae85
+		summarizeBy: count
+		sourceColumn: LEAD_ID
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column SOURCE
+		dataType: string
+		lineageTag: ca27ad55-5f7d-4884-abd0-b5e2651b2512
+		summarizeBy: none
+		sourceColumn: SOURCE
+
+		annotation SummarizationSetBy = Automatic
+
+	column LEAD_STATUS
+		dataType: string
+		lineageTag: 2307a485-b4e6-47d7-8135-7ee7b16150dc
+		summarizeBy: none
+		sourceColumn: LEAD_STATUS
+
+		annotation SummarizationSetBy = Automatic
+
+	column EMAIL
+		dataType: string
+		lineageTag: bdd00f0b-ad41-4370-bae6-861184cdef72
+		summarizeBy: none
+		sourceColumn: EMAIL
+
+		annotation SummarizationSetBy = Automatic
+
+	column PHONE
+		dataType: string
+		lineageTag: 2597cc92-4547-4415-8196-873f37eff0e2
+		summarizeBy: none
+		sourceColumn: PHONE
+
+		annotation SummarizationSetBy = Automatic
+
+	column ENTITYID
+		dataType: string
+		lineageTag: d3720c46-0bc9-4467-b13a-d35112e87dd8
+		summarizeBy: none
+		sourceColumn: ENTITYID
+
+		annotation SummarizationSetBy = Automatic
+
+	column OCCUPANCY_STATUS
+		dataType: string
+		lineageTag: 8effa9c1-bb86-40d0-bedf-4ce4aedd13e4
+		summarizeBy: none
+		sourceColumn: OCCUPANCY_STATUS
+
+		annotation SummarizationSetBy = Automatic
+
+	column HBPM_PROPERTY_ID
+		dataType: double
+		lineageTag: be39fd9f-e4cd-4f8f-bea9-4b5dc4a0d348
+		summarizeBy: count
+		sourceColumn: HBPM_PROPERTY_ID
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column LEAD_CREATED_DATE
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 6107aa38-9618-4aa8-8427-7c4f6061cd62
+		summarizeBy: none
+		sourceColumn: LEAD_CREATED_DATE
+
+		variation Variation
+			isDefault
+			relationship: 38ef852a-4b1e-4028-b488-bcb0893722e7
+			defaultHierarchy: LocalDateTable_7aac0efd-68f5-4749-8942-97cbc3f61c7a.'Date Hierarchy'
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column APPLICATION_SENT_DATE
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 8c0d73ef-3cc2-421a-a101-9cc3dfbd53f9
+		summarizeBy: none
+		sourceColumn: APPLICATION_SENT_DATE
+
+		variation Variation
+			isDefault
+			relationship: adc1e981-c165-4b4b-a381-64e9db31bce1
+			defaultHierarchy: LocalDateTable_d5918bdd-00a2-4240-86de-8dd3eee5c014.'Date Hierarchy'
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column APPLICATION_SUBMIT_DATE
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 274803b5-4d63-4de9-ad5d-bd823736b7c0
+		summarizeBy: none
+		sourceColumn: APPLICATION_SUBMIT_DATE
+
+		variation Variation
+			isDefault
+			relationship: 654ccea5-29a8-46b2-a30f-8e3bb3ee27cb
+			defaultHierarchy: LocalDateTable_9a5e1d4e-8505-4b27-9248-aede5c1ad421.'Date Hierarchy'
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column RENT_LIST_HIST_ID
+		dataType: double
+		lineageTag: f70ef874-066d-4280-a7a2-ae62cae52e34
+		summarizeBy: count
+		sourceColumn: RENT_LIST_HIST_ID
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column LISTINGDATE
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 5514efce-f5a3-49c2-92a7-86e158cde2ba
+		summarizeBy: none
+		sourceColumn: LISTINGDATE
+
+		variation Variation
+			isDefault
+			relationship: 6202f3d7-ea5c-4495-860b-e4ed9e45f58d
+			defaultHierarchy: LocalDateTable_e185e0aa-d848-4f74-8d32-6f34e0540e17.'Date Hierarchy'
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column LISTING_STATUS
+		dataType: string
+		lineageTag: 24deea36-ca15-446e-9965-4d562a9b21db
+		summarizeBy: none
+		sourceColumn: LISTING_STATUS
+
+		annotation SummarizationSetBy = Automatic
+
+	column '1_Lead (BOM)'
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 442b65c6-5812-4744-abd1-2c9b47b4e163
+		summarizeBy: none
+		sourceColumn: 1_Lead (BOM)
+
+		variation Variation
+			isDefault
+			relationship: 4df5e4d7-e1b9-4c1e-b2dc-708d175ca875
+			defaultHierarchy: LocalDateTable_f217a433-a640-4db4-afaa-ceaa3db98f1f.'Date Hierarchy'
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column USER_KEY
+		dataType: double
+		lineageTag: a2431beb-d360-42d1-ad01-512da7db40ea
+		summarizeBy: sum
+		sourceColumn: USER_KEY
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column LEAD_ABANDONED_DATE
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: ce39db86-deb9-4005-b8a9-1aaed81666dc
+		summarizeBy: none
+		sourceColumn: LEAD_ABANDONED_DATE
+
+		variation Variation
+			isDefault
+			relationship: af6d85ec-f94d-4f4d-a94e-92c0eda0cf06
+			defaultHierarchy: LocalDateTable_f377b185-2e3c-48bc-933e-9b71ebb69482.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column LEAD_WON_DATE
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 39d78185-d663-45e8-8bd2-b21d9effacbb
+		summarizeBy: none
+		sourceColumn: LEAD_WON_DATE
+
+		variation Variation
+			isDefault
+			relationship: 2833cd60-c683-45a8-bcdd-97aaa7b933c0
+			defaultHierarchy: LocalDateTable_c9354c97-42c2-4715-a360-1283dcfe51e8.'Date Hierarchy'
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column APPLICATION_FEE_PAID_DATE
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 064718f9-fc99-461c-9d36-bd50c3a363a6
+		summarizeBy: none
+		sourceColumn: APPLICATION_FEE_PAID_DATE
+
+		variation Variation
+			isDefault
+			relationship: 93aa2112-fae3-4da0-b1b2-e0e5057bd879
+			defaultHierarchy: LocalDateTable_f23a9433-80a0-49db-832d-3c2413b8b47c.'Date Hierarchy'
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column ORGANIZATION_KEY
+		dataType: double
+		lineageTag: deccb40b-73fa-4607-9e96-54ace577b77b
+		summarizeBy: sum
+		sourceColumn: ORGANIZATION_KEY
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ORGANIZATION_NAME
+		dataType: string
+		lineageTag: b8b9567a-7d8d-49cb-8894-a92c86cd27bc
+		summarizeBy: none
+		sourceColumn: ORGANIZATION_NAME
+
+		annotation SummarizationSetBy = Automatic
+
+	column PRIMARY_LEAD_ID
+		dataType: double
+		lineageTag: 65e823c0-10eb-4391-9a3d-a161befaa158
+		summarizeBy: count
+		sourceColumn: PRIMARY_LEAD_ID
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column LEAD_FIRST_CONTACTED_DATE
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 45b3bbf4-5abb-4b30-a432-6f17190f5c88
+		summarizeBy: none
+		sourceColumn: LEAD_FIRST_CONTACTED_DATE
+
+		variation Variation
+			isDefault
+			relationship: 55e4de05-e3a3-42da-83b2-d663229de757
+			defaultHierarchy: LocalDateTable_0bd8e339-f3b4-499e-93f8-cf87b42f0bbf.'Date Hierarchy'
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column LEAD_LAST_CONTACTED_DATE
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: a6ad84ea-7c9f-484f-947a-e5e9778b0e29
+		summarizeBy: none
+		sourceColumn: LEAD_LAST_CONTACTED_DATE
+
+		variation Variation
+			isDefault
+			relationship: 645e43c6-2ec4-466d-bb5f-c1dd87bf3a1e
+			defaultHierarchy: LocalDateTable_fdd60e41-42f4-4fc0-9a30-5b2211582d5b.'Date Hierarchy'
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+	column LEAD_NAME
+		dataType: string
+		lineageTag: a2cfd8f7-6090-4442-bdb0-94fbb23f4a9e
+		summarizeBy: none
+		sourceColumn: LEAD_NAME
+
+		annotation SummarizationSetBy = Automatic
+
+	column URL_HUB_CONTACT
+		dataType: string
+		lineageTag: f4a5dc06-031a-4598-a8cb-c4e6e2d92279
+		summarizeBy: none
+		sourceColumn: URL_HUB_CONTACT
+
+		annotation SummarizationSetBy = Automatic
+
+	column REGION_NAME
+		dataType: string
+		lineageTag: 0195a29b-0892-4869-b9e1-b3bb519f7396
+		summarizeBy: none
+		sourceColumn: REGION_NAME
+
+		annotation SummarizationSetBy = Automatic
+
+	column CONTACT_OWNER
+		dataType: string
+		lineageTag: b0c7ccd0-f827-42a3-adc7-ab61399a47bc
+		summarizeBy: none
+		sourceColumn: CONTACT_OWNER
+
+		annotation SummarizationSetBy = Automatic
+
+	column FULL_ADDRESS
+		dataType: string
+		lineageTag: cf354b21-7111-48ed-a8c6-72bb299bd270
+		summarizeBy: none
+		sourceColumn: FULL_ADDRESS
+
+		annotation SummarizationSetBy = Automatic
+
+	column RENTLY_SHOWING_DATE
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 2ed324dc-e8b6-4f73-aafa-102732d76a28
+		summarizeBy: none
+		sourceColumn: RENTLY_SHOWING_DATE
+
+		variation Variation
+			isDefault
+			relationship: 1cb7aca7-484f-4e38-8f97-bf4fc8c2e60f
+			defaultHierarchy: LocalDateTable_d8a503c4-017e-40af-96e0-5061d679583d.'Date Hierarchy'
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column DEAL_OPEN
+		dataType: double
+		lineageTag: 82bdd080-d8ef-4ec1-a348-3795fec2259a
+		summarizeBy: sum
+		sourceColumn: DEAL_OPEN
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column LEAD_INTERESTED_DATE
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 3f420bf1-0927-4528-bd23-6fa12d83f85f
+		summarizeBy: none
+		sourceColumn: LEAD_INTERESTED_DATE
+
+		variation Variation
+			isDefault
+			relationship: 0c1e1259-22be-44a9-999f-c055c7431a4d
+			defaultHierarchy: LocalDateTable_46542cef-2935-4ae9-9252-ec76c3df08f9.'Date Hierarchy'
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column '1_Lead_INTERESTED (BOM)'
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 1a715087-e57e-42b5-b656-1940608d6f02
+		summarizeBy: none
+		sourceColumn: 1_Lead_INTERESTED (BOM)
+
+		variation Variation
+			isDefault
+			relationship: 2c0275cd-4ded-439a-8abb-00a61f05054c
+			defaultHierarchy: LocalDateTable_da7af370-b570-43fe-8e5b-4a3b5561c2f7.'Date Hierarchy'
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column LEAD_INTEREST_TYPE
+		dataType: string
+		lineageTag: 9d270c19-03f7-454c-9931-c236529793d4
+		summarizeBy: none
+		sourceColumn: LEAD_INTEREST_TYPE
+
+		annotation SummarizationSetBy = Automatic
+
+	column 1_LEAD_FILTER = IF(DW_Leads[LEAD_INTEREST_TYPE]="New",BLANK(),CALCULATE(COUNTROWS(DW_Leads),FILTER(ALL(DW_Leads),DW_Leads[LEAD_KEY]=EARLIER(DW_Leads[LEAD_KEY])&&DW_Leads[1_Lead_INTERESTED (BOM)]=EARLIER(DW_Leads[1_Lead_INTERESTED (BOM)])&&DW_Leads[LEAD_INTEREST_TYPE]="New")))
+		formatString: 0
+		lineageTag: 821600a3-b638-4102-903e-21f3d7852c95
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	column PORTFOLIO_NAME
+		dataType: string
+		lineageTag: 7f0f3977-e79e-472b-a9b0-4862f8ee5419
+		summarizeBy: none
+		sourceColumn: PORTFOLIO_NAME
+
+		annotation SummarizationSetBy = Automatic
+
+	column 1_Lead_Created_BOM
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: d941d218-f261-477e-9b1a-bdb4a46d3385
+		summarizeBy: none
+		sourceColumn: 1_Lead_Created_BOM
+
+		variation Variation
+			isDefault
+			relationship: c41800ba-6276-46e5-9174-ab53b3ee7a54
+			defaultHierarchy: LocalDateTable_208d39fb-7002-4ead-86b9-579fe2346524.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column REQUIRES_FOLLOW_UP
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: d0f2bf93-09b8-4ab5-a47a-6670385d0d90
+		summarizeBy: none
+		sourceColumn: REQUIRES_FOLLOW_UP
+
+		annotation SummarizationSetBy = Automatic
+
+	column FINDIGS_APPLICANT_ID
+		dataType: string
+		lineageTag: a528ffb2-48a8-4a3e-9bae-1099acbfbbec
+		summarizeBy: none
+		sourceColumn: FINDIGS_APPLICANT_ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column FINDIGS_GROUP_ID
+		dataType: string
+		lineageTag: a7d70949-62c2-413f-97e0-1a10edefb96c
+		summarizeBy: none
+		sourceColumn: FINDIGS_GROUP_ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column APPLICATION_TOPICS_TOTAL
+		dataType: double
+		lineageTag: 597d15a9-7586-4dfe-b43a-577c382c341c
+		summarizeBy: sum
+		sourceColumn: APPLICATION_TOPICS_TOTAL
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column APPLICATION_TOPICS_PROGRESS
+		dataType: double
+		lineageTag: dcb4074d-c876-4c7e-8a70-6ba42b2a2986
+		summarizeBy: sum
+		sourceColumn: APPLICATION_TOPICS_PROGRESS
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column FINDIGS_APPLICATION_PERCENT_COMPLETE
+		dataType: double
+		lineageTag: faf2d464-4fe0-4aa6-9dbb-ab9b485fd49c
+		summarizeBy: sum
+		sourceColumn: FINDIGS_APPLICATION_PERCENT_COMPLETE
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column FINDIGS_APPLICATION_SUBMITTED
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 5c627565-5b74-4d56-bb2d-c8226278d3f0
+		summarizeBy: none
+		sourceColumn: FINDIGS_APPLICATION_SUBMITTED
+
+		variation Variation
+			isDefault
+			relationship: 3de7b9a7-1158-480a-b136-20a2b044a666
+			defaultHierarchy: LocalDateTable_c2f3a706-2b65-4908-bb1a-13856f482060.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column FINDIGS_APPLICATION_STATUS
+		dataType: string
+		lineageTag: 8677ccd3-47e4-4e88-b408-4cd7eff74bb4
+		summarizeBy: none
+		sourceColumn: FINDIGS_APPLICATION_STATUS
+
+		annotation SummarizationSetBy = Automatic
+
+	column FINDIGS_APPLICATION_WORKFLOW_STATUS
+		dataType: string
+		lineageTag: 67a9cd69-b648-4889-9158-45b1a42a5539
+		summarizeBy: none
+		sourceColumn: FINDIGS_APPLICATION_WORKFLOW_STATUS
+
+		annotation SummarizationSetBy = Automatic
+
+	column FINDIGS_GROUP_DECISIONED_AT
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 24a9346b-3ed5-405b-8cf3-c76edca3ab2c
+		summarizeBy: none
+		sourceColumn: FINDIGS_GROUP_DECISIONED_AT
+
+		variation Variation
+			isDefault
+			relationship: a8aadd70-05c3-4417-af55-02b6df82abe1
+			defaultHierarchy: LocalDateTable_b1b114f4-7adb-44a3-86ab-2d4ff3664863.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column FINDIGS_GROUP_PENDING_REVIEW_AT
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: b0e8d09e-68c9-4879-9ff9-70ff353102da
+		summarizeBy: none
+		sourceColumn: FINDIGS_GROUP_PENDING_REVIEW_AT
+
+		variation Variation
+			isDefault
+			relationship: 56ed2aed-06cd-4c6d-9768-71b0c68ce540
+			defaultHierarchy: LocalDateTable_53cd3d0e-bed6-4386-a3eb-a05eda2262d1.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column APPLICANT_EMPLOYMENT_EMPLOYER_NAME
+		dataType: string
+		lineageTag: 498cbf3b-52d8-417b-b96b-fcf1a09bf593
+		summarizeBy: none
+		sourceColumn: APPLICANT_EMPLOYMENT_EMPLOYER_NAME
+
+		annotation SummarizationSetBy = Automatic
+
+	column APPLICANT_EMPLOYMENT_JOB_TITLE
+		dataType: string
+		lineageTag: 2df57c62-eef4-46c1-8cf1-7e0f783d64b2
+		summarizeBy: none
+		sourceColumn: APPLICANT_EMPLOYMENT_JOB_TITLE
+
+		annotation SummarizationSetBy = Automatic
+
+	column APPLICANT_EMPLOYMENT_START_DATE
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 4e686e25-a6f3-414a-a3d5-d42e5b1af2c6
+		summarizeBy: none
+		sourceColumn: APPLICANT_EMPLOYMENT_START_DATE
+
+		variation Variation
+			isDefault
+			relationship: ba508c0a-995d-4a7f-9df4-9a93d81b9585
+			defaultHierarchy: LocalDateTable_0a802e01-474d-4269-8d23-f5345791c76a.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column APPLICANT_EMPLOYMENT_STATUS
+		dataType: string
+		lineageTag: d854b95c-cc0b-4e72-b515-7af00ee1e349
+		summarizeBy: none
+		sourceColumn: APPLICANT_EMPLOYMENT_STATUS
+
+		annotation SummarizationSetBy = Automatic
+
+	column APPLICANT_CURRENT_HOUSING_FULL_ADDRESS
+		dataType: string
+		lineageTag: 683dc396-2eb8-45d6-bd78-714bf276303d
+		summarizeBy: none
+		sourceColumn: APPLICANT_CURRENT_HOUSING_FULL_ADDRESS
+
+		annotation SummarizationSetBy = Automatic
+
+	column APPLICANT_CURRENT_HOUSING_TYPE
+		dataType: string
+		lineageTag: a302897e-82f7-45d9-a9f3-44793b8f892c
+		summarizeBy: none
+		sourceColumn: APPLICANT_CURRENT_HOUSING_TYPE
+
+		annotation SummarizationSetBy = Automatic
+
+	column APPLICANT_CURRENT_HOUSING_PAYMENT_AMOUNT
+		dataType: double
+		lineageTag: 7105b4d7-3d2f-4e3f-afa5-977a7aa5c6fe
+		summarizeBy: sum
+		sourceColumn: APPLICANT_CURRENT_HOUSING_PAYMENT_AMOUNT
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column APPLICANT_DESIRED_MOVE_IN_DATE
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: f637934a-eb34-4113-a494-d26ab25b1849
+		summarizeBy: none
+		sourceColumn: APPLICANT_DESIRED_MOVE_IN_DATE
+
+		variation Variation
+			isDefault
+			relationship: e8550665-b54f-44c8-8dba-bc00dc0fbd35
+			defaultHierarchy: LocalDateTable_75c2f3e1-a89b-4815-834f-261735ad21b5.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column APPLICANT_HOUSEHOLD_NUM_DEPENDENTS
+		dataType: double
+		lineageTag: 25be1669-1633-461c-aa3c-4e410d1516a0
+		summarizeBy: sum
+		sourceColumn: APPLICANT_HOUSEHOLD_NUM_DEPENDENTS
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column APPLICANT_HOUSEHOLD_NUM_PETS
+		dataType: double
+		lineageTag: beb55ae9-ba4e-46da-a557-a1db3cdac021
+		summarizeBy: sum
+		sourceColumn: APPLICANT_HOUSEHOLD_NUM_PETS
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column APPLICANT_HOUSEHOLD_NUM_VEHICLES
+		dataType: double
+		lineageTag: 764ef046-92ae-4705-afb2-8930101ac9e0
+		summarizeBy: sum
+		sourceColumn: APPLICANT_HOUSEHOLD_NUM_VEHICLES
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column SUBDIVISION
+		dataType: string
+		lineageTag: 6b088f82-1656-419d-bea8-a0e8c4151b79
+		summarizeBy: none
+		sourceColumn: SUBDIVISION
+
+		annotation SummarizationSetBy = Automatic
+
+	column INTERESTED_PROP_GROUP_KEY
+		dataType: double
+		lineageTag: d1ffb181-c2be-4492-a768-e2e40dabeb70
+		summarizeBy: sum
+		sourceColumn: INTERESTED_PROP_GROUP_KEY
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column PRIMARY_PROPERTY
+		dataType: string
+		lineageTag: bc085217-82ac-451e-886f-8130870de5a0
+		summarizeBy: none
+		sourceColumn: PRIMARY_PROPERTY
+
+		annotation SummarizationSetBy = Automatic
+
+	column PROPERTY_UNIT_KEY
+		dataType: double
+		lineageTag: ddf0eebf-de86-4e19-bfa2-528f28bb383a
+		summarizeBy: sum
+		sourceColumn: PROPERTY_UNIT_KEY
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column LEAD_STATE
+		dataType: string
+		lineageTag: e7c91b31-d8a0-4223-8872-bf9b4a841009
+		summarizeBy: none
+		sourceColumn: LEAD_STATE
+
+		annotation SummarizationSetBy = Automatic
+
+	column RENTLY_SHOWING_INTERESTED
+		dataType: string
+		lineageTag: 6e081d3b-edad-416e-9f51-55182ee12434
+		summarizeBy: none
+		sourceColumn: RENTLY_SHOWING_INTERESTED
+
+		annotation SummarizationSetBy = Automatic
+
+	column RENTLY_SHOWING_FEEDBACK
+		dataType: string
+		lineageTag: 8beba79d-4a61-4720-972c-bcc6a1ce68bc
+		summarizeBy: none
+		sourceColumn: RENTLY_SHOWING_FEEDBACK
+
+		annotation SummarizationSetBy = Automatic
+
+	column RENTLY_SHOWING_IMPROVEMENT
+		dataType: string
+		lineageTag: d55d95bb-9b5c-45d6-b792-b4888448c733
+		summarizeBy: none
+		sourceColumn: RENTLY_SHOWING_IMPROVEMENT
+
+		annotation SummarizationSetBy = Automatic
+
+	column RENTLY_PROPERTY_PROBLEM
+		dataType: string
+		lineageTag: 95302b78-ca57-41d3-8198-d20b4385d2bc
+		summarizeBy: none
+		sourceColumn: RENTLY_PROPERTY_PROBLEM
+
+		annotation SummarizationSetBy = Automatic
+
+	column RENTLY_ACCESS_PROBLEM
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 6d3e6fae-709f-4589-aa0e-1dd55c7688d7
+		summarizeBy: none
+		sourceColumn: RENTLY_ACCESS_PROBLEM
+
+		annotation SummarizationSetBy = Automatic
+
+	column FINDIGS_APP_ID
+		dataType: string
+		lineageTag: 6af61b08-f470-4b70-919e-5b4f80d2975d
+		summarizeBy: none
+		sourceColumn: FINDIGS_APP_ID
+
+		annotation SummarizationSetBy = Automatic
+
+	column FINDIGS_RECENT_RANK
+		dataType: double
+		lineageTag: 5899843c-e94c-4de6-bd09-0058b4555b53
+		summarizeBy: sum
+		sourceColumn: FINDIGS_RECENT_RANK
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column LEAD_LAST_30
+		dataType: double
+		lineageTag: 441946c7-faab-459a-a967-007bb1f11855
+		summarizeBy: sum
+		sourceColumn: LEAD_LAST_30
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition DW_Leads-8911f29c-eabf-450a-b573-b3e0ca412efc = m
+		mode: import
+		queryGroup: 'DW Sources'
+		source =
+				let
+				    Source = Value.NativeQuery(Snowflake.Databases("ota12822.us-east-1.snowflakecomputing.com","DEVELOPER_WH",[Implementation="2.0"]){[Name="PROD_ANALYTICS"]}[Data], "/* =============================================================================#(lf)   LEADS DATASET#(lf)   -----------------------------------------------------------------------------#(lf)   Grain:      One row per lead-interested-property record (FCT_LEAD_INTERESTED_#(lf)               PROP_HIST), enriched with lead status, property, Rently showings,#(lf)               Findigs application data, and the lead's matched rental listing.#(lf)   Anchor:     PROD_ANALYTICS.DBT_RESICAP.FCT_LEAD_INTERESTED_PROP_HIST (BR)#(lf)   Branches off the property foundation; shares the same property-eligibility#(lf)   WHERE filters and organization roll-up logic.#(lf)#(lf)   CLEANUP NOTES:#(lf)     [SYNC]  ORGANIZATION_KEY / ORGANIZATION_NAME CASE blocks updated to mirror#(lf)             the master PROPERTY script (treated as source of truth). This is a#(lf)             DELIBERATE OUTPUT CHANGE — see ""ORG SYNC IMPACT"" below.#(lf)     [FIX 1] DROPPED unused join: APP subquery (HubSpot application_status#(lf)             history) — joined on C.ID but its column was never selected.#(lf)     [FIX 2] DROPPED unused join: CO subquery (HubSpot owner first/last name) —#(lf)             joined on C.ID but its columns were never selected. (Removal is#(lf)             row-safe: both are DISTINCT/aggregated to one row per contact.)#(lf)#(lf)   ORG SYNC IMPACT (intended diff vs. the original leads output):#(lf)     Before, leads tied to these orgs fell through to ELSE (raw key + unmapped#(lf)     O.ORGANIZATION_NAME). After the sync they roll up like the property script:#(lf)        66                      -> 27  / 'RB DRC'#(lf)        62,63,64,65,68,69       -> 62  / 'Rocklyn Homes'#(lf)        61,70                   -> 61  / 'ROI Property Group'#(lf)        67                      -> 67  / 'Newstar'#(lf)     An EXCEPT diff vs. the old output will show rows ONLY for these orgs.#(lf)#(lf)   KNOWN FRAGILITIES (flagged, not changed — would alter output/shape):#(lf)     - FINDIGS.* and Leads.* are star-expanded; any upstream column add/rename#(lf)       silently changes this query's output shape.#(lf)     - FINDIGS_APPLICATION_PERCENT_COMPLETE divides PROGRESS / TOTAL with no#(lf)       zero/NULL guard.#(lf)     - ""1_Lead (BOM)"" and ""1_Lead_Created_BOM"" are two aliases for the identical#(lf)       value DATE_TRUNC('month', Lead_Created_Date).#(lf)   ============================================================================= */#(lf)#(lf)#(lf)/* -----------------------------------------------------------------------------#(lf)   CTE: RENTLY_CLEAN#(lf)   Latest Rently lead-activity id per (lead, tag), where tag is a 6-digit#(lf)   HBPM property id. Used to dedupe before pulling showing detail.#(lf)   ----------------------------------------------------------------------------- */#(lf)WITH RENTLY_CLEAN AS (#(lf)    SELECT#(lf)         MAX(ID) AS LEAD_ID#(lf)        ,COALESCE(LA.LEAD, LA.LEAD_ID) AS LEAD#(lf)        ,LA.TAG#(lf)    FROM PROD_REPLICA.RENTLY.LEAD_ACTIVITIES LA#(lf)    WHERE 1 = 1#(lf)        AND TAG IS NOT NULL#(lf)        AND TAG BETWEEN '000000' AND '999999'#(lf)    GROUP BY#(lf)         COALESCE(LA.LEAD, LA.LEAD_ID)#(lf)        ,LA.TAG#(lf))#(lf)#(lf)/* -----------------------------------------------------------------------------#(lf)   CTE: SHOWINGS#(lf)   Self-registered Rently viewings joined to their post-viewing survey, mapped#(lf)   to a property via the tag (= HBPM property id).#(lf)   ----------------------------------------------------------------------------- */#(lf),SHOWINGS AS (#(lf)    SELECT DISTINCT#(lf)         COALESCE(LA.LEAD, LA.LEAD_ID) AS LEAD#(lf)        ,LA.LEAD_CREATED_DATE#(lf)        ,LA.LEAD_STATUS#(lf)        ,LA.NAME  AS LEAD_NAME#(lf)        ,LA.EMAIL AS LEAD_EMAIL#(lf)        ,TO_DATE(LA.ACTIVITY_CREATED_AT::TEXT, 'Auto') AS ACTIVITY_CREATED_AT#(lf)        ,P.Property_Key#(lf)        ,PVS.Improvement#(lf)        ,PVS.Notes      AS FEEDBACK#(lf)        ,PVS.Interest_2 AS INTERESTED#(lf)        ,PVS.PROPERTY_PROBLEM#(lf)        ,PVS.ACCESS_PROBLEM#(lf)    FROM RENTLY_CLEAN RC#(lf)        LEFT JOIN PROD_REPLICA.RENTLY.LEAD_ACTIVITIES LA#(lf)            ON COALESCE(LA.LEAD, LA.LEAD_ID) = RC.LEAD#(lf)        LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PROPERTY P#(lf)            ON  CAST(P.HBPM_PROPERTY_ID AS VARCHAR) = LA.TAG#(lf)            AND P.CURRENT_FLAG = 'Y'#(lf)        LEFT JOIN PROD_REPLICA.RENTLY.POST_VIEWING_SURVEY PVS#(lf)            ON COALESCE(PVS.LEAD_ACTIVITY, PVS.LEAD_ACTIVITY_ID) = LA.ID#(lf)    WHERE 1 = 1#(lf)        AND Access = 'self_registered_viewing'#(lf)        AND LA.TAG BETWEEN '000000' AND '999999'#(lf))#(lf)#(lf)/* -----------------------------------------------------------------------------#(lf)   CTE: FINDIGS#(lf)   Most recent Findigs application per applicant (ranked by last-updated).#(lf)   NOTE: this CTE is star-expanded into LEADS via FINDIGS.* — adding columns#(lf)   here changes the final output shape.#(lf)   ----------------------------------------------------------------------------- */#(lf),FINDIGS AS (#(lf)    SELECT#(lf)         FINDIGS_APP_ID#(lf)        ,FINDIGS_APPLICANT_ID#(lf)        ,FINDIGS_GROUP_ID#(lf)        ,APPLICATION_TOPICS_TOTAL#(lf)        ,APPLICATION_TOPICS_PROGRESS#(lf)        ,APPLICATION_TOPICS_PROGRESS / APPLICATION_TOPICS_TOTAL AS FINDIGS_APPLICATION_PERCENT_COMPLETE  -- no zero/NULL guard (preserved)#(lf)        ,TO_DATE(GROUP_SUBMITTED_AT::TEXT,      'AUTO') AS FINDIGS_APPLICATION_SUBMITTED#(lf)        ,GROUP_STATUS          AS FINDIGS_APPLICATION_STATUS#(lf)        ,GROUP_WORKFLOW_STATUS AS FINDIGS_APPLICATION_WORKFLOW_STATUS#(lf)        ,TO_DATE(GROUP_DECISIONED_AT::TEXT,     'AUTO') AS FINDIGS_GROUP_DECISIONED_AT#(lf)        ,TO_DATE(GROUP_PENDING_REVIEW_AT::TEXT, 'AUTO') AS FINDIGS_GROUP_PENDING_REVIEW_AT#(lf)        ,APPLICANT_EMPLOYMENT_EMPLOYER_NAME#(lf)        ,APPLICANT_EMPLOYMENT_JOB_TITLE#(lf)        ,APPLICANT_EMPLOYMENT_START_DATE#(lf)        ,APPLICANT_EMPLOYMENT_STATUS#(lf)        ,APPLICANT_CURRENT_HOUSING_ADDRESS_LINE_1 || ', ' || APPLICANT_CURRENT_HOUSING_CITY  || ', '#(lf)            || APPLICANT_CURRENT_HOUSING_STATE || ', ' || APPLICANT_CURRENT_HOUSING_ZIP AS APPLICANT_CURRENT_HOUSING_FULL_ADDRESS#(lf)        ,APPLICANT_CURRENT_HOUSING_TYPE#(lf)        ,APPLICANT_CURRENT_HOUSING_PAYMENT_AMOUNT#(lf)        ,APPLICANT_DESIRED_MOVE_IN_DATE#(lf)        ,APPLICANT_HOUSEHOLD_NUM_DEPENDENTS#(lf)        ,APPLICANT_HOUSEHOLD_NUM_PETS#(lf)        ,APPLICANT_HOUSEHOLD_NUM_VEHICLES#(lf)        ,RANK() OVER (PARTITION BY FINDIGS_APPLICANT_ID ORDER BY APPLICATION_LAST_UPDATED_AT DESC) AS FINDIGS_RECENT_RANK#(lf)    FROM SHARE_FINDIGS_RESICAP.PUBLIC.APPLICATIONS_RESICAP#(lf)    QUALIFY FINDIGS_RECENT_RANK = 1#(lf))#(lf)#(lf)/* -----------------------------------------------------------------------------#(lf)   CTE: LEADS#(lf)   Core lead row: lead + interested property + status accumulator + property#(lf)   dimensions + Rently showing + Findigs application. Property-eligibility#(lf)   filters mirror the master property script.#(lf)   ----------------------------------------------------------------------------- */#(lf),LEADS AS (#(lf)    SELECT#(lf)         L.LEAD_KEY#(lf)        ,BR.FCT_LEAD_INTERESTED_PROP_HIST_KEY AS INTERESTED_PROP_GROUP_KEY#(lf)        ,BR.PRIMARY_PROPERTY#(lf)        ,P.PROPERTY_KEY#(lf)        ,P.HBPM_PROPERTY_ID#(lf)        ,PU.PROPERTY_UNIT_KEY#(lf)        ,P.ENTITYID#(lf)        ,P.ADDRESS || ', ' || COALESCE(CI.CITY_NAME, PM_CI.CityName) || ', ' || S.STATE_NAME || ' ' || P.ZIPCODE AS Full_Address#(lf)        ,SUB.SUBDIVISION#(lf)        ,L.LEAD_STATE#(lf)        ,R.REGION_NAME#(lf)        ,COALESCE(L.SOURCE, 'Other') AS SOURCE#(lf)        ,LSA.USER_KEY#(lf)        ,TO_DATE(LSA.CREATED_DATE_KEY::TEXT, 'yyyymmdd') AS Lead_Created_Date#(lf)        ,TO_DATE(BR.INTERESTED_DATE::TEXT,   'AUTO')     AS LEAD_INTERESTED_DATE#(lf)        ,TO_DATE(LSA.CONTACTED_DATE_KEY::TEXT, 'yyyymmdd') AS LEAD_FIRST_CONTACTED_DATE#(lf)        ,COALESCE(C.PROPERTY_NOTES_LAST_CONTACTED,#(lf)                  TO_DATE(LSA.CONTACTED_DATE_KEY::TEXT, 'yyyymmdd')) AS LEAD_LAST_CONTACTED_DATE#(lf)        ,TO_DATE(LSA.LEAD_ABANDONED_DATE_KEY::TEXT,     'yyyymmdd') AS LEAD_ABANDONED_DATE#(lf)        ,TO_DATE(LSA.LEAD_WON_DATE_KEY::TEXT,           'yyyymmdd') AS LEAD_WON_DATE#(lf)        ,TO_DATE(LSA.APPLICATION_FEE_PAID_DATE_KEY::TEXT, 'yyyymmdd') AS APPLICATION_FEE_PAID_DATE#(lf)        ,TO_DATE(LSA.APPLICATION_SENT_DATE_KEY::TEXT,   'yyyymmdd') AS APPLICATION_SENT_DATE#(lf)        ,TO_DATE(LSA.APPLICATION_SUBMIT_DATE_KEY::TEXT, 'yyyymmdd') AS APPLICATION_SUBMIT_DATE#(lf)        ,L.LEAD_STATUS#(lf)        ,C.PROPERTY_REQUIRES_FOLLOW_UP AS REQUIRES_FOLLOW_UP#(lf)        ,LSA.LEAD_ID#(lf)        ,L.FIRST_NAME || ' ' || L.LAST_NAME AS LEAD_NAME#(lf)        ,L.EMAIL#(lf)        ,L.PHONE#(lf)        ,PUS.OCCUPANCY_STATUS#(lf)        ,PO.PORTFOLIO_NAME#(lf)#(lf)        -- [SYNC] organization roll-up — mirrors master PROPERTY script.#(lf)        ,CASE#(lf)            WHEN P.ORGANIZATION_KEY IN (-1,18,26,28,48)                   THEN -1#(lf)            WHEN P.ORGANIZATION_KEY IN (27,50,51,52,54,45,55,53,56,57,66) THEN 27#(lf)            WHEN P.ORGANIZATION_KEY IN (58,59)                            THEN 58#(lf)            WHEN P.ORGANIZATION_KEY IN (62,63,64,65,68,69)                THEN 62#(lf)            WHEN P.ORGANIZATION_KEY IN (61,70)                            THEN 61#(lf)            WHEN P.ORGANIZATION_KEY IN (67)                               THEN 67#(lf)            ELSE P.ORGANIZATION_KEY#(lf)         END AS ORGANIZATION_KEY#(lf)#(lf)        ,CASE#(lf)            WHEN P.ORGANIZATION_KEY IN (-1,18,26,28,48)                   THEN 'RP SFR'#(lf)            WHEN P.ORGANIZATION_KEY IN (27,50,51,52,54,45,55,53,56,57,66) THEN 'RB DRC'#(lf)            WHEN P.ORGANIZATION_KEY IN (58,59)                            THEN 'Hudson Oak'#(lf)            WHEN P.ORGANIZATION_KEY IN (62,63,64,65,68,69)                THEN 'Rocklyn Homes'#(lf)            WHEN P.ORGANIZATION_KEY IN (61,70)                            THEN 'ROI Property Group'#(lf)            WHEN P.ORGANIZATION_KEY IN (67)                               THEN 'Newstar'#(lf)            ELSE O.ORGANIZATION_NAME#(lf)         END AS ORGANIZATION_NAME#(lf)#(lf)        ,L.PRIMARY_LEAD_ID#(lf)        ,L.CONTACT_OWNER#(lf)        ,DC.DEAL_OPEN#(lf)        ,'https://app.hubspot.com/contacts/22536354/contact/' || LSA.LEAD_ID AS URL_Hub_Contact#(lf)#(lf)        -- Rently showing detail#(lf)        ,SHOWINGS.ACTIVITY_CREATED_AT AS RENTLY_SHOWING_DATE#(lf)        ,SHOWINGS.INTERESTED          AS RENTLY_SHOWING_INTERESTED#(lf)        ,SHOWINGS.FEEDBACK            AS RENTLY_SHOWING_FEEDBACK#(lf)        ,SHOWINGS.Improvement         AS RENTLY_SHOWING_IMPROVEMENT#(lf)        ,SHOWINGS.PROPERTY_PROBLEM    AS RENTLY_PROPERTY_PROBLEM#(lf)        ,SHOWINGS.ACCESS_PROBLEM      AS RENTLY_ACCESS_PROBLEM#(lf)#(lf)        -- All Findigs columns (star-expanded — see CTE note)#(lf)        ,FINDIGS.*#(lf)#(lf)    FROM PROD_ANALYTICS.DBT_RESICAP.FCT_LEAD_INTERESTED_PROP_HIST BR#(lf)#(lf)        LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_LEAD L#(lf)            ON  L.LEAD_KEY = BR.LEAD_KEY#(lf)            AND CURRENT_FLAG = 'Y'#(lf)#(lf)        /* Latest status-accumulator row per lead */#(lf)        LEFT JOIN (#(lf)            SELECT LEAD_KEY, MAX(FCT_LEAD_STATUS_ACCUM_KEY) AS FCT_LEAD_STATUS_ACCUM_KEY#(lf)            FROM PROD_ANALYTICS.DBT_RESICAP.FCT_Lead_STATUS_ACCUM#(lf)            GROUP BY LEAD_KEY#(lf)        ) LSA_CLEAN#(lf)            ON LSA_CLEAN.LEAD_KEY = L.LEAD_KEY#(lf)        LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.FCT_LEAD_STATUS_ACCUM LSA#(lf)            ON LSA.FCT_LEAD_STATUS_ACCUM_KEY = LSA_CLEAN.FCT_LEAD_STATUS_ACCUM_KEY#(lf)#(lf)        /* Property + unit + cross-system records */#(lf)        LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PROPERTY P#(lf)            ON P.PROPERTY_KEY = BR.PROPERTY_KEY#(lf)        LEFT JOIN PROD_REPLICA.HBAM_DBO.PROPERTIES HBAM#(lf)            ON HBAM.HBID = P.HBAM_PROPERTY_ID            -- used by WHERE eligibility filters#(lf)        LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.FCT_PROPERTY_UNIT_SUMMARY PUS#(lf)            ON PUS.PROPERTY_KEY = P.PROPERTY_KEY#(lf)        LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PROPERTY_UNIT PU#(lf)            ON PU.PROPERTY_UNIT_KEY = PUS.PROPERTY_UNIT_KEY#(lf)        LEFT JOIN PROD_REPLICA.HBPM_DBO.PROPERTIES HBPM#(lf)            ON HBPM.PROPERTYID = P.HBPM_PROPERTY_ID#(lf)#(lf)        /* Dimension lookups */#(lf)        LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PORTFOLIO PO#(lf)            ON PO.PORTFOLIO_KEY = PUS.PORTFOLIO_KEY#(lf)        LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_REGION R#(lf)            ON R.REGION_KEY = PUS.REGION_KEY#(lf)        LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_CITY CI#(lf)            ON CI.CITY_KEY = PUS.CITY_KEY#(lf)        LEFT JOIN PROD_REPLICA.HBPM_DBO.Cities PM_CI#(lf)            ON PM_CI.CityID = HBPM.CityID#(lf)        LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_STATE S#(lf)            ON S.STATE_KEY = PUS.STATE_KEY#(lf)        LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_OWNER_ORGANIZATION O#(lf)            ON O.ORGANIZATION_KEY = PUS.ORGANIZATION_KEY#(lf)        LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_SUBDIVISION SUB#(lf)            ON SUB.SUBDIVISION_KEY = PUS.SUBDIVISION_KEY#(lf)#(lf)        /* HubSpot contact + lead enrichments */#(lf)        LEFT JOIN ""PROD_REPLICA"".""HUBSPOT_2"".""CONTACT"" C#(lf)            ON C.ID = L.LEAD_ID#(lf)        LEFT JOIN SHOWINGS#(lf)            ON  SHOWINGS.LEAD_EMAIL   = L.EMAIL          -- email-based match (fragile but intentional)#(lf)            AND SHOWINGS.PROPERTY_KEY = P.PROPERTY_KEY#(lf)#(lf)        /* Open-deal flag (1 if the contact is on any deal) */#(lf)        LEFT JOIN (#(lf)            SELECT 1 AS DEAL_OPEN, CONTACT_ID#(lf)            FROM PROD_REPLICA.HUBSPOT.DEAL_CONTACT#(lf)            GROUP BY CONTACT_ID#(lf)        ) DC#(lf)            ON DC.CONTACT_ID = C.ID#(lf)#(lf)        /* Most recent Findigs application for the contact */#(lf)        LEFT JOIN FINDIGS#(lf)            ON FINDIGS.FINDIGS_APPLICANT_ID = C.PROPERTY_FINDIGS_APPLICANT_ID#(lf)#(lf)    WHERE 1 = 1#(lf)        AND BR.Property_KEY IS NOT NULL#(lf)        AND L.Created_Date_Key >= 20210101#(lf)        AND (L.IS_MERGED_LEAD IS NULL OR IS_MERGED_LEAD = 'N')#(lf)#(lf)        /* Property-eligibility filters (mirror master property script) */#(lf)        AND (HBAM.PROPERTYSTATUSID > 9 OR HBAM.PROPERTYSTATUSID IS NULL)          -- out of bid#(lf)        AND P.PROPERTY_STATE = 'Active'#(lf)        AND P.EntityID <> ''#(lf)        AND (HBAM.PROPERTYSTATUSID NOT IN (53, 75) OR HBAM.PROPERTYSTATUSID IS NULL)#(lf)        AND PO.Portfolio_KEY NOT IN (223,598,147,102,109,28,603,169,602,170,58,54)#(lf)        AND PUS.Organization_KEY NOT IN (16, 17)#(lf)        AND PO.IS_Active_AM = 'Y'#(lf)        AND PO.Current_Flag = 'Y'#(lf)        AND P.Current_Flag = 'Y'#(lf)        AND PU.Current_Flag = 'Y'#(lf)        AND PUS.Occupancy_Status NOT IN ('Not Managed')#(lf)        AND (HBPM.PROPERTYSTATEID = 26 OR HBPM.PROPERTYSTATEID IS NULL)#(lf))#(lf)#(lf)/* -----------------------------------------------------------------------------#(lf)   CTE: Lead_Listings#(lf)   For each interested-property group, the most recent rental listing that was#(lf)   live within 10 days of the lead's interested date (excluding withdrawn).#(lf)   ----------------------------------------------------------------------------- */#(lf),Lead_Listings AS (#(lf)    SELECT#(lf)         MAX(RENT_LIST_HIST_ID) AS RENT_LIST_HIST_KEY#(lf)        ,Leads.INTERESTED_PROP_GROUP_KEY#(lf)    FROM Leads#(lf)        LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.FCT_PROP_RENTAL_LISTING_HIST RLH#(lf)            ON RLH.PROPERTY_key = Leads.PROPERTY_KEY#(lf)    WHERE 1 = 1#(lf)        AND TO_DATE(RLH.LISTING_DATE_KEY::TEXT, 'yyyymmdd') <= DATEADD(DAY, 10, Leads.Lead_Interested_Date)#(lf)        AND RLH.LISTING_STATUS <> 'Withdrawn'#(lf)        AND Leads.INTERESTED_PROP_GROUP_KEY BETWEEN '00000000' AND '99999999'#(lf)    GROUP BY#(lf)        Leads.INTERESTED_PROP_GROUP_KEY#(lf))#(lf)#(lf)#(lf)/* =============================================================================#(lf)   FINAL SELECT#(lf)   Lead rows + their matched listing + derived month/recency buckets.#(lf)   ============================================================================= */#(lf)SELECT#(lf)     Leads.*#(lf)#(lf)    ,RLH.RENT_LIST_HIST_ID AS RENT_LIST_HIST_ID#(lf)    ,TO_DATE(RLH.LISTING_DATE_KEY::TEXT, 'yyyymmdd') AS LISTINGDATE#(lf)    ,RLH.LISTING_STATUS AS Listing_Status#(lf)#(lf)    -- Month buckets. NOTE: ""1_Lead (BOM)"" and ""1_Lead_Created_BOM"" are identical.#(lf)    ,DATE_TRUNC('month', Lead_Created_Date)    AS ""1_Lead (BOM)""#(lf)    ,DATE_TRUNC('month', LEAD_INTERESTED_DATE) AS ""1_Lead_INTERESTED (BOM)""#(lf)    ,DATE_TRUNC('month', Lead_Created_Date)    AS ""1_Lead_Created_BOM""#(lf)#(lf)    ,CASE WHEN Lead_Created_Date >= DATEADD(DAY, -30, GETDATE()) THEN 1 ELSE 0 END AS LEAD_LAST_30#(lf)#(lf)    ,CASE#(lf)        WHEN DATE_TRUNC('month', LEAD_INTERESTED_DATE) = DATE_TRUNC('month', LEAD_CREATED_DATE)#(lf)            THEN 'New'#(lf)        ELSE 'Repeat'#(lf)     END AS LEAD_INTEREST_TYPE#(lf)#(lf)FROM Leads#(lf)    LEFT JOIN Lead_Listings LL#(lf)        ON LL.INTERESTED_PROP_GROUP_KEY = Leads.INTERESTED_PROP_GROUP_KEY#(lf)    LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.FCT_PROP_RENTAL_LISTING_HIST RLH#(lf)        ON RLH.RENT_LIST_HIST_ID = LL.RENT_LIST_HIST_KEY#(lf)WHERE 1 = 1#(lf)    AND LEAD_CREATED_DATE > '01/01/2024'", null, [EnableFolding=true]),
+				    #"Replaced Value" = Table.ReplaceValue(Source,"IFrame","Resihome",Replacer.ReplaceText,{"SOURCE"}),
+				    #"Capitalized Each Word" = Table.TransformColumns(#"Replaced Value",{{"LEAD_NAME", Text.Proper, type text}})
+				in
+				    #"Capitalized Each Word"
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

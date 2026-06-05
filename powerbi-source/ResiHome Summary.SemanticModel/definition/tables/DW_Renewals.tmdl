@@ -1,0 +1,1295 @@
+table DW_Renewals
+	lineageTag: dc00b77d-69ec-4c60-826e-030069192ab7
+
+	measure '0_Rent Growth' = ```
+			if(average(DW_Renewals[N_AMOUNT])=BLANK(),BLANK(),CALCULATE( DIVIDE(AVERAGE(DW_Renewals[N_AMOUNT]), AVERAGE(DW_Renewals[C_AMOUNT]), BLANK()) -1,DW_Renewals[N_AMOUNT]<>BLANK()))
+			
+			```
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: cfce74a2-11c2-4239-b1be-bb8853c37e79
+
+		changedProperty = FormatString
+
+	measure '0_R_Renewal %' = ```
+			calculate(COUNTROWS(DW_Renewals),DW_Renewals[Renewal Result]="Renewed")/CALCULATE(COUNTROWS(DW_Renewals),DW_Renewals[STRATEGY_NAME]<>"Repair/Sell")
+			
+			```
+		formatString: 0%;-0%;0%
+		lineageTag: 5c463085-0ea6-49de-9cab-915f22831887
+
+		changedProperty = FormatString
+
+	measure '0_Renewal Count' = COUNT(DW_Renewals[PROPERTY_KEY]) +0
+		formatString: #,0
+		lineageTag: 8b4d3934-8896-46ff-8b5f-eef2c2a531f3
+
+		changedProperty = FormatString
+
+	measure '0_Current Rent' = ```
+			calculate(AVERAGE(DW_Renewals[C_AMOUNT]),DW_Renewals[N_AMOUNT]<>BLANK())
+			
+			```
+		formatString: \$#,0;(\$#,0);\$#,0
+		lineageTag: 1729e25b-edb9-474e-97c4-b9ff8b08cd5e
+
+		changedProperty = FormatString
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	measure '0_Renewal Chart %' = ```
+			IF(MAX(DW_Renewals[YTD Filter])=1&&COUNT(DW_Renewals[PROPERTY_KEY])>0,COALESCE(calculate(COUNTROWS(DW_Renewals),DW_Renewals[N_LEASESIGNED]<>BLANK()),0)/COUNT(DW_Renewals[PROPERTY_KEY]), calculate(COUNTROWS(DW_Renewals),DW_Renewals[N_LEASESIGNED]<>BLANK())/COUNT(DW_Renewals[PROPERTY_KEY]))
+			
+			```
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: c58a5e9b-bb5c-4854-8db3-937792ca322e
+
+		changedProperty = FormatString
+
+	measure '0_Gross_Renewal (L3) %' = ```
+			calculate(COUNTROWS(DW_Renewals),FILTER(DW_Renewals,DW_Renewals[N_LEASESIGNED]<>BLANK()&&DW_Renewals[Lease Eligibility]="Eligible")) / CALCULATE(COUNT(DW_Renewals[PROPERTY_KEY]),DW_Renewals[Lease Eligibility]="Eligible")
+			
+			```
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: 107a72d2-87de-43f1-adec-267970bf2093
+
+	measure 0_Eligible = ```
+			CALCULATE(COUNTROWS(DW_Renewals),DW_Renewals[Lease Eligibility]="Eligible")
+			
+			```
+		formatString: 0
+		lineageTag: f36eed43-1787-4ada-b951-035a768e9986
+
+	measure '0_Eviction Exposure' = CALCULATE(COUNTROWS(DW_Renewals),FILTER(DW_Renewals,DW_Renewals[Renewal Result]="Current Eviction"||DW_Renewals[Renewal Result]=" Early Vacate - Evictions")) / CALCULATE(COUNTROWS(DW_Renewals))
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: a9b28f3e-ea3a-4545-b982-02f62b4dcd9a
+
+	measure '0_Max Renewal' = CALCULATE(COUNTROWS(DW_Renewals),FILTER(DW_Renewals,DW_Renewals[Renewal Result]="Renewed"||DW_Renewals[Renewal Result]="Pending")) / CALCULATE(COUNTROWS(DW_Renewals),FILTER(DW_Renewals,AND(DW_Renewals[STRATEGY_NAME]<>"Repair/Sell",DW_Renewals[Renewal Result]="Renewed"||DW_Renewals[Renewal Result]="Notice"||DW_Renewals[Renewal Result]="MTM"||DW_Renewals[Renewal Result]="Pending")))
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: 00ccd38c-2ebd-4771-8b1f-df9bfe716605
+
+	measure 0_ET_Other = ```
+			CALCULATE(COUNTROWS(DW_Renewals),DW_Renewals[Renewal Result]=" Early Vacate - Other") / CALCULATE(COUNTROWS(DW_Renewals))
+			
+			```
+		formatString: 0%;-0%;0%
+		lineageTag: 7afad579-0b0f-443b-bccb-2f59438614ab
+
+	measure '0_Active Renew %' = ```
+			CALCULATE(COUNTROWS(DW_Renewals),DW_Renewals[Renewal Result]="Renewed") / CALCULATE(COUNTROWS(DW_Renewals),FILTER(DW_Renewals,AND(DW_Renewals[STRATEGY_NAME]<>"Repair/Sell",DW_Renewals[Renewal Result]="Renewed"||DW_Renewals[Renewal Result]="Notice"||DW_Renewals[Renewal Result]="MTM")))
+			
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: e23fa608-36fb-4645-9235-9789710ea987
+
+	measure '0_Implied Retention' = ```
+			(([0_Active Renew %] * CALCULATE(COUNTROWS(DW_Renewals),DW_Renewals[Renewal Result]="Pending") ) + (CALCULATE(COUNTROWS(DW_Renewals),DW_Renewals[Renewal Result]="Renewed"))) / CALCULATE(COUNTROWS(DW_Renewals))
+			
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 3df98cbd-7168-4766-87df-deba2692e429
+
+	measure 0_1_YR_Offer_Mrkt_Prem = ```
+			if(AVERAGE(DW_Renewals[MARKET_RENT])=blank(),blank(),CALCULATE(DIVIDE(AVERAGE(DW_Renewals[RATE_12_MONTH]), AVERAGE(DW_Renewals[MARKET_RENT]), BLANK())-1,FILTER(DW_Renewals,DW_Renewals[RATE_12_MONTH]>0&&DW_Renewals[MARKET_RENT]>0)))
+			
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: c2babdd2-f9f3-420d-b146-390a19fbbb81
+
+	measure 0_1_YR_Offer_Rent_Growth = ```
+			if(AVERAGE(DW_Renewals[RATE_12_MONTH])=blank(),blank(),CALCULATE(DIVIDE(AVERAGE(DW_Renewals[RATE_12_MONTH]), AVERAGE(DW_Renewals[C_AMOUNT]), BLANK())-1,FILTER(DW_Renewals,DW_Renewals[RATE_12_MONTH]>0&&DW_Renewals[C_AMOUNT]>0)))
+			
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 21fb5fc6-3c5e-4fce-abc1-ec06f6aa9cfa
+
+	column TENANTLEASINGHISTORYID
+		dataType: double
+		lineageTag: ee056183-889b-47e4-aa29-c5f01a186c22
+		summarizeBy: count
+		sourceColumn: TENANTLEASINGHISTORYID
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column TENANTINFORMATIONID
+		dataType: double
+		lineageTag: 4d671143-a495-4584-a177-514666d310ff
+		summarizeBy: count
+		sourceColumn: TENANTINFORMATIONID
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column TENANT_KEY
+		dataType: double
+		lineageTag: 8366856f-910e-4409-9f63-ccf686b9f9ae
+		summarizeBy: sum
+		sourceColumn: TENANT_KEY
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column PROPERTY_KEY
+		dataType: double
+		lineageTag: 4a2beb68-1933-4c5e-ad89-fd7b6550d966
+		summarizeBy: none
+		sourceColumn: PROPERTY_KEY
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column HBPM_PROPERTY_ID
+		dataType: double
+		lineageTag: 1d9f88e6-aed6-4af8-ae60-80f6e47cecb2
+		summarizeBy: count
+		sourceColumn: HBPM_PROPERTY_ID
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ADDRESS
+		dataType: string
+		lineageTag: 8c96423e-5f48-4623-9f11-e255a15dbb1c
+		summarizeBy: none
+		sourceColumn: ADDRESS
+
+		annotation SummarizationSetBy = Automatic
+
+	column ENTITYID
+		dataType: string
+		lineageTag: f3aa2458-4919-460f-8a68-0698c684c055
+		summarizeBy: none
+		sourceColumn: ENTITYID
+
+		annotation SummarizationSetBy = Automatic
+
+	column TENANTSTATUSID
+		dataType: double
+		lineageTag: 32cd10a8-7d40-4ad6-ac3c-51e3b4b38afa
+		summarizeBy: count
+		sourceColumn: TENANTSTATUSID
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column TENANTSTATUS
+		dataType: string
+		lineageTag: 6ac507a8-b06a-4814-afbd-54a27c6d9e11
+		summarizeBy: none
+		sourceColumn: TENANTSTATUS
+
+		annotation SummarizationSetBy = Automatic
+
+	column EVICTIONSTATUS
+		dataType: string
+		lineageTag: 9d759666-b5d1-4c51-81cc-8413ae1406ee
+		summarizeBy: none
+		sourceColumn: EVICTIONSTATUS
+
+		annotation SummarizationSetBy = Automatic
+
+	column MOVEIN
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 8a20b8be-1e2e-4102-ae9e-94549f6d1247
+		summarizeBy: none
+		sourceColumn: MOVEIN
+
+		variation Variation
+			isDefault
+			relationship: 42854af8-8420-4d2e-8b32-e37d1c65d7bc
+			defaultHierarchy: LocalDateTable_c92a41be-d695-42c8-9585-4ecf287ef59c.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column MOVEOUT
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 624f2277-7c1e-440a-9f46-f63fc06be5fa
+		summarizeBy: none
+		sourceColumn: MOVEOUT
+
+		variation Variation
+			isDefault
+			relationship: f100b427-0c76-4390-8bba-dcb32577c211
+			defaultHierarchy: LocalDateTable_6980b369-1cce-41af-aa11-5c6d48bf32b2.'Date Hierarchy'
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+	column MONTHTOMONTH
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 5476f21e-bc57-4532-b4b6-7ae312e5d3a2
+		summarizeBy: none
+		sourceColumn: MONTHTOMONTH
+
+		annotation SummarizationSetBy = Automatic
+
+	column NOTICEDATE
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: b8fc00f9-e957-4e50-b3d7-0d5bccc4c38d
+		summarizeBy: none
+		sourceColumn: NOTICEDATE
+
+		variation Variation
+			isDefault
+			relationship: 7eee20e6-6b7a-45c2-b705-29e363918dff
+			defaultHierarchy: LocalDateTable_edc3a2bf-1c3b-4b8f-8d7e-0121efffba3d.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column ISMONTHTOMONTHLEASE
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 20b203c6-ff3b-43de-b2a7-b11c2803a65c
+		summarizeBy: none
+		sourceColumn: ISMONTHTOMONTHLEASE
+
+		annotation SummarizationSetBy = Automatic
+
+	column TENANTDECIDEDMONTHTOMONTH
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 17f16ec2-66dd-4312-aea2-8d46c7acbc59
+		summarizeBy: none
+		sourceColumn: TENANTDECIDEDMONTHTOMONTH
+
+		annotation SummarizationSetBy = Automatic
+
+	column DONOTRENEW
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 368c156f-071e-4a7e-aa86-71ea7fb571be
+		summarizeBy: none
+		sourceColumn: DONOTRENEW
+
+		annotation SummarizationSetBy = Automatic
+
+	column REASONFORNOTRENEWINGID
+		dataType: double
+		lineageTag: 0bdb4ee2-6678-4ea0-a5c3-fa33fac9231a
+		summarizeBy: count
+		sourceColumn: REASONFORNOTRENEWINGID
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column REASONFORNOTRENEWINGNAME
+		dataType: string
+		lineageTag: de9779ca-a6c7-4566-9d66-ce4c74017b9b
+		summarizeBy: none
+		sourceColumn: REASONFORNOTRENEWINGNAME
+
+		annotation SummarizationSetBy = Automatic
+
+	column C_CREATED
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 0d46e749-b89a-4ee0-8fbe-6a29b8037128
+		summarizeBy: none
+		sourceColumn: C_CREATED
+
+		variation Variation
+			isDefault
+			relationship: 529271da-b61e-477c-91ba-6d4ecf59e390
+			defaultHierarchy: LocalDateTable_984cf9b2-cc89-45f7-8280-bfcabd00b5dc.'Date Hierarchy'
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+	column C_LEASESIGNED
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 2811b357-8f0f-4a83-8142-7f21f623ce0e
+		summarizeBy: none
+		sourceColumn: C_LEASESIGNED
+
+		variation Variation
+			isDefault
+			relationship: cd004cb8-2c77-49a9-835d-94c4118b48bd
+			defaultHierarchy: LocalDateTable_3724e8ec-c34e-4685-aa71-719da85dfcb5.'Date Hierarchy'
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+	column C_LEASESTART
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 83642620-36b2-4fe2-9197-4f4979cf8c25
+		summarizeBy: none
+		sourceColumn: C_LEASESTART
+
+		variation Variation
+			isDefault
+			relationship: e680532b-0634-4c88-80f3-b5cb39239b93
+			defaultHierarchy: LocalDateTable_d992aa6d-9280-412e-94c1-4f1877cfdaa1.'Date Hierarchy'
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+	column C_LEASEEND
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 117bf419-cae2-4b0a-b29b-3032d0e8e48b
+		summarizeBy: none
+		sourceColumn: C_LEASEEND
+
+		variation Variation
+			isDefault
+			relationship: 8829cca5-8554-4639-bb00-107cec130597
+			defaultHierarchy: LocalDateTable_0a2ae059-e588-4533-b1f2-e8c89bf6c325.'Date Hierarchy'
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+	column C_AMOUNT
+		dataType: double
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: 9da89d17-dcae-4784-8f1c-2dd969a12937
+		summarizeBy: sum
+		sourceColumn: C_AMOUNT
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	column N_CREATED
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 7f28c148-d083-48d6-b88d-b20dc53b47b6
+		summarizeBy: none
+		sourceColumn: N_CREATED
+
+		variation Variation
+			isDefault
+			relationship: 15b53a8b-9f12-45ad-9a2a-d626ca2f319d
+			defaultHierarchy: LocalDateTable_dc488288-2335-433e-b641-5c8cb998aece.'Date Hierarchy'
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+	column N_LEASESIGNED
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: f01df699-9765-4acf-9623-af9479938a70
+		summarizeBy: none
+		sourceColumn: N_LEASESIGNED
+
+		variation Variation
+			isDefault
+			relationship: b70f0cac-bb4d-4c4f-ad9a-ad05973372e2
+			defaultHierarchy: LocalDateTable_cf965017-9f57-493b-b2dd-fe2d2b543e6a.'Date Hierarchy'
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+	column N_LEASESTART
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 34aa918e-cd6f-4f2f-b22b-3861d950bb51
+		summarizeBy: none
+		sourceColumn: N_LEASESTART
+
+		variation Variation
+			isDefault
+			relationship: c9e82b6d-b569-48d2-afc7-d83f94c2ee3d
+			defaultHierarchy: LocalDateTable_75f8ca07-8f15-4e49-9372-0cde430a4eab.'Date Hierarchy'
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+	column N_LEASEEND
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: ddc8bd84-2708-42e8-b483-ddda1deedaba
+		summarizeBy: none
+		sourceColumn: N_LEASEEND
+
+		variation Variation
+			isDefault
+			relationship: 4d305673-a9d7-494a-9792-fc654203162d
+			defaultHierarchy: LocalDateTable_07a35436-02ed-4927-a573-e2172221ff5d.'Date Hierarchy'
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+	column N_AMOUNT
+		dataType: double
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: 67253aea-c6c1-4745-bb50-39d973c112e8
+		summarizeBy: sum
+		sourceColumn: N_AMOUNT
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	column '1_Lease Type' =
+			IF(LOOKUPVALUE(PM_PropStatus_ALL[AfterValue],PM_PropStatus_ALL[AuditLogId],CALCULATE(MAX(PM_PropStatus_ALL[AuditLogId]),FILTER(PM_PropStatus_ALL,PM_PropStatus_ALL[PropertyId]=DW_Renewals[HBPM_PROPERTY_ID] &&PM_PropStatus_ALL[LogDateTime]<=COALESCE(DW_Renewals[MOVEOUT],DW_Renewals[N_LEASESIGNED],DW_Renewals[C_LEASEEND])&&PM_PropStatus_ALL[AfterValue]>=1479&&PM_PropStatus_ALL[AfterValue]<=1482))) = 1479||DW_Renewals[OCCUPANCY_STATUS]="Tenant Leased",
+			    "Tenant Leased","Trustee Leased")
+		lineageTag: 5a48c7f8-88e5-451d-8e04-616e04f6bde4
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column PORTFOLIO_NAME
+		dataType: string
+		lineageTag: 10e8e65f-a876-4f65-a874-47cddfe99515
+		summarizeBy: none
+		sourceColumn: PORTFOLIO_NAME
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Lease Eligibility'
+		dataType: string
+		lineageTag: d59836ca-50b9-4d20-b765-e1144d637659
+		summarizeBy: none
+		sourceColumn: Lease Eligibility
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Renewal Result'
+		dataType: string
+		lineageTag: 4b1633d5-aba1-4441-b81d-5b162dcb2f36
+		summarizeBy: none
+		sourceColumn: Renewal Result
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'YTD Filter'
+		dataType: double
+		lineageTag: 563ec3d0-3831-45eb-9232-f12c466a0e4c
+		summarizeBy: sum
+		sourceColumn: YTD Filter
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 1_C_LeaseEnd(BOM)
+		dataType: dateTime
+		formatString: mmmm yyyy
+		lineageTag: 87858be3-83f1-464f-8fdd-990c3fbf6afa
+		summarizeBy: none
+		sourceColumn: 1_C_LeaseEnd(BOM)
+
+		variation Variation
+			isDefault
+			relationship: 7ff80120-7b27-4c28-bfe7-176940543e4b
+			defaultHierarchy: LocalDateTable_7e68b84f-bf2f-4749-a99b-4b98edf9a03c.'Date Hierarchy'
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isDateTimeCustom":true}
+
+	column 'Vacate Date (BOM)'
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 3af71e05-60fb-4e8a-ad52-3435d4b81b72
+		summarizeBy: none
+		sourceColumn: Vacate Date (BOM)
+
+		variation Variation
+			isDefault
+			relationship: 3676b5bd-32d2-4768-8e05-14ba14eb76db
+			defaultHierarchy: LocalDateTable_73c64af3-fba8-4185-9784-e5df795832d7.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column ORGANIZATION_KEY
+		dataType: double
+		lineageTag: 4d8e8f17-2e80-487e-862e-9c349f6038ba
+		summarizeBy: sum
+		sourceColumn: ORGANIZATION_KEY
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ORGANIZATION_NAME
+		dataType: string
+		lineageTag: 5e88c87b-d07d-4832-92bc-19bd2b9256ff
+		summarizeBy: none
+		sourceColumn: ORGANIZATION_NAME
+
+		annotation SummarizationSetBy = Automatic
+
+	column RENEWALNOTE
+		dataType: string
+		lineageTag: a3a89c19-242b-42a0-9084-eb6af4ce6973
+		summarizeBy: none
+		sourceColumn: RENEWALNOTE
+
+		annotation SummarizationSetBy = Automatic
+
+	column RENEWALNOTECREATED
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 9172f92d-b1e7-4b79-b8bb-b8eee3f4e03c
+		summarizeBy: none
+		sourceColumn: RENEWALNOTECREATED
+
+		variation Variation
+			isDefault
+			relationship: decdcd35-a270-4a85-a4e4-cbb8cebac4b9
+			defaultHierarchy: LocalDateTable_55bc8e3e-a5eb-4b2d-be2a-29a95fb31b4f.'Date Hierarchy'
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Lease Eligibility_FILTER'
+		dataType: string
+		lineageTag: f591afd1-98f3-4c72-9e1e-60f48119b350
+		summarizeBy: none
+		sourceColumn: Lease Eligibility_FILTER
+
+		annotation SummarizationSetBy = Automatic
+
+	column OCCUPANCY_STATUS
+		dataType: string
+		lineageTag: cd3eae90-cced-4965-939d-41d3771b460d
+		summarizeBy: none
+		sourceColumn: OCCUPANCY_STATUS
+
+		annotation SummarizationSetBy = Automatic
+
+	column '3M Filter'
+		dataType: double
+		lineageTag: 78f1e360-5259-4c74-8a44-7838897072c1
+		summarizeBy: sum
+		sourceColumn: 3M Filter
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column FULL_NAME
+		dataType: string
+		lineageTag: 85ff27a4-13d3-4b74-b667-68462d0d4b5f
+		summarizeBy: none
+		sourceColumn: FULL_NAME
+
+		annotation SummarizationSetBy = Automatic
+
+	column EMAIL_ADDRESS
+		dataType: string
+		lineageTag: 8dce37a8-019c-433d-aea7-5a105f84ddeb
+		summarizeBy: none
+		sourceColumn: EMAIL_ADDRESS
+
+		annotation SummarizationSetBy = Automatic
+
+	column PHONE_NUMBER
+		dataType: string
+		lineageTag: 94f8279c-30ef-47e8-8547-2df6025e8b08
+		summarizeBy: none
+		sourceColumn: PHONE_NUMBER
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Renewal Result ID'
+		dataType: int64
+		formatString: 0
+		lineageTag: 5434fd14-6642-4e7e-a2f1-e45e7d963ec1
+		summarizeBy: count
+		sourceColumn: Renewal Result ID
+
+		changedProperty = DataType
+
+		annotation SummarizationSetBy = Automatic
+
+	column RENT_GROWTH
+		dataType: double
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: d64802f5-4d68-4f6c-b7e9-73c3fa2a914c
+		summarizeBy: sum
+		sourceColumn: RENT_GROWTH
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+	column UW_RENT_CURRENT
+		dataType: double
+		formatString: \$#,0;(\$#,0);\$#,0
+		lineageTag: 9fd0fb38-0495-43c0-8fc7-22c532bdede7
+		summarizeBy: sum
+		sourceColumn: UW_RENT_CURRENT
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+	column UW_UPDATE_DATE
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 8540def0-5274-45c1-88bf-2220c3a3b20b
+		summarizeBy: none
+		sourceColumn: UW_UPDATE_DATE
+
+		variation Variation
+			isDefault
+			relationship: 0d28404f-7b70-401f-aacd-5650c0425416
+			defaultHierarchy: LocalDateTable_012f01ec-dccc-45bb-ba55-1b60ae62ff50.'Date Hierarchy'
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+	column INSPECTION_COMPLETED_DATE
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 6547d0e2-43cd-4b99-91f0-e0a7419e55bc
+		summarizeBy: none
+		sourceColumn: INSPECTION_COMPLETED_DATE
+
+		variation Variation
+			isDefault
+			relationship: 5ba76600-582f-43b3-84c7-5b9f6f092cce
+			defaultHierarchy: LocalDateTable_512f931f-b48f-4b1c-8aaa-f706a75bafa4.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column RENEWAL_TRUSTEE_STATUS
+		dataType: string
+		lineageTag: c5ee58e5-e144-4349-9f64-0ce5feb7c257
+		summarizeBy: none
+		sourceColumn: RENEWAL_TRUSTEE_STATUS
+
+		annotation SummarizationSetBy = Automatic
+
+	column FULL_ADDRESS
+		dataType: string
+		lineageTag: 6f934a87-9972-4926-8e78-f027cade8d73
+		summarizeBy: none
+		sourceColumn: FULL_ADDRESS
+
+		annotation SummarizationSetBy = Automatic
+
+	column HBPM_URL
+		dataType: string
+		lineageTag: 557d3bb4-a14b-49d6-90ae-80aabdc2f6b0
+		summarizeBy: none
+		sourceColumn: HBPM_URL
+
+		annotation SummarizationSetBy = Automatic
+
+	column ANTICIPATEDMOVEOUTDATE
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: a1521a91-eb8c-4621-b9bd-367a53fb91e9
+		summarizeBy: none
+		sourceColumn: ANTICIPATEDMOVEOUTDATE
+
+		variation Variation
+			isDefault
+			relationship: 9820083a-1c73-4644-bc0c-402ccfeb63f4
+			defaultHierarchy: LocalDateTable_4566133f-afff-4bba-b278-19983fa79a92.'Date Hierarchy'
+
+		changedProperty = FormatString
+
+		annotation SummarizationSetBy = Automatic
+
+	column MTM_FLAG
+		dataType: string
+		lineageTag: 505f9b08-6071-46ea-a59c-789b478f8541
+		summarizeBy: none
+		sourceColumn: MTM_FLAG
+
+		annotation SummarizationSetBy = Automatic
+
+	column TENANT_URL
+		dataType: string
+		lineageTag: cb11a4fe-00c6-492a-9e14-2332d4753619
+		summarizeBy: none
+		sourceColumn: TENANT_URL
+
+		annotation SummarizationSetBy = Automatic
+
+	column ISSECTION8
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 94c84ea2-1ba3-4c33-a5fc-0a3c9dcca1cf
+		summarizeBy: none
+		sourceColumn: ISSECTION8
+
+		annotation SummarizationSetBy = Automatic
+
+	column MO_DATE_FLAG
+		dataType: string
+		lineageTag: 404eeb41-7a43-4d47-b122-b9426301d68d
+		summarizeBy: none
+		sourceColumn: MO_DATE_FLAG
+
+		annotation SummarizationSetBy = Automatic
+
+	column 1_All_Tenant_Emails = CALCULATE(MAX(DW_Tenant[1_All Tenant Emails]),FILTER(DW_Tenant,DW_Tenant[TENANT_KEY]=DW_Renewals[TENANT_KEY]))
+		lineageTag: 104c449d-51a9-47ed-a251-11f3f3dc4b21
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column RENEWAL_DEAL_STATUS
+		dataType: string
+		lineageTag: a79a833a-16de-4efb-8237-09d5959a1e9c
+		summarizeBy: none
+		sourceColumn: RENEWAL_DEAL_STATUS
+
+		annotation SummarizationSetBy = Automatic
+
+	column RENEWAL_LEASE_STATUS
+		dataType: string
+		lineageTag: 530032f3-23c8-4a69-a909-01cfa3c39e1b
+		summarizeBy: none
+		sourceColumn: RENEWAL_LEASE_STATUS
+
+		annotation SummarizationSetBy = Automatic
+
+	column RENEWAL_LINK
+		dataType: string
+		lineageTag: 67e85347-fe56-4a5a-a697-52049ee13319
+		summarizeBy: none
+		sourceColumn: RENEWAL_LINK
+
+		annotation SummarizationSetBy = Automatic
+
+	column PRIMARYTENANT
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 2ac908ec-8ec6-49fe-9c42-92d6e86562ed
+		summarizeBy: none
+		sourceColumn: PRIMARYTENANT
+
+		annotation SummarizationSetBy = Automatic
+
+	column EVICTION_COUNT
+		dataType: double
+		lineageTag: 134d520f-e798-466e-a635-f37cf45e7490
+		summarizeBy: sum
+		sourceColumn: EVICTION_COUNT
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column MOVEOUT_BOM
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 3b5f82f9-3358-4b7a-903d-c9b74321cd28
+		summarizeBy: none
+		sourceColumn: MOVEOUT_BOM
+
+		variation Variation
+			isDefault
+			relationship: db3cb916-5307-4b80-b266-50b31978678a
+			defaultHierarchy: LocalDateTable_149fff78-c4a4-49d4-bb94-4c27434933e6.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column '1_Renewal Update_Flag' =
+			IF(DW_Renewals[Renewal Result]="MTM",BLANK(),
+			IF(DW_Renewals[Renewal Result]="Notice"&&DW_Renewals[RENEWAL_DEAL_STATUS]<>BLANK()&&DW_Renewals[RENEWAL_DEAL_STATUS]<>"Renewal Lost","Yes",
+			IF(DW_Renewals[Renewal Result]="Pending"&&DW_Renewals[RENEWAL_DEAL_STATUS]="Renewal Lost","Yes",
+			IF(DW_Renewals[Renewal Result]="Renewed"&&DW_Renewals[RENEWAL_DEAL_STATUS]<>"Renewal Won"&&DW_Renewals[RENEWAL_DEAL_STATUS]<>BLANK()&&DW_Renewals[REASONFORNOTRENEWINGID]<>3164,"Yes",
+			BLANK()))))
+		lineageTag: 968d7d70-3798-4f64-944b-6c94fee8b353
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column 1_All_Tenant_Numbers = CALCULATE(MAX(DW_Tenant[1_All Tenant Numbers]),FILTER(DW_Tenant,DW_Tenant[TENANT_KEY]=DW_Renewals[TENANT_KEY]))
+		lineageTag: 4d3c062c-14f7-4cef-b75c-5d14ecbba94c
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column STRATEGY_NAME
+		dataType: string
+		lineageTag: e63b5e6a-a97d-4d6f-9978-6f4449fa4efe
+		summarizeBy: none
+		sourceColumn: STRATEGY_NAME
+
+		annotation SummarizationSetBy = Automatic
+
+	column IMPORT_TYPE
+		dataType: string
+		lineageTag: 8f5ccf44-099e-4833-a58d-b64d46f2acd5
+		summarizeBy: none
+		sourceColumn: IMPORT_TYPE
+
+		annotation SummarizationSetBy = Automatic
+
+	column IMPORT_DUE_DATE
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: b8fd3a3b-ee64-4859-a104-7e56854f0dd3
+		summarizeBy: none
+		sourceColumn: IMPORT_DUE_DATE
+
+		variation Variation
+			isDefault
+			relationship: b70425d7-adb8-4d0c-822a-5e5814fa3e65
+			defaultHierarchy: LocalDateTable_daf0a57e-ca2c-41ac-b66a-dd98b874e52d.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column IMPORT_AMOUNT
+		dataType: double
+		formatString: \$#,0.00;(\$#,0.00);\$#,0.00
+		lineageTag: 63947d0e-8f88-4f75-9af6-2f03f3f20c0e
+		summarizeBy: sum
+		sourceColumn: IMPORT_AMOUNT
+
+		annotation SummarizationSetBy = Automatic
+
+	column IMPORT_GL_ACCOUNT
+		dataType: int64
+		lineageTag: 2b649cd5-b19b-425e-b79f-f24b91af1e7e
+		summarizeBy: sum
+		sourceColumn: IMPORT_GL_ACCOUNT
+
+		changedProperty = DataType
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column IMPORT_GL_ACCOUNT_DESC
+		dataType: string
+		lineageTag: 1981b9f7-87ff-4a2c-85ed-cdfd6923db2e
+		summarizeBy: none
+		sourceColumn: IMPORT_GL_ACCOUNT_DESC
+
+		annotation SummarizationSetBy = Automatic
+
+	column IMPORT_DESCRIPTION
+		dataType: string
+		lineageTag: 802708ab-c14d-49be-94bc-d639c768a453
+		summarizeBy: none
+		sourceColumn: IMPORT_DESCRIPTION
+
+		annotation SummarizationSetBy = Automatic
+
+	column IMPORT_HBPM_USER
+		dataType: string
+		lineageTag: 2d29d244-5d3e-48bf-9086-a13bc19fbfbd
+		summarizeBy: none
+		sourceColumn: IMPORT_HBPM_USER
+
+		annotation SummarizationSetBy = Automatic
+
+	column IMPORT_TENANT_NOTE
+		dataType: string
+		lineageTag: 1d044bba-1c52-41c9-8d8c-4c550ba26545
+		summarizeBy: none
+		sourceColumn: IMPORT_TENANT_NOTE
+
+		annotation SummarizationSetBy = Automatic
+
+	column IMPORT_TENANT_NOTE_TYPE
+		dataType: string
+		lineageTag: bd508084-04c2-49ee-82bc-ec186ca801f3
+		summarizeBy: none
+		sourceColumn: IMPORT_TENANT_NOTE_TYPE
+
+		annotation SummarizationSetBy = Automatic
+
+	column MARR
+		dataType: double
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: 50dd2133-2c0e-4ca5-b034-91d2dd39b42f
+		summarizeBy: sum
+		sourceColumn: MARR
+
+		annotation SummarizationSetBy = Automatic
+
+	column RATE_12_MONTH
+		dataType: double
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: 8e95a8ef-fa6e-416b-afb8-4807cf5238df
+		summarizeBy: sum
+		sourceColumn: RATE_12_MONTH
+
+		annotation SummarizationSetBy = Automatic
+
+	column RATE_15_MONTH
+		dataType: double
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: d06eed77-d5be-451a-bf4d-a5a90233c990
+		summarizeBy: sum
+		sourceColumn: RATE_15_MONTH
+
+		annotation SummarizationSetBy = Automatic
+
+	column RATE_18_MONTH
+		dataType: double
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: 04912f14-4390-41c7-a568-465945f3a123
+		summarizeBy: sum
+		sourceColumn: RATE_18_MONTH
+
+		annotation SummarizationSetBy = Automatic
+
+	column RATE_24_MONTH
+		dataType: double
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: c4a44fe9-11c6-45a6-b100-8dc7f0694eed
+		summarizeBy: sum
+		sourceColumn: RATE_24_MONTH
+
+		annotation SummarizationSetBy = Automatic
+
+	column HUBSPOT_RECORD_ID
+		dataType: int64
+		lineageTag: 38e4d607-d648-4078-994f-d936edeb2ad1
+		summarizeBy: count
+		sourceColumn: HUBSPOT_RECORD_ID
+
+		changedProperty = DataType
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column SQUARE_FOOTAGE
+		dataType: double
+		lineageTag: 10a29803-652d-4879-946e-3a950e4f4f03
+		summarizeBy: sum
+		sourceColumn: SQUARE_FOOTAGE
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column FLOORPLAN
+		dataType: string
+		lineageTag: 0d8702bd-2de8-4d2d-901f-391a8a681def
+		summarizeBy: none
+		sourceColumn: FLOORPLAN
+
+		annotation SummarizationSetBy = Automatic
+
+	column TYPE
+		dataType: string
+		lineageTag: 83a509c2-77bf-48c7-9a6c-f004cccd7230
+		summarizeBy: none
+		sourceColumn: TYPE
+
+		annotation SummarizationSetBy = Automatic
+
+	column EVICTION_EVICTIONTERMINATEDDATE
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 6946cc2a-1df7-49fa-8250-e7c987c57db6
+		summarizeBy: none
+		sourceColumn: EVICTION_EVICTIONTERMINATEDDATE
+
+		variation Variation
+			isDefault
+			relationship: 0dcc86f6-2e7e-4aa7-bcfa-d7324f641549
+			defaultHierarchy: LocalDateTable_6fea0292-ad7b-4725-adc8-e9635b30ddde.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column DNR_FLAG
+		dataType: string
+		lineageTag: 4f02ceb8-1310-4a6c-8b0a-d8d057b1d1ab
+		summarizeBy: none
+		sourceColumn: DNR_FLAG
+
+		annotation SummarizationSetBy = Automatic
+
+	column MARKET_RENT
+		dataType: double
+		lineageTag: 6c7075f0-dff7-4d01-8133-22f81e185b87
+		summarizeBy: sum
+		sourceColumn: MARKET_RENT
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column RENEWAL_NOTE_FLAG
+		dataType: string
+		lineageTag: f06d274f-c402-4e40-80c2-2c3101795be1
+		summarizeBy: none
+		sourceColumn: RENEWAL_NOTE_FLAG
+
+		annotation SummarizationSetBy = Automatic
+
+	column RENEWALNOTE_ADDED_BY
+		dataType: string
+		lineageTag: 63aac716-e1f5-4fd7-8500-d4eccd60b5bb
+		summarizeBy: none
+		sourceColumn: RENEWALNOTE_ADDED_BY
+
+		annotation SummarizationSetBy = Automatic
+
+	column 1_12_Month_Suggested = ```
+			IF(COUNT(DW_Rent_Comps[FLOORPLAN])=BLANK(),BLANK(),MROUND(
+			    MAX(
+			        MIN(( 
+			            IF(RELATED(DW_Rent_Comps[LISTED_RENT_COUNT])<>BLANK(),RELATED(DW_Rent_Comps[LISTED_RENT_AVG]),RELATED(DW_Rent_Comps[TENANT_RENT_AVG]))*.5+
+			            RELATED(DW_Rent_Comps[TENANT_RENT_MAX])*.25+
+			            RELATED(DW_Rent_Comps[TENANT_RENT_MOST_RECENT])*.25) * (1+
+			            IF(RELATED(DW_Rent_Comps[LISTED_DOM_AVG])=BLANK(),.015,
+			            IF(RELATED(DW_Rent_Comps[LISTED_DOM_AVG])<=35&&RELATED(DW_Rent_Comps[TENANT_DOM_AVG])<=60,.01,
+			            IF(RELATED(DW_Rent_Comps[LISTED_DOM_AVG])<=60&&RELATED(DW_Rent_Comps[TENANT_DOM_AVG])<=75,.005,
+			            .000)))),
+			            DW_Renewals[C_AMOUNT] * 1.04),
+			            DW_Renewals[C_AMOUNT] * 1.0175),5))
+			```
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: 397d04bd-e06a-4366-96be-2af62770906a
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	column PROPERTY_LAST_CALL_DATE
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: cf17d7a2-cdbf-443f-8e93-699b86307031
+		summarizeBy: none
+		sourceColumn: PROPERTY_LAST_CALL_DATE
+
+		variation Variation
+			isDefault
+			relationship: 2f666c57-ceca-49ab-b604-cfe17776d641
+			defaultHierarchy: LocalDateTable_48cac7b1-99fb-45e2-bb20-4062190b4708.'Date Hierarchy'
+
+		changedProperty = DataType
+
+		annotation SummarizationSetBy = Automatic
+
+	column CURRENT_FLAG
+		dataType: string
+		lineageTag: 123ac1d3-23c0-4aa7-bc50-bdbe69d04904
+		summarizeBy: none
+		sourceColumn: CURRENT_FLAG
+
+		annotation SummarizationSetBy = Automatic
+
+	column EVICTION_EVICTIONSTATUSID
+		dataType: double
+		lineageTag: 6e532cae-c952-4bb9-b30f-d87f8b691ec1
+		summarizeBy: count
+		sourceColumn: EVICTION_EVICTIONSTATUSID
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column C_LEASENUMBER
+		dataType: double
+		lineageTag: 19a7d90a-db26-4cda-8e87-94c5312b47a1
+		summarizeBy: sum
+		sourceColumn: C_LEASENUMBER
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column C_LEASENUMBER_INV
+		dataType: double
+		lineageTag: 275e6cca-575d-4b86-ab8a-aaabd41fbfcf
+		summarizeBy: sum
+		sourceColumn: C_LEASENUMBER_INV
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column C_ISRENEWAL
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 32826280-99c1-4b5a-9a1c-70c4670c0245
+		summarizeBy: none
+		sourceColumn: C_ISRENEWAL
+
+		annotation SummarizationSetBy = Automatic
+
+	column C_LEASING_CONCESSION
+		dataType: double
+		lineageTag: f13270d6-d3de-40bc-8ffb-92252ca90ad0
+		summarizeBy: sum
+		sourceColumn: C_LEASING_CONCESSION
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column C_OWNER_CONCESSION
+		dataType: double
+		lineageTag: 0576acb7-07ea-42ce-8f76-d36133474f91
+		summarizeBy: sum
+		sourceColumn: C_OWNER_CONCESSION
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column N_LEASENUMBER
+		dataType: double
+		lineageTag: 65bb2d8f-bbd7-4715-9cf0-97cbc9f7bb3d
+		summarizeBy: sum
+		sourceColumn: N_LEASENUMBER
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column N_LEASENUMBER_INV
+		dataType: double
+		lineageTag: 68eb56bb-aa4e-442b-8ec2-aa8923468fd9
+		summarizeBy: sum
+		sourceColumn: N_LEASENUMBER_INV
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column N_ISRENEWAL
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 04857865-4aac-47cf-b31a-2e586951a0a4
+		summarizeBy: none
+		sourceColumn: N_ISRENEWAL
+
+		annotation SummarizationSetBy = Automatic
+
+	column N_LEASING_CONCESSION
+		dataType: double
+		lineageTag: 38da1c4e-544b-4849-89ea-83c138a4bd1c
+		summarizeBy: sum
+		sourceColumn: N_LEASING_CONCESSION
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column N_OWNER_CONCESSION
+		dataType: double
+		lineageTag: b8aaa406-c229-42e8-a358-c6a9a0108ac0
+		summarizeBy: sum
+		sourceColumn: N_OWNER_CONCESSION
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column '0_Renewal Goal'
+		dataType: double
+		lineageTag: 699bedde-7329-4216-ab2b-c5f94680cdd4
+		summarizeBy: sum
+		sourceColumn: 0_Renewal Goal
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 0_Rent_Growth_Goal
+		dataType: double
+		lineageTag: 45358cda-302c-4aa0-a747-79a77b42f7b0
+		summarizeBy: sum
+		sourceColumn: 0_Rent_Growth_Goal
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column UW_RENT_PRIOR
+		dataType: double
+		lineageTag: 158f80cb-a08a-432d-b086-f036afdc20fd
+		summarizeBy: sum
+		sourceColumn: UW_RENT_PRIOR
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column UW_DAYS_SINCE_UPDATE
+		dataType: double
+		lineageTag: 2ac568e5-c4f0-427d-8ccc-c28b36dcc6b9
+		summarizeBy: sum
+		sourceColumn: UW_DAYS_SINCE_UPDATE
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column INSPECTION_LINK
+		dataType: string
+		lineageTag: 11556eab-1a42-42a6-828e-894bc7ebac13
+		summarizeBy: none
+		sourceColumn: INSPECTION_LINK
+
+		annotation SummarizationSetBy = Automatic
+
+	column RENEWAL_OWNER
+		dataType: string
+		lineageTag: 8752fe9f-5e8a-4d2c-963f-df4b4fa70370
+		summarizeBy: none
+		sourceColumn: RENEWAL_OWNER
+
+		annotation SummarizationSetBy = Automatic
+
+	column RENEWAL_DEAL_NAME
+		dataType: string
+		lineageTag: 5c184fed-a08e-4e46-812b-ec0efdf5b5c0
+		summarizeBy: none
+		sourceColumn: RENEWAL_DEAL_NAME
+
+		annotation SummarizationSetBy = Automatic
+
+	column DEAL_ID
+		dataType: double
+		lineageTag: 7bb90f68-7148-457d-bfe1-6e3193f4a9ec
+		summarizeBy: count
+		sourceColumn: DEAL_ID
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition DW_Renewals-53bbae41-8680-4526-968a-6719152104ba = m
+		mode: import
+		queryGroup: 'DW Sources'
+		source =
+				let
+				    Source = Value.NativeQuery(Snowflake.Databases("ota12822.us-east-1.snowflakecomputing.com","DEVELOPER_WH",[Implementation="2.0"]){[Name="PROD_REPLICA"]}[Data], "/* =============================================================================#(lf)   RENEWALS DATASET#(lf)   -----------------------------------------------------------------------------#(lf)   Grain:      One row per tenant leasing-history record (the ""current"" lease),#(lf)               paired with the next lease (N_*) where one exists, enriched with#(lf)               tenant/property/eviction/inspection/renewal-deal context and a#(lf)               set of derived renewal-outcome buckets.#(lf)   Anchor:     PROD_REPLICA.HBPM_DBO.TENANTLEASINGHISTORIES (TLH)#(lf)   Branches off the property foundation; shares its organization roll-up logic.#(lf)#(lf)   CLEANUP NOTES:#(lf)     [SYNC]  ORGANIZATION_KEY / ORGANIZATION_NAME CASE updated to mirror the#(lf)             master PROPERTY script (source of truth). This script's version was#(lf)             the most truncated of all (27-group was only 27,50,51,52).#(lf)             DELIBERATE OUTPUT CHANGE — see ""ORG SYNC IMPACT"".#(lf)     [FIX 1] COLLAPSED the duplicate EVICTIONS CTE. It was defined TWICE; only#(lf)             three of its columns are consumed downstream#(lf)             (EVICTION_EVICTIONSTATUSID, EVICTION_EVICTIONSTATUS,#(lf)             EVICTION_EVICTIONTERMINATEDDATE) and those are byte-identical across#(lf)             both definitions with the same FROM/filter/ranking — so a single#(lf)             definition is output-identical and removes the duplicate-name#(lf)             hazard. Kept the richer (COALESCE + EVICTION_DIQ) body.#(lf)     [FIX 2] DROPPED dead NT / LM joins inside RenewalNote (never referenced).#(lf)     [FIX 3] REMOVED the commented-out LR_O / TLH_O prior-lease scaffolding.#(lf)     [FIX 4] REMOVED the ORDER BY inside the RENEWALS CTE (ordering inside a CTE#(lf)             that is re-joined downstream has no effect on final output).#(lf)#(lf)   ORG SYNC IMPACT (intended diff vs. original renewals output):#(lf)     Renewals tied to these orgs previously fell through to ELSE (raw key +#(lf)     unmapped O.ORGANIZATION_NAME); after the sync they roll up:#(lf)        54,45,55,53,56,57,66 -> 27 / 'RB DRC'   (added to the 27-group)#(lf)        58,59                -> 58 / 'Hudson Oak'#(lf)        62,63,64,65,68,69    -> 62 / 'Rocklyn Homes'#(lf)        61,70                -> 61 / 'ROI Property Group'#(lf)        67                   -> 67 / 'Newstar'#(lf)     An EXCEPT diff vs. the old output will show rows ONLY for these orgs.#(lf)   ============================================================================= */#(lf)#(lf)#(lf)/* -----------------------------------------------------------------------------#(lf)   CTE: LeaseRanking#(lf)   Forward + inverse rank of each lease per tenant, used to walk from the#(lf)   current lease (C_*) to the next lease (N_*).#(lf)   ----------------------------------------------------------------------------- */#(lf)WITH LeaseRanking AS (#(lf)    SELECT#(lf)         TenantLeasingHistoryId#(lf)        ,TenantInformationId#(lf)        ,RANK() OVER (PARTITION BY TenantInformationId ORDER BY TenantLeasingHistoryId ASC)  AS Lease_Rank#(lf)        ,RANK() OVER (PARTITION BY TenantInformationId ORDER BY TenantLeasingHistoryId DESC) AS Lease_Rank_INV#(lf)    FROM PROD_REPLICA.HBPM_DBO.TENANTLEASINGHISTORIES#(lf)    WHERE 1 = 1#(lf)        AND _FIVETRAN_DELETED <> 'Y'#(lf))#(lf)#(lf)/* -----------------------------------------------------------------------------#(lf)   CTE: RenewalNote#(lf)   Latest renewal note (NoteTypeId = 1, tenant object) per property.#(lf)   ----------------------------------------------------------------------------- */#(lf),RenewalNote AS (#(lf)    SELECT#(lf)         MAX(NoteID) AS LatestNoteID#(lf)        ,P.PropertyId#(lf)    FROM PROD_REPLICA.HBPM_DBO.NOTES N#(lf)        LEFT JOIN PROD_REPLICA.HBPM_DBO.TENANTINFORMATIONS TI#(lf)            ON  TI.UserID = N.ObjectId#(lf)            AND N.ObjectTypeId = 502#(lf)        LEFT JOIN PROD_REPLICA.HBPM_DBO.PROPERTYADDLINFOES PAI#(lf)            ON PAI.UnitId = TI.UnitId#(lf)        LEFT JOIN PROD_REPLICA.HBPM_DBO.PROPERTIES P#(lf)            ON P.PropertyID = PAI.PropertyId#(lf)    WHERE N.NoteTypeId = 1#(lf)        AND N.ObjectTypeId = 502#(lf)    GROUP BY P.PropertyId#(lf))#(lf)#(lf)/* -----------------------------------------------------------------------------#(lf)   CTE: EVICTION_COUNT#(lf)   Count of evictions per tenant/unit in the trailing 12 months.#(lf)   ----------------------------------------------------------------------------- */#(lf),EVICTION_COUNT AS (#(lf)    SELECT#(lf)         UNITID#(lf)        ,TENANTINFORMATIONID#(lf)        ,COUNT(ID) AS EVICTION_COUNT#(lf)    FROM PROD_REPLICA.HBPM_DBO.EVICTIONS E#(lf)    WHERE TENANTINFORMATIONID IS NOT NULL#(lf)        AND CREATEDDATE >= DATEADD('YEAR', -1, GETDATE())#(lf)    GROUP BY UNITID, TENANTINFORMATIONID#(lf))#(lf)#(lf)/* -----------------------------------------------------------------------------#(lf)   CTE: EVICTIONS  (single, collapsed definition — see FIX 1)#(lf)   Most recent eviction per unit/tenant, with lookup-master descriptions and a#(lf)   days-in-queue (EVICTION_DIQ) measure. Consumed downstream via two aliases:#(lf)   EV (joined on tenant) and E (for the terminated date).#(lf)   ----------------------------------------------------------------------------- */#(lf),EVICTIONS AS (#(lf)    SELECT#(lf)         UNITID#(lf)        ,ET.Description AS EVICTION_EVICTIONTYPE#(lf)        ,TENANTINFORMATIONID#(lf)        ,ID AS EVICTION_ID#(lf)        ,RANK() OVER (PARTITION BY UNITID, TENANTINFORMATIONID ORDER BY ID DESC) AS RECENT_RANK#(lf)        ,EVICTIONCOMPANY AS EVICTION_EVICTIONCOMPANY#(lf)        ,EVICTIONSOURCE  AS EVICTION_EVICTIONSOURCE#(lf)        ,DATESENTTOATTORNEY                     AS EVICTION_DATESENTTOATTORNEY#(lf)        ,COALESCE(DATEFILED, DATESENTTOATTORNEY) AS EVICTION_DATEFILED#(lf)        ,VENDORSCHEDULED                        AS EVICTION_VENDORSCHEDULED#(lf)        ,CASHFORKEYSAMOUNT                      AS EVICTION_CASHFORKEYSAMOUNT#(lf)        ,ESTIMATEDVACATEDATE                    AS EVICTION_ESTIMATEDVACATEDATE#(lf)        ,DATESCHEDULEDWITHVENDOR                AS EVICTION_DATESCHEDULEDWITHVENDOR#(lf)        ,COURTDATESETDATE                       AS EVICTION_COURTDATESETDATE#(lf)        ,JUDGMENTDATE                           AS EVICTION_JUDGMENTDATE#(lf)        ,CASHFORKEYSCHEDULEDDATE                AS EVICTION_CASHFORKEYSCHEDULEDDATE#(lf)        ,PENDINGLOCKOUTDATE                     AS EVICTION_PENDINGLOCKOUTDATE#(lf)        ,LOCKOUTSCHEDULEDDATE                   AS EVICTION_LOCKOUTSCHEDULEDDATE#(lf)        ,WRITREQUESTEDDATE                      AS EVICTION_WRITREQUESTEDDATE#(lf)        ,LASTEDITEDDATE                         AS EVICTION_LASTEDITEDDATE#(lf)        ,EVICTIONTERMINATEDDATE                 AS EVICTION_EVICTIONTERMINATEDDATE#(lf)        ,DEFENDANTAPPEALDATE                    AS EVICTION_DEFENDANTAPPEALDATE#(lf)        ,ANSWERFILEDDATE                        AS EVICTION_ANSWERFILEDDATE#(lf)        ,VACATEDATE                             AS EVICTION_VACATEDATE#(lf)        ,CASE#(lf)            WHEN ES.Description IN ('Filed with County', 'Sent to Attorney')#(lf)                THEN DATEDIFF('day', COALESCE(DATEFILED, DATESENTTOATTORNEY), GETDATE())#(lf)            WHEN ES.Description IN ('Court Date Set')#(lf)                THEN DATEDIFF('day', COURTDATESETDATE, GETDATE())#(lf)            WHEN ES.Description IN ('Judgement')#(lf)                THEN DATEDIFF('day', JUDGMENTDATE, GETDATE())#(lf)            WHEN ES.Description IN ('Writ of Possesion')#(lf)                THEN DATEDIFF('day', WRITREQUESTEDDATE, GETDATE())#(lf)            WHEN ES.Description IN ('Pending Lockout')#(lf)                THEN DATEDIFF('day', COALESCE(LOCKOUTSCHEDULEDDATE, PENDINGLOCKOUTDATE), GETDATE())#(lf)            WHEN ES.Description IN ('Lockout Scheduled')#(lf)                THEN DATEDIFF('day', LOCKOUTSCHEDULEDDATE, GETDATE())#(lf)            WHEN ES.Description NOT IN ('Eviction Terminated', 'Vacated - Skipped', 'Vacated - Completed')#(lf)                THEN DATEDIFF('day', LASTEDITEDDATE, GETDATE())#(lf)            ELSE NULL#(lf)         END AS EVICTION_DIQ#(lf)        ,CFK.Description AS EVICTION_CASHFORKEYSTATUS#(lf)        ,OI.Description  AS EVICTION_OCCUPANTS_INTENSION#(lf)        ,VS.Description  AS EVICTION_VACATESOURCE#(lf)        ,ES.Description  AS EVICTION_EVICTIONSTATUS#(lf)        ,OT.Description  AS EVICTION_OCCUPANTTYPE#(lf)        ,EVICTIONNOTES   AS EVICTION_EVICTIONNOTES#(lf)        ,E.EVICTIONSTATUSID AS EVICTION_EVICTIONSTATUSID#(lf)    FROM PROD_REPLICA.HBPM_DBO.EVICTIONS E#(lf)        LEFT JOIN PROD_REPLICA.HBPM_DBO.LOOKUPMASTERS CFK ON E.CASHFORKEYSTATUSID = CFK.LOOKUPMASTERID#(lf)        LEFT JOIN PROD_REPLICA.HBPM_DBO.LOOKUPMASTERS ES  ON E.EVICTIONSTATUSID   = ES.LOOKUPMASTERID#(lf)        LEFT JOIN PROD_REPLICA.HBPM_DBO.LOOKUPMASTERS OI  ON E.OCCUINTENSIONID    = OI.LOOKUPMASTERID#(lf)        LEFT JOIN PROD_REPLICA.HBPM_DBO.LOOKUPMASTERS VS  ON E.VACATESOURCEID     = VS.LOOKUPMASTERID#(lf)        LEFT JOIN PROD_REPLICA.HBPM_DBO.LOOKUPMASTERS OT  ON E.OCCUPANTTYPEID     = OT.LOOKUPMASTERID#(lf)        LEFT JOIN PROD_REPLICA.HBPM_DBO.LOOKUPMASTERS ET  ON E.EVICTIONTYPEID     = ET.LOOKUPMASTERID#(lf)    WHERE TENANTINFORMATIONID IS NOT NULL#(lf)    QUALIFY RECENT_RANK = 1#(lf))#(lf)#(lf)/* -----------------------------------------------------------------------------#(lf)   CTE: HUBSPOT#(lf)   Live HubSpot property records (entity id -> hubspot record id).#(lf)   ----------------------------------------------------------------------------- */#(lf),HUBSPOT AS (#(lf)    SELECT#(lf)         ID#(lf)        ,PROPERTY_ENTITY_ID#(lf)    FROM PROD_REPLICA.HUBSPOT_2.PROPERTIES#(lf)    WHERE 1 = 1#(lf)        AND PROPERTY_ENTITY_ID IS NOT NULL#(lf)        AND (_fivetran_deleted = FALSE OR _fivetran_deleted IS NULL)#(lf))#(lf)#(lf)/* -----------------------------------------------------------------------------#(lf)   CTE: LAST_CALL#(lf)   Most recent outbound-call timestamp per HBPM tenant, from HubSpot contacts.#(lf)   ----------------------------------------------------------------------------- */#(lf),LAST_CALL AS (#(lf)    SELECT#(lf)         PROPERTY_HBPM_TENANT_ID#(lf)        ,MAX(TO_VARCHAR(CONVERT_TIMEZONE('America/New_York', PROPERTY_LAST_CALL_DATE_TIMESTAMP),#(lf)                        'YYYY-MM-DD HH24:MI:SS')) AS PROPERTY_LAST_CALL_DATE#(lf)    FROM PROD_REPLICA.HUBSPOT_2.CONTACT#(lf)    WHERE 1 = 1#(lf)        AND PROPERTY_HBPM_TENANT_ID IS NOT NULL#(lf)    GROUP BY PROPERTY_HBPM_TENANT_ID#(lf))#(lf)#(lf)/* -----------------------------------------------------------------------------#(lf)   CTE: RENEWAL_DEAL#(lf)   Renewal-pipeline deals with their offered rates, joined to the HubSpot deal#(lf)   record. Excludes two bad entity ids and a long list of bad deal ids.#(lf)   ----------------------------------------------------------------------------- */#(lf),RENEWAL_DEAL AS (#(lf)    SELECT#(lf)         R.DEAL_KEY#(lf)        ,R.DEAL_ID#(lf)        ,R.CURRENT_DEAL_STATUS#(lf)        ,TO_DATE(R.LEASE_START_DATE_KEY::TEXT,  'yyyymmdd') AS RENEWAL_START_DATE#(lf)        ,TO_DATE(R.LEASE_END_DATE_KEY::TEXT,    'yyyymmdd') AS RENEWAL_END_DATE#(lf)        ,TO_DATE(R.LEASE_SIGNED_DATE_KEY::TEXT, 'yyyymmdd') AS RENEWAL_SIGNED_DATE#(lf)        ,R.FIRST_NAME#(lf)        ,R.LAST_NAME#(lf)        ,R.EMAIL#(lf)        ,R.PHONE#(lf)        ,R.DEAL_OWNER#(lf)        ,R.DEAL_NAME#(lf)        ,D.PROPERTY_HS_OBJECT_ID#(lf)        ,TO_DATE(D.PROPERTY_CREATEDATE::TEXT, 'AUTO') AS CREATED_DATE#(lf)        ,D.PROPERTY_LEASE_DRAFTING_STATUS#(lf)        ,D.PROPERTY_PRIMARY_APPLICANT_NAME#(lf)        ,D.PROPERTY_PROPERTY_ID#(lf)        ,D.PROPERTY_ENTITY_ID#(lf)        ,D.PROPERTY_ADDRESS#(lf)        ,D.PROPERTY_MINIMUM_ACCEPTABLE_RENEWAL_RATE_MARR_ AS MARR#(lf)        ,D.PROPERTY_N_12_MONTH_RENEWAL_RATE AS RATE_12_MONTH#(lf)        ,D.PROPERTY_N_15_MONTH_RENEWAL_RATE AS RATE_15_MONTH#(lf)        ,D.PROPERTY_N_18_MONTH_RENEWAL_RATE AS RATE_18_MONTH#(lf)        ,COALESCE(D.PROPERTY_N_24_MONTH_RENEWAL_RATE, D.PROPERTY_N_25_MONTH_RENEWAL_RATE) AS RATE_24_MONTH#(lf)        ,D.PROPERTY_MARKET_RENT AS MARKET_RENT#(lf)    FROM ""PROD_ANALYTICS"".""DBT_RESICAP"".""DIM_DEAL"" R#(lf)        LEFT JOIN ""PROD_REPLICA"".""HUBSPOT_2"".""DEAL"" D#(lf)            ON D.DEAL_ID = R.DEAL_ID#(lf)    WHERE 1 = 1#(lf)        AND R.DEAL_PIPELINE = 'Renewals'#(lf)        AND D.PROPERTY_ENTITY_ID NOT IN ('13545864', '63653634')#(lf)        AND R.DEAL_ID NOT IN (#(lf)            16852651365,16852662951,16852818188,16852625001,16852830527,16852588187,16852902240,#(lf)            16852535222,16852602181,16852613985,16852551050,16851979618,16852902250,16852685735,#(lf)            16852606516,16852609954,16852591747,16852838701,16852805227,16852670267,16852769112,#(lf)            16852640109,16852769109,16852024887,16852571050,16852651357,16852582701,16852840328,#(lf)            16852647079,16852038791,16852575895)#(lf))#(lf)#(lf)/* -----------------------------------------------------------------------------#(lf)   CTE: UW_RENT#(lf)   Latest underwriting rent change per unit (max RENTLOGID per ENTITYID1).#(lf)   ----------------------------------------------------------------------------- */#(lf),UW_RENT_MAX AS (#(lf)    SELECT#(lf)         MAX(RENTLOGID) AS RENTLOGID#(lf)        ,ENTITYID1#(lf)    FROM PROD_REPLICA.HBPM_DBO.RENTLOGS#(lf)    GROUP BY ENTITYID1#(lf))#(lf)#(lf),UW_RENT AS (#(lf)    SELECT#(lf)         RentLogs.ENTITYID1     AS HBPM_UnitID#(lf)        ,RentLogs.ORIGINALVALUE AS UW_Rent_Prior#(lf)        ,RentLogs.UPDATEVALUE   AS UW_Rent_Current#(lf)        ,RentLogs.OCCUREDON     AS UW_Update_Date#(lf)    FROM UW_RENT_MAX#(lf)        LEFT JOIN PROD_REPLICA.HBPM_DBO.RENTLOGS RentLogs#(lf)            ON RentLogs.RENTLOGID = UW_RENT_MAX.RENTLOGID#(lf))#(lf)#(lf)/* -----------------------------------------------------------------------------#(lf)   HappyCo inspection chain (Trustee-Leased renewal inspections)#(lf)   CLEAN_ITEM -> CLEAN_UNIT -> CLEAN_INPSECTION -> HAPPY_CO_DETAIL -> HAPPY_CO_RENEWAL#(lf)   ----------------------------------------------------------------------------- */#(lf),CLEAN_ITEM AS (#(lf)    SELECT#(lf)         ITEM._MODIFIED#(lf)        ,ITEM._ID      AS ITEM_ID#(lf)        ,ITEM.SECTION  AS ITEM_Section#(lf)        ,ITEM.ITEM     AS ITEM_Item#(lf)        ,ITEM.RATINGS  AS ITEM_Ratings#(lf)        ,ITEM.NOTES    AS ITEM_Notes#(lf)        ,ITEM.INSPECTION_ID#(lf)        ,RANK() OVER (PARTITION BY ITEM.INSPECTION_ID#(lf)                      ORDER BY DATE_TRUNC('min', _FIVETRAN_SYNCED) DESC) AS UPDATE_RANK#(lf)        ,RANK() OVER (PARTITION BY ITEM_SECTION, ITEM_ITEM, ITEM.INSPECTION_ID#(lf)                      ORDER BY DATE_TRUNC('min', _MODIFIED) DESC,#(lf)                               DATE_TRUNC('min', _DATE_UPDATED) DESC) AS RECENT_RANK#(lf)    FROM PROD_REPLICA.HAPPYCO_NEW.ITEM#(lf))#(lf)#(lf),CLEAN_UNIT_PRE AS (#(lf)    SELECT#(lf)         UNIT._MODIFIED#(lf)        ,UNIT.ID          AS UNIT_ID#(lf)        ,UNIT.EXTERNAL_ID AS UNIT_EXTERNAL_ID#(lf)        ,UNIT.ADDRESS     AS UNIT_ADDRESS#(lf)        ,UNIT.LINE_1      AS UNIT_LINE_1#(lf)        ,RANK() OVER (PARTITION BY ID ORDER BY DATE_TRUNC('min', _MODIFIED) DESC) AS RECENT_RANK#(lf)    FROM PROD_REPLICA.HAPPY_CO.UNIT#(lf))#(lf)#(lf),CLEAN_UNIT AS (#(lf)    SELECT DISTINCT#(lf)         CLEAN_UNIT_PRE.*#(lf)        ,COALESCE(P1.PROPERTY_KEY, P2.PROPERTY_KEY, P3.PROPERTY_KEY, P4.PROPERTY_KEY) AS PROPERTY_KEY#(lf)    FROM CLEAN_UNIT_PRE#(lf)        /* Four fallback property matches: HBAM id, entity id, full address, then a#(lf)           10-char address prefix. */#(lf)        LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PROPERTY P1#(lf)            ON  TO_CHAR(P1.HBAM_PROPERTY_ID) = CLEAN_UNIT_PRE.UNIT_EXTERNAL_ID#(lf)            AND P1.CURRENT_FLAG = 'Y' AND P1.PROPERTY_STATE = 'Active'#(lf)        LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PROPERTY P2#(lf)            ON  P2.ENTITYID = CLEAN_UNIT_PRE.UNIT_EXTERNAL_ID#(lf)            AND P2.CURRENT_FLAG = 'Y' AND P2.PROPERTY_STATE = 'Active'#(lf)        LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PROPERTY P3#(lf)            ON  INITCAP(TRIM(P3.ADDRESS)) = INITCAP(TRIM(CLEAN_UNIT_PRE.UNIT_LINE_1))#(lf)            AND P3.CURRENT_FLAG = 'Y' AND P3.PROPERTY_STATE = 'Active'#(lf)        LEFT JOIN (#(lf)            SELECT LEFT(INITCAP(TRIM(ADDRESS)), 10) AS ADD_TRIM, MAX(PROPERTY_KEY) AS PROPERTY_KEY#(lf)            FROM PROD_ANALYTICS.DBT_RESICAP.DIM_PROPERTY#(lf)            WHERE CURRENT_FLAG = 'Y' AND PROPERTY_STATE = 'Active'#(lf)            GROUP BY LEFT(INITCAP(TRIM(ADDRESS)), 10)#(lf)        ) P4#(lf)            ON ADD_TRIM = LEFT(INITCAP(TRIM(CLEAN_UNIT_PRE.UNIT_LINE_1)), 10)#(lf)    WHERE CLEAN_UNIT_PRE.RECENT_RANK = 1#(lf))#(lf)#(lf),CLEAN_INPSECTION AS (#(lf)    SELECT#(lf)         INS._MODIFIED#(lf)        ,INS._LINE#(lf)        ,INS.INSPECTION_ID#(lf)        ,INS.INSPECTION_INSPECTOR_NAME#(lf)        ,INS.INSPECTION_COMPLETED_DATE#(lf)        ,INS.INSPECTION_STATUS#(lf)        ,INS.INSPECTION_TEMPLATE#(lf)        ,INS.INSPECTION_LINK#(lf)        ,INS.UNIT_ID#(lf)        ,RANK() OVER (PARTITION BY INS.INSPECTION_ID ORDER BY DATE_TRUNC('min', _MODIFIED) DESC) AS RECENT_RANK#(lf)    FROM PROD_REPLICA.HAPPY_CO.INSPECTION INS#(lf))#(lf)#(lf),HAPPY_CO_DETAIL AS (#(lf)    SELECT DISTINCT#(lf)         CLEAN_UNIT.PROPERTY_KEY#(lf)        ,CLEAN_UNIT.UNIT_ID#(lf)        ,CLEAN_UNIT.UNIT_EXTERNAL_ID#(lf)        ,CLEAN_UNIT.UNIT_Address#(lf)        ,CLEAN_UNIT.UNIT_LINE_1#(lf)        ,RANK() OVER (PARTITION BY CLEAN_UNIT.PROPERTY_KEY#(lf)                      ORDER BY CLEAN_INPSECTION.INSPECTION_COMPLETED_DATE DESC,#(lf)                               CLEAN_INPSECTION.INSPECTION_ID DESC) AS RECENT_INS_RANK#(lf)        ,CLEAN_INPSECTION.INSPECTION_ID#(lf)        ,CLEAN_INPSECTION.INSPECTION_INSPECTOR_NAME#(lf)        ,CLEAN_INPSECTION._LINE#(lf)        ,CLEAN_INPSECTION.INSPECTION_COMPLETED_DATE#(lf)        ,CLEAN_INPSECTION.INSPECTION_STATUS#(lf)        ,CLEAN_INPSECTION.INSPECTION_TEMPLATE#(lf)        ,CLEAN_INPSECTION.INSPECTION_LINK#(lf)        ,CLEAN_ITEM.ITEM_Section#(lf)        ,CLEAN_ITEM.ITEM_Item#(lf)        ,CLEAN_ITEM.ITEM_Ratings#(lf)        ,CLEAN_ITEM.ITEM_Notes#(lf)        ,CASE WHEN CLEAN_ITEM.ITEM_Section = 'Report Status' THEN 1 ELSE 0 END AS Report_Status#(lf)        ,CASE WHEN CLEAN_ITEM.ITEM_Section = 'Pre Leasing Status' THEN 1 ELSE 0 END AS PreLease_Status#(lf)        ,CASE WHEN CLEAN_ITEM.ITEM_ITEM = 'Resident Maintaining the Home / Condition OK to Renew?' THEN 1 ELSE 0 END AS Renewal_Trustee_Status#(lf)    FROM CLEAN_INPSECTION#(lf)        LEFT JOIN CLEAN_ITEM#(lf)            ON  CLEAN_ITEM.INSPECTION_ID = CLEAN_INPSECTION.INSPECTION_ID#(lf)            AND CLEAN_ITEM.RECENT_RANK = 1#(lf)            AND CLEAN_ITEM.UPDATE_RANK = 1#(lf)        LEFT JOIN CLEAN_UNIT#(lf)            ON  CLEAN_UNIT.UNIT_ID = CLEAN_INPSECTION.UNIT_ID#(lf)            AND CLEAN_UNIT.RECENT_RANK = 1#(lf)    WHERE 1 = 1#(lf)        AND CLEAN_INPSECTION.RECENT_RANK = 1#(lf)        AND CLEAN_INPSECTION.INSPECTION_STATUS = 'Complete'#(lf)        AND CLEAN_INPSECTION.INSPECTION_TEMPLATE LIKE '%Trustee Leased Inspection%'#(lf)        AND CLEAN_ITEM.ITEM_SECTION IS NOT NULL#(lf))#(lf)#(lf),HAPPY_CO_RENEWAL AS (#(lf)    SELECT#(lf)         HCD.PROPERTY_KEY#(lf)        ,HCD.INSPECTION_LINK#(lf)        ,HCD.INSPECTION_COMPLETED_DATE#(lf)        ,MAX(CASE WHEN Renewal_Trustee_Status = 1 THEN ITEM_Ratings ELSE NULL END) AS Renewal_Trustee_Status#(lf)    FROM HAPPY_CO_DETAIL HCD#(lf)    WHERE 1 = 1#(lf)        AND HCD.RECENT_INS_RANK = 1#(lf)    GROUP BY#(lf)         HCD.PROPERTY_KEY#(lf)        ,HCD.INSPECTION_LINK#(lf)        ,HCD.INSPECTION_COMPLETED_DATE#(lf))#(lf)#(lf)/* -----------------------------------------------------------------------------#(lf)   CTE: RENEWALS#(lf)   The core renewal row. Pairs the current lease (C_*) with the next lease (N_*)#(lf)   via LeaseRanking, derives renewal-result buckets, renewal-note flags, and#(lf)   pulls UW rent + HappyCo inspection + eviction context.#(lf)   ----------------------------------------------------------------------------- */#(lf),RENEWALS AS (#(lf)    SELECT#(lf)         TLH.TENANTLEASINGHISTORYID#(lf)        ,TLH.TENANTINFORMATIONID#(lf)        ,T.TENANT_KEY#(lf)        ,T.CURRENT_FLAG#(lf)        ,P.PROPERTY_KEY#(lf)        ,P.HBPM_PROPERTY_ID#(lf)        ,PO.PORTFOLIO_NAME#(lf)#(lf)        -- [SYNC] organization roll-up — mirrors master PROPERTY script.#(lf)        ,CASE#(lf)            WHEN P.ORGANIZATION_KEY IN (-1,18,26,28,48)                   THEN -1#(lf)            WHEN P.ORGANIZATION_KEY IN (27,50,51,52,54,45,55,53,56,57,66) THEN 27#(lf)            WHEN P.ORGANIZATION_KEY IN (58,59)                            THEN 58#(lf)            WHEN P.ORGANIZATION_KEY IN (62,63,64,65,68,69)                THEN 62#(lf)            WHEN P.ORGANIZATION_KEY IN (61,70)                            THEN 61#(lf)            WHEN P.ORGANIZATION_KEY IN (67)                               THEN 67#(lf)            ELSE P.ORGANIZATION_KEY#(lf)         END AS ORGANIZATION_KEY#(lf)#(lf)        ,CASE#(lf)            WHEN P.ORGANIZATION_KEY IN (-1,18,26,28,48)                   THEN 'RP SFR'#(lf)            WHEN P.ORGANIZATION_KEY IN (27,50,51,52,54,45,55,53,56,57,66) THEN 'RB DRC'#(lf)            WHEN P.ORGANIZATION_KEY IN (58,59)                            THEN 'Hudson Oak'#(lf)            WHEN P.ORGANIZATION_KEY IN (62,63,64,65,68,69)                THEN 'Rocklyn Homes'#(lf)            WHEN P.ORGANIZATION_KEY IN (61,70)                            THEN 'ROI Property Group'#(lf)            WHEN P.ORGANIZATION_KEY IN (67)                               THEN 'Newstar'#(lf)            ELSE O.ORGANIZATION_NAME#(lf)         END AS ORGANIZATION_NAME#(lf)#(lf)        ,P.ADDRESS#(lf)        ,P.ADDRESS || ', ' || COALESCE(CI.CITY_NAME, PM_CI.CityName) || ', ' || S.STATE_NAME || ' ' || P.ZIPCODE AS Full_Address#(lf)        ,P.ENTITYID#(lf)        ,TI.TENANTSTATUSID#(lf)        ,TS.DESCRIPTION AS ""TENANTSTATUS""#(lf)        ,EV.EVICTION_EVICTIONSTATUSID#(lf)        ,EV.EVICTION_EVICTIONSTATUS AS ""EVICTIONSTATUS""#(lf)        ,U.FULL_NAME#(lf)        ,U.EMAIL_ADDRESS#(lf)        ,U.PHONE_NUMBER#(lf)        ,TI.MOVEIN#(lf)        ,TI.MOVEOUT#(lf)        ,DATE_TRUNC('month', TI.MoveOut) AS MOVEOUT_BOM#(lf)        ,TI.AnticipatedMoveOutDate#(lf)        ,TI.MONTHTOMONTH#(lf)        ,TI.NOTICEDATE#(lf)        ,TI.ISMONTHTOMONTHLEASE#(lf)        ,TI.TENANTDECIDEDMONTHTOMONTH#(lf)        ,CASE WHEN TI.DONOTRENEW = FALSE THEN NULL ELSE TI.DONOTRENEW END AS DONOTRENEW#(lf)        ,TI.REASONFORNOTRENEWINGID#(lf)        ,TI.PrimaryTenant#(lf)        ,COALESCE(TI.IsSection8, 'N') AS IsSection8#(lf)        ,DNR.DESCRIPTION AS REASONFORNOTRENEWINGNAME#(lf)#(lf)        -- ---- Current lease (C_*) ----#(lf)        ,TLH.CREATED        AS ""C_CREATED""#(lf)        ,LR.Lease_Rank      AS ""C_LEASENUMBER""#(lf)        ,LR.Lease_Rank_INV  AS ""C_LEASENUMBER_INV""#(lf)        ,TLH.LEASESIGNED    AS ""C_LEASESIGNED""#(lf)        ,TLH.LEASESTART     AS ""C_LEASESTART""#(lf)        ,TLH.LEASEEND       AS ""C_LEASEEND""#(lf)        ,TLH.ISRENEWAL      AS ""C_ISRENEWAL""#(lf)        ,TLH.AMOUNT         AS ""C_AMOUNT""#(lf)        ,F_TLH.LEASING_CONCESSION_AMOUNT AS ""C_LEASING_CONCESSION""#(lf)        ,F_TLH.OWNER_CONCESSION_AMOUNT   AS ""C_OWNER_CONCESSION""#(lf)#(lf)        -- ---- Next lease (N_*) ----#(lf)        ,TLH_N.CREATED       AS ""N_CREATED""#(lf)        ,LR_N.Lease_Rank     AS ""N_LEASENUMBER""#(lf)        ,LR_N.Lease_Rank_INV AS ""N_LEASENUMBER_INV""#(lf)        ,TLH_N.LEASESIGNED   AS ""N_LEASESIGNED""#(lf)        ,TLH_N.LEASESTART    AS ""N_LEASESTART""#(lf)        ,TLH_N.LEASEEND      AS ""N_LEASEEND""#(lf)        ,TLH_N.ISRENEWAL     AS ""N_ISRENEWAL""#(lf)        ,TLH_N.AMOUNT        AS ""N_AMOUNT""#(lf)        ,F_TLH_N.LEASING_CONCESSION_AMOUNT AS ""N_LEASING_CONCESSION""#(lf)        ,F_TLH_N.OWNER_CONCESSION_AMOUNT   AS ""N_OWNER_CONCESSION""#(lf)#(lf)        ,CASE WHEN TLH_N.AMOUNT IS NOT NULL AND TLH.AMOUNT IS NOT NULL#(lf)              THEN DIV0NULL(TLH_N.AMOUNT, TLH.AMOUNT) - 1#(lf)              ELSE NULL#(lf)         END AS RENT_GROWTH#(lf)#(lf)        -- ---- Renewal eligibility / result buckets ----#(lf)        ,CASE WHEN TI.MOVEOUT IS NOT NULL AND TI.MOVEOUT < DATEADD(DAY, -30, TLH.LEASEEND)#(lf)              THEN 'Not Eligible' ELSE 'Eligible'#(lf)         END AS ""Lease Eligibility""#(lf)#(lf)        ,CASE WHEN TI.MOVEOUT IS NOT NULL AND TI.MOVEOUT < DATEADD(DAY, -30, TLH.LEASEEND)#(lf)              THEN 'Vacated Early' ELSE 'Vacated w/ Lease Exp'#(lf)         END AS ""Lease Eligibility_FILTER""#(lf)#(lf)        ,CASE#(lf)            WHEN TI.MOVEOUT IS NOT NULL AND TI.MOVEOUT < DATEADD(DAY, -30, TLH.LEASEEND)#(lf)                 AND (TI.REASONFORNOTRENEWINGID = 3156 OR TI.REASONFORNOTRENEWINGID = 3157)#(lf)                THEN ' Early Vacate - Evictions'#(lf)            WHEN TI.MOVEOUT IS NOT NULL AND TI.MOVEOUT < DATEADD(DAY, -30, TLH.LEASEEND)#(lf)                 AND TI.REASONFORNOTRENEWINGID <> 3156 AND TI.REASONFORNOTRENEWINGID <> 3164 AND TI.REASONFORNOTRENEWINGID <> 3157#(lf)                THEN ' Early Vacate - Other'#(lf)            WHEN TLH_N.LEASESIGNED IS NOT NULL OR TI.REASONFORNOTRENEWINGID = 3164#(lf)                THEN 'Renewed'#(lf)            WHEN TS.DESCRIPTION = 'Notice' OR TS.DESCRIPTION = 'Past'#(lf)                THEN 'Notice'#(lf)            WHEN TI.TENANTDECIDEDMONTHTOMONTH = 1 OR TI.REASONFORNOTRENEWINGID = 3143 OR TI.MONTHTOMONTH = 'Yes'#(lf)                THEN 'MTM'#(lf)            WHEN (TS.DESCRIPTION = 'Under Eviction') OR TI.REASONFORNOTRENEWINGID = 3156#(lf)                THEN 'Current Eviction'#(lf)            ELSE 'Pending'#(lf)         END AS ""Renewal Result""#(lf)#(lf)        ,CASE#(lf)            WHEN TI.MOVEOUT IS NOT NULL AND TI.MOVEOUT < DATEADD(DAY, -30, TLH.LEASEEND)#(lf)                 AND (TI.REASONFORNOTRENEWINGID = 3156 OR TI.REASONFORNOTRENEWINGID = 3157)#(lf)                THEN '6'#(lf)            WHEN TI.MOVEOUT IS NOT NULL AND TI.MOVEOUT < DATEADD(DAY, -30, TLH.LEASEEND)#(lf)                 AND TI.REASONFORNOTRENEWINGID <> 3156 AND TI.REASONFORNOTRENEWINGID <> 3164 AND TI.REASONFORNOTRENEWINGID <> 3157#(lf)                THEN '7'#(lf)            WHEN TLH_N.LEASESIGNED IS NOT NULL OR TI.REASONFORNOTRENEWINGID = 3164#(lf)                THEN '5'#(lf)            WHEN TS.DESCRIPTION = 'Notice' OR TS.DESCRIPTION = 'Past'#(lf)                THEN '2'#(lf)            WHEN TI.TENANTDECIDEDMONTHTOMONTH = 1 OR TI.REASONFORNOTRENEWINGID = 3143 OR TI.MONTHTOMONTH = 'Yes'#(lf)                THEN '3'#(lf)            WHEN (TS.DESCRIPTION = 'Under Eviction') OR TI.REASONFORNOTRENEWINGID = 3156#(lf)                THEN '4'#(lf)            ELSE '1'#(lf)         END AS ""Renewal Result ID""#(lf)#(lf)        ,CASE#(lf)            WHEN (TI.MONTHTOMONTH = 'Y' OR (C_LEASEEND IS NOT NULL AND C_LEASEEND < GETDATE())) AND TS.DESCRIPTION <> 'Past'#(lf)                THEN 1#(lf)            WHEN DATE_TRUNC('month', TLH.LEASEEND) <= DATEADD(MONTH, 3, DATE_TRUNC('month', GETDATE()))#(lf)                 AND DATE_TRUNC('month', TLH.LEASEEND) >= DATEADD(MONTH, -3, DATE_TRUNC('month', GETDATE()))#(lf)                THEN 1#(lf)            ELSE NULL#(lf)         END AS ""YTD Filter""#(lf)#(lf)        ,CASE#(lf)            WHEN DATE_TRUNC('month', TLH.LEASEEND) <= DATEADD(MONTH, 5, DATE_TRUNC('month', GETDATE()))#(lf)                 AND DATE_TRUNC('month', TLH.LEASEEND) >= DATEADD(MONTH, -3, DATE_TRUNC('month', GETDATE()))#(lf)                THEN 1#(lf)            ELSE NULL#(lf)         END AS ""3M Filter""#(lf)#(lf)        ,.67 AS ""0_Renewal Goal""#(lf)        ,.1  AS ""0_Rent_Growth_Goal""#(lf)        ,DATE_TRUNC('month', TLH.LEASEEND) AS ""1_C_LeaseEnd(BOM)""#(lf)#(lf)        ,CASE WHEN TLH_N.LEASESIGNED IS NOT NULL OR TI.MOVEOUT IS NULL THEN NULL#(lf)              ELSE DATE_TRUNC('month', COALESCE(TI.MOVEOUT, TLH.LEASEEND))#(lf)         END AS ""Vacate Date (BOM)""#(lf)#(lf)        ,RNOTE.NoteText    AS RenewalNote#(lf)        ,RNOTE.CreatedDate AS RenewalNoteCreated#(lf)        ,CASE#(lf)            WHEN TI.AnticipatedMoveOutDate IS NOT NULL#(lf)                 AND (RNOTE.CreatedDate IS NULL OR LAST_CALL.PROPERTY_LAST_CALL_DATE IS NULL)#(lf)                 AND TS.DESCRIPTION = 'Notice'#(lf)                THEN 'Needs Updated Renewal Note'#(lf)            WHEN TI.AnticipatedMoveOutDate IS NOT NULL#(lf)                 AND TI.NOTICEDATE > RNOTE.CreatedDate#(lf)                 AND TS.DESCRIPTION = 'Notice'#(lf)                 AND RU.FIRSTNAME || ' ' || RU.LASTNAME NOT IN#(lf)                     ('Abby Nolasco','Cedric Cagurol','Kelvin Espada','Lorelie Bate','Reste delarama','Roman Quesada')#(lf)                THEN 'Needs Updated Renewal Note'#(lf)            WHEN TI.AnticipatedMoveOutDate IS NOT NULL#(lf)                 AND TI.NOTICEDATE > LAST_CALL.PROPERTY_LAST_CALL_DATE#(lf)                 AND TS.DESCRIPTION = 'Notice'#(lf)                THEN 'Needs Updated Renewal Note'#(lf)            ELSE NULL#(lf)         END AS Renewal_Note_Flag#(lf)#(lf)        ,RU.FIRSTNAME || ' ' || RU.LASTNAME AS RenewalNote_Added_By#(lf)        ,CASE#(lf)            WHEN PUS.Occupancy_Status = 'Trustee Lease Honored' THEN 'Trustee Leased'#(lf)            WHEN PUS.Property_Status = 'Tenant Lease' AND PUS.Occupancy_Status = 'Vacant - Future Move In' THEN 'Tenant Leased'#(lf)            ELSE PUS.Occupancy_Status#(lf)         END AS Occupancy_Status#(lf)#(lf)        ,UW_Rent.UW_Rent_Prior#(lf)        ,UW_Rent.UW_Rent_Current#(lf)        ,UW_Rent.UW_Update_Date AS UW_Update_Date#(lf)        ,DATEDIFF('day', UW_Rent.UW_Update_Date, GETDATE()) AS UW_Days_Since_Update#(lf)#(lf)        ,HCR.INSPECTION_LINK#(lf)        ,HCR.INSPECTION_COMPLETED_DATE#(lf)        ,HCR.Renewal_Trustee_Status#(lf)        ,'https://honeybadgerpm.com/PropertyModule#/PropertyDetails/' || HBPM.PROPERTYID || '/' || PM_AI.UnitID || '/0' AS HBPM_URL#(lf)        ,'https://honeybadgerpm.com/PeopleModule#/TenantDetails/'     || U.User_ID || '/' || TI.TenantInformationId AS TENANT_URL#(lf)#(lf)        ,CASE WHEN TS.DESCRIPTION = 'Past' AND TI.MOVEOUT IS NULL THEN 'Missing MO Date' ELSE NULL END AS MO_DATE_FLAG#(lf)#(lf)        ,CASE#(lf)            WHEN TS.DESCRIPTION = 'Past' THEN 'No'#(lf)            WHEN TLH_N.LEASESIGNED IS NOT NULL AND TLH_N.LEASEEND > TLH.LEASEEND THEN 'No'#(lf)            WHEN TI.MONTHTOMONTH = 'Y' OR (C_LEASEEND IS NOT NULL AND C_LEASEEND < GETDATE()) THEN 'Yes'#(lf)            ELSE 'No'#(lf)         END AS MTM_FLAG#(lf)#(lf)        ,EC.EVICTION_COUNT#(lf)        ,E.EVICTION_EVICTIONTERMINATEDDATE#(lf)        ,AM_STRATEGY.STRATEGYNAME AS STRATEGY_NAME#(lf)        ,PU.SQUARE_FOOTAGE#(lf)        ,P.FloorPlan#(lf)        ,'Renewal' AS TYPE#(lf)        ,LAST_CALL.PROPERTY_LAST_CALL_DATE#(lf)#(lf)    FROM PROD_REPLICA.HBPM_DBO.TENANTLEASINGHISTORIES TLH#(lf)        LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.FCT_TENANT_LEASING_HIST F_TLH#(lf)            ON F_TLH.TENANT_LEASING_HISTORY_ID = TLH.TenantLeasingHistoryId#(lf)#(lf)        LEFT JOIN PROD_REPLICA.HBPM_DBO.TENANTINFORMATIONS TI#(lf)            ON TI.TenantInformationId = TLH.TenantInformationId#(lf)        LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_TENANT T#(lf)            ON  T.TENANT_INFORMATION_ID = TI.TenantInformationId#(lf)            AND T.Current_FLAG = 'Y'#(lf)        LEFT JOIN PROD_REPLICA.HBPM_DBO.LOOKUPMASTERS TS#(lf)            ON TS.LookUpMasterId = TI.TenantStatusId#(lf)        LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.FCT_TENANT_ACTIVITY TSUM#(lf)            ON TSUM.TENANT_KEY = T.TENANT_KEY#(lf)        LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_USER U#(lf)            ON U.USER_KEY = TSUM.USER_KEY#(lf)#(lf)        LEFT JOIN EVICTIONS EV#(lf)            ON EV.TENANTINFORMATIONID = T.TENANT_INFORMATION_ID#(lf)#(lf)        LEFT JOIN PROD_REPLICA.HBPM_DBO.LOOKUPMASTERS DNR#(lf)            ON DNR.LookUpMasterId = TI.ReasonForNotRenewingId#(lf)        LEFT JOIN PROD_REPLICA.HBPM_DBO.PROPERTYADDLINFOES PAI#(lf)            ON PAI.UnitId = TI.UnitId#(lf)        LEFT JOIN PROD_REPLICA.HBPM_DBO.PROPERTIES HBPM#(lf)            ON HBPM.PropertyId = PAI.PropertyId#(lf)        LEFT JOIN PROD_REPLICA.HBPM_DBO.PROPERTYADDLINFOES PM_AI#(lf)            ON  PM_AI.PROPERTYID = HBPM.PROPERTYID#(lf)            AND PM_AI.""_FIVETRAN_DELETED"" = 'N'#(lf)        LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PROPERTY P#(lf)            ON  P.HBPM_PROPERTY_ID = HBPM.PROPERTYID#(lf)            AND P.Current_FLAG = 'Y'#(lf)        LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.FCT_PROPERTY_UNIT_SUMMARY PUS#(lf)            ON PUS.PROPERTY_KEY = P.PROPERTY_KEY#(lf)        LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PROPERTY_UNIT PU#(lf)            ON PU.PROPERTY_UNIT_KEY = PUS.PROPERTY_UNIT_KEY#(lf)        LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PORTFOLIO PO#(lf)            ON PO.PORTFOLIO_KEY = PUS.PORTFOLIO_KEY#(lf)        LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_OWNER_ORGANIZATION O#(lf)            ON O.ORGANIZATION_KEY = PUS.ORGANIZATION_KEY#(lf)        LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_CITY CI#(lf)            ON CI.CITY_KEY = PUS.CITY_KEY#(lf)        LEFT JOIN PROD_REPLICA.HBPM_DBO.Cities PM_CI#(lf)            ON PM_CI.CityID = HBPM.CityID#(lf)        LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_STATE S#(lf)            ON S.STATE_KEY = PUS.STATE_KEY#(lf)        LEFT JOIN PROD_REPLICA.HBAM_DBO.PROPERTIES HBAM#(lf)            ON HBAM.HBID = P.HBAM_PROPERTY_ID#(lf)        LEFT JOIN PROD_REPLICA.HBAM_DBO.BidAndAuctions AM_BA#(lf)            ON  AM_BA.BIDID = HBAM.BidAndAuction_BidId#(lf)            AND AM_BA.HBID = HBAM.HBID#(lf)            AND AM_BA.""_FIVETRAN_DELETED"" <> 'Y'#(lf)        LEFT JOIN PROD_REPLICA.HBAM_DBO.Strategies AM_STRATEGY#(lf)            ON AM_STRATEGY.STRATEGYID = AM_BA.BIDSTRATEGYSTATUS#(lf)#(lf)        /* Current lease rank, then walk to the next lease (rank + 1) */#(lf)        LEFT JOIN LeaseRanking LR#(lf)            ON LR.TenantLeasingHistoryId = TLH.TenantLeasingHistoryId#(lf)        LEFT JOIN LeaseRanking LR_N#(lf)            ON  LR_N.TenantInformationId = TLH.TenantInformationId#(lf)            AND LR_N.Lease_Rank = (LR.Lease_Rank + 1)#(lf)        LEFT JOIN PROD_REPLICA.HBPM_DBO.TENANTLEASINGHISTORIES TLH_N#(lf)            ON  TLH_N.TenantLeasingHistoryId = LR_N.TenantLeasingHistoryId#(lf)            AND TLH._FIVETRAN_DELETED <> 'Y'#(lf)        LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.FCT_TENANT_LEASING_HIST F_TLH_N#(lf)            ON F_TLH_N.TENANT_LEASING_HISTORY_ID = TLH_N.TenantLeasingHistoryId#(lf)#(lf)        /* Renewal note + author */#(lf)        LEFT JOIN RenewalNote RN#(lf)            ON RN.PropertyID = P.HBPM_PROPERTY_ID#(lf)        LEFT JOIN PROD_REPLICA.HBPM_DBO.NOTES RNOTE#(lf)            ON RNOTE.NOTEID = RN.LatestNoteID#(lf)        LEFT JOIN PROD_REPLICA.HBPM_DBO.USERS RU#(lf)            ON RU.USERID = RNOTE.ADDEDBY#(lf)#(lf)        LEFT JOIN UW_RENT#(lf)            ON UW_Rent.HBPM_UnitID = PAI.UnitID#(lf)        LEFT JOIN HAPPY_CO_RENEWAL HCR#(lf)            ON HCR.PROPERTY_KEY = P.PROPERTY_KEY#(lf)        LEFT JOIN EVICTION_COUNT EC#(lf)            ON EC.TENANTINFORMATIONID = TLH.TENANTINFORMATIONID#(lf)        LEFT JOIN EVICTIONS E#(lf)            ON E.TENANTINFORMATIONID = TI.TenantInformationId#(lf)        LEFT JOIN LAST_CALL#(lf)            ON LAST_CALL.PROPERTY_HBPM_TENANT_ID = TI.TenantInformationId#(lf)#(lf)    WHERE 1 = 1#(lf)        AND TI.PrimaryTenant = 1#(lf)        AND TLH._FIVETRAN_DELETED <> 'Y'#(lf)        AND P.PROPERTY_STATE = 'Active'#(lf)        AND P.EntityID <> ''#(lf)        AND PO.Portfolio_KEY NOT IN (1845, 2210, 2207, 2218, 1952, 1867, 1916, 1852, 1771, 1919, 1873)#(lf)        AND P.Organization_KEY NOT IN (16, 17)#(lf)        AND PO.IS_Active_AM = 'Y'#(lf)        AND PO.Current_Flag = 'Y'#(lf)        AND P.Current_Flag = 'Y'#(lf)        AND PU.Current_Flag = 'Y'#(lf)        AND PUS.Occupancy_Status NOT IN ('Property SOLD', 'Not Managed')#(lf)        AND T.TENANT_KEY NOT IN (70575)#(lf))#(lf)#(lf)/* -----------------------------------------------------------------------------#(lf)   CTE: DEAL_RANK#(lf)   Most recent renewal deal matched to each renewal row (by entity id and the#(lf)   renewal start landing within the current lease's renewal window).#(lf)   ----------------------------------------------------------------------------- */#(lf),DEAL_RANK AS (#(lf)    SELECT#(lf)         R.TENANT_KEY#(lf)        ,R.PROPERTY_KEY#(lf)        ,R.""C_LEASENUMBER""#(lf)        ,RD.DEAL_ID#(lf)        ,RANK() OVER (#(lf)            PARTITION BY R.TENANT_KEY, R.PROPERTY_KEY, R.""C_LEASENUMBER""#(lf)            ORDER BY CREATED_DATE DESC, DEAL_KEY DESC#(lf)         ) AS DEAL_RANK#(lf)    FROM RENEWALS R#(lf)        LEFT JOIN RENEWAL_DEAL RD#(lf)            ON  RD.PROPERTY_ENTITY_ID = R.EntityID#(lf)            AND RD.RENEWAL_START_DATE >  DATEADD('day', -30, R.""C_LEASEEND"")#(lf)            AND RD.RENEWAL_START_DATE <= COALESCE(R.""N_LEASESTART"", DATE('12-31-9999', 'MM-DD-YYYY'))#(lf)            AND RD.CURRENT_DEAL_STATUS <> 'Renewal Canceled'#(lf)    QUALIFY DEAL_RANK = 1#(lf))#(lf)#(lf)#(lf)/* =============================================================================#(lf)   FINAL SELECT#(lf)   Renewal rows + their matched renewal deal + a fixed late-fee import template.#(lf)   ============================================================================= */#(lf)SELECT#(lf)     R.*#(lf)    ,RD.CURRENT_DEAL_STATUS AS RENEWAL_DEAL_STATUS#(lf)    ,RD.DEAL_OWNER          AS RENEWAL_OWNER#(lf)    ,RD.DEAL_NAME           AS RENEWAL_DEAL_NAME#(lf)    ,RD.DEAL_ID#(lf)    ,RD.MARR#(lf)    ,RD.RATE_12_MONTH#(lf)    ,RD.RATE_15_MONTH#(lf)    ,RD.RATE_18_MONTH#(lf)    ,RD.RATE_24_MONTH#(lf)    ,RD.MARKET_RENT#(lf)    ,RD.PROPERTY_LEASE_DRAFTING_STATUS AS RENEWAL_LEASE_STATUS#(lf)    ,'https://app.hubspot.com/contacts/22536354/record/0-3/' || RD.DEAL_ID || '/' AS RENEWAL_LINK#(lf)    ,HUBSPOT.ID AS HUBSPOT_RECORD_ID#(lf)#(lf)    -- Fixed late-fee charge import template#(lf)    ,'Charge'              AS IMPORT_TYPE#(lf)    ,GETDATE()             AS IMPORT_Due_Date#(lf)    ,100                   AS IMPORT_AMOUNT#(lf)    ,4004063               AS IMPORT_GL_ACCOUNT#(lf)    ,'PM Renewal Late Fee' AS IMPORT_GL_ACCOUNT_DESC#(lf)    ,'Renewal Late Fee'    AS IMPORT_DESCRIPTION#(lf)    ,NULL AS IMPORT_HBPM_User#(lf)    ,NULL AS IMPORT_Tenant_Note#(lf)    ,NULL AS IMPORT_Tenant_Note_Type#(lf)#(lf)    ,CASE#(lf)        WHEN EVICTION_COUNT >= 3#(lf)             AND ""TENANTSTATUS"" = 'Current'#(lf)             AND EVICTION_EVICTIONTERMINATEDDATE > DATEADD('d', -90, GETDATE())#(lf)             AND RD.CURRENT_DEAL_STATUS IS NOT NULL#(lf)             AND RD.CURRENT_DEAL_STATUS <> 'Renewal Won'#(lf)            THEN 'Send Non-Renewal'#(lf)        ELSE NULL#(lf)     END AS DNR_FLAG#(lf)#(lf)FROM RENEWALS R#(lf)    LEFT JOIN DEAL_RANK DR#(lf)        ON  DR.TENANT_KEY    = R.TENANT_KEY#(lf)        AND DR.PROPERTY_KEY  = R.PROPERTY_KEY#(lf)        AND DR.""C_LEASENUMBER"" = R.""C_LEASENUMBER""#(lf)    LEFT JOIN RENEWAL_DEAL RD#(lf)        ON RD.DEAL_ID = DR.DEAL_ID#(lf)    LEFT JOIN HUBSPOT#(lf)        ON HUBSPOT.PROPERTY_ENTITY_ID = R.EntityID", null, [EnableFolding=true]),
+				    #"Capitalized Each Word" = Table.TransformColumns(Source,{{"REASONFORNOTRENEWINGNAME", Text.Proper, type text}, {"FULL_NAME", Text.Proper, type text}, {"FLOORPLAN", Text.Proper, type text}}),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Capitalized Each Word",{{"ISSECTION8", type logical}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Exception
+
+	annotation PBI_NavigationStepName = Navigation
+

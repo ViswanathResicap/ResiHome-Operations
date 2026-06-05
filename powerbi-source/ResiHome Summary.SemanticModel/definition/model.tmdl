@@ -1,0 +1,40 @@
+model Model
+	culture: en-US
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: en-US
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+queryGroup 'DW Sources'
+
+	annotation PBI_QueryGroupOrder = 0
+
+queryGroup Calendar
+
+	annotation PBI_QueryGroupOrder = 1
+
+queryGroup Inputs
+
+	annotation PBI_QueryGroupOrder = 2
+
+queryGroup 'PM Other'
+
+	annotation PBI_QueryGroupOrder = 3
+
+queryGroup QC
+
+	annotation PBI_QueryGroupOrder = 4
+
+annotation PBI_QueryOrder = ["DW_Properties","DW_Leads","DW_Tenant_Charges","DW_Tenant_Receipts","DW_Deals","DW_Renewals","DW_Tenant","DW_Tenant_Secondary","DW_WO","PM_BOM","DW_Turns","PM_PropStatus_ALL","0_Days","DW_Inspections","QC_ResiAims","DW_Listings","DW_Occupancy","SEL_DemandLetters","SEL_WO_CHART","SEL_LeaseType","DW_MoveOut","DW_Off Market","DW_Showings","SEL_Contact_Owner","DW_Tenant_Monthly_Charges","SEL_Collections_Type","PM_Listings_BOM","GS_CodeViolations","0_Days_Agent","SEL_CR_CL","SP_PPW","SP_Engrain","SEL_Transcard","GS_RentCast","DW_Rent_Comps","GS_RateCards"]
+
+annotation __PBI_TimeIntelligenceEnabled = 1
+
+annotation __TEdtr = 1
+
+annotation PBI_ProTooling = ["DevMode"]
+
+ref table DW_Properties
+ref table DateTableTemplate_36a523e1-8dc1-47df-a802-20ddabed340e
+ref table DW_Leads
+ref cultureInfo en-US
