@@ -5,8 +5,12 @@
     "note": "Snapshot of live figures (property KPIs, Property Summary, monthly Homes/Avg Rent). Auto-refreshes hourly once the GitHub Action secrets are set. Occupancy %, vs-UW Rent, and the remaining gauges/trend columns are being corrected & wired."
   },
   "filters": {
-    "occupancyStatusExcludes": ["Dispositions"],
-    "organizationNameExcludes": [null]
+    "occupancyStatusExcludes": [
+      "Dispositions"
+    ],
+    "organizationNameExcludes": [
+      null
+    ]
   },
   "kpis": {
     "totalProperties": 8052,
@@ -19,45 +23,289 @@
     "netOccupancyGain": null,
     "turnoverPct": null
   },
-  "gauges": { "eomCollections": null, "renewal": null, "netTurnCost": null, "internalMaintenance": null },
+  "gauges": {
+    "eomCollections": {
+      "value": 0.9721,
+      "target": 0.955,
+      "min": 0.9,
+      "max": 0.97,
+      "format": "percent",
+      "label": "EOM Collections"
+    },
+    "renewal": null,
+    "netTurnCost": null,
+    "internalMaintenance": null
+  },
   "propertySummary": [
-    { "organization": "Array Park LLC", "region": "—", "subdivision": "—", "status": "Vacant - Off Market", "count": 179 },
-    { "organization": "Hudson Oak", "region": "—", "subdivision": "—", "status": "Tenant Leased", "count": 216 },
-    { "organization": "Hudson Oak", "region": "—", "subdivision": "—", "status": "Turnkey", "count": 1 },
-    { "organization": "Hudson Oak", "region": "—", "subdivision": "—", "status": "Vacant - Off Market", "count": 1 },
-    { "organization": "Hudson Oak", "region": "—", "subdivision": "—", "status": "Vacant - On Market", "count": 3 },
-    { "organization": "Newstar", "region": "—", "subdivision": "—", "status": "Tenant Leased", "count": 34 },
-    { "organization": "Newstar", "region": "—", "subdivision": "—", "status": "Trustee Leased", "count": 32 },
-    { "organization": "Newstar", "region": "—", "subdivision": "—", "status": "Turnkey", "count": 2 },
-    { "organization": "Newstar", "region": "—", "subdivision": "—", "status": "Vacant - On Market", "count": 5 },
-    { "organization": "Oak Hill Residence Park LLC", "region": "—", "subdivision": "—", "status": "Vacant - Off Market", "count": 81 },
-    { "organization": "RB DRC", "region": "—", "subdivision": "—", "status": "Tenant Leased", "count": 1400 },
-    { "organization": "RB DRC", "region": "—", "subdivision": "—", "status": "Turnkey", "count": 77 },
-    { "organization": "RB DRC", "region": "—", "subdivision": "—", "status": "Vacant - Off Market", "count": 260 },
-    { "organization": "RB DRC", "region": "—", "subdivision": "—", "status": "Vacant - On Market", "count": 118 },
-    { "organization": "ROI Property Group", "region": "—", "subdivision": "—", "status": "Tenant Leased", "count": 27 },
-    { "organization": "ROI Property Group", "region": "—", "subdivision": "—", "status": "Trustee Leased", "count": 2 },
-    { "organization": "ROI Property Group", "region": "—", "subdivision": "—", "status": "Turnkey", "count": 2 },
-    { "organization": "ROI Property Group", "region": "—", "subdivision": "—", "status": "Vacant - Off Market", "count": 13 },
-    { "organization": "ROI Property Group", "region": "—", "subdivision": "—", "status": "Vacant - On Market", "count": 10 },
-    { "organization": "RP SFR", "region": "—", "subdivision": "—", "status": "Tenant Leased", "count": 4260 },
-    { "organization": "RP SFR", "region": "—", "subdivision": "—", "status": "Trustee Leased", "count": 2 },
-    { "organization": "RP SFR", "region": "—", "subdivision": "—", "status": "Turnkey", "count": 114 },
-    { "organization": "RP SFR", "region": "—", "subdivision": "—", "status": "Vacant - Off Market", "count": 5 },
-    { "organization": "RP SFR", "region": "—", "subdivision": "—", "status": "Vacant - On Market", "count": 118 },
-    { "organization": "Rivertown Park LLC", "region": "—", "subdivision": "—", "status": "Vacant - Off Market", "count": 73 },
-    { "organization": "Rocklyn Homes", "region": "—", "subdivision": "—", "status": "Tenant Leased", "count": 162 },
-    { "organization": "Rocklyn Homes", "region": "—", "subdivision": "—", "status": "Trustee Leased", "count": 111 },
-    { "organization": "Rocklyn Homes", "region": "—", "subdivision": "—", "status": "Turnkey", "count": 11 },
-    { "organization": "Rocklyn Homes", "region": "—", "subdivision": "—", "status": "Vacant - FMI", "count": 2 },
-    { "organization": "Rocklyn Homes", "region": "—", "subdivision": "—", "status": "Vacant - Off Market", "count": 524 },
-    { "organization": "Rocklyn Homes", "region": "—", "subdivision": "—", "status": "Vacant - On Market", "count": 39 },
-    { "organization": "Wiltshire Park LLC", "region": "—", "subdivision": "—", "status": "Vacant - Off Market", "count": 168 }
+    {
+      "organization": "Array Park LLC",
+      "region": "\u2014",
+      "subdivision": "\u2014",
+      "status": "Vacant - Off Market",
+      "count": 179
+    },
+    {
+      "organization": "Hudson Oak",
+      "region": "\u2014",
+      "subdivision": "\u2014",
+      "status": "Tenant Leased",
+      "count": 216
+    },
+    {
+      "organization": "Hudson Oak",
+      "region": "\u2014",
+      "subdivision": "\u2014",
+      "status": "Turnkey",
+      "count": 1
+    },
+    {
+      "organization": "Hudson Oak",
+      "region": "\u2014",
+      "subdivision": "\u2014",
+      "status": "Vacant - Off Market",
+      "count": 1
+    },
+    {
+      "organization": "Hudson Oak",
+      "region": "\u2014",
+      "subdivision": "\u2014",
+      "status": "Vacant - On Market",
+      "count": 3
+    },
+    {
+      "organization": "Newstar",
+      "region": "\u2014",
+      "subdivision": "\u2014",
+      "status": "Tenant Leased",
+      "count": 34
+    },
+    {
+      "organization": "Newstar",
+      "region": "\u2014",
+      "subdivision": "\u2014",
+      "status": "Trustee Leased",
+      "count": 32
+    },
+    {
+      "organization": "Newstar",
+      "region": "\u2014",
+      "subdivision": "\u2014",
+      "status": "Turnkey",
+      "count": 2
+    },
+    {
+      "organization": "Newstar",
+      "region": "\u2014",
+      "subdivision": "\u2014",
+      "status": "Vacant - On Market",
+      "count": 5
+    },
+    {
+      "organization": "Oak Hill Residence Park LLC",
+      "region": "\u2014",
+      "subdivision": "\u2014",
+      "status": "Vacant - Off Market",
+      "count": 81
+    },
+    {
+      "organization": "RB DRC",
+      "region": "\u2014",
+      "subdivision": "\u2014",
+      "status": "Tenant Leased",
+      "count": 1400
+    },
+    {
+      "organization": "RB DRC",
+      "region": "\u2014",
+      "subdivision": "\u2014",
+      "status": "Turnkey",
+      "count": 77
+    },
+    {
+      "organization": "RB DRC",
+      "region": "\u2014",
+      "subdivision": "\u2014",
+      "status": "Vacant - Off Market",
+      "count": 260
+    },
+    {
+      "organization": "RB DRC",
+      "region": "\u2014",
+      "subdivision": "\u2014",
+      "status": "Vacant - On Market",
+      "count": 118
+    },
+    {
+      "organization": "ROI Property Group",
+      "region": "\u2014",
+      "subdivision": "\u2014",
+      "status": "Tenant Leased",
+      "count": 27
+    },
+    {
+      "organization": "ROI Property Group",
+      "region": "\u2014",
+      "subdivision": "\u2014",
+      "status": "Trustee Leased",
+      "count": 2
+    },
+    {
+      "organization": "ROI Property Group",
+      "region": "\u2014",
+      "subdivision": "\u2014",
+      "status": "Turnkey",
+      "count": 2
+    },
+    {
+      "organization": "ROI Property Group",
+      "region": "\u2014",
+      "subdivision": "\u2014",
+      "status": "Vacant - Off Market",
+      "count": 13
+    },
+    {
+      "organization": "ROI Property Group",
+      "region": "\u2014",
+      "subdivision": "\u2014",
+      "status": "Vacant - On Market",
+      "count": 10
+    },
+    {
+      "organization": "RP SFR",
+      "region": "\u2014",
+      "subdivision": "\u2014",
+      "status": "Tenant Leased",
+      "count": 4260
+    },
+    {
+      "organization": "RP SFR",
+      "region": "\u2014",
+      "subdivision": "\u2014",
+      "status": "Trustee Leased",
+      "count": 2
+    },
+    {
+      "organization": "RP SFR",
+      "region": "\u2014",
+      "subdivision": "\u2014",
+      "status": "Turnkey",
+      "count": 114
+    },
+    {
+      "organization": "RP SFR",
+      "region": "\u2014",
+      "subdivision": "\u2014",
+      "status": "Vacant - Off Market",
+      "count": 5
+    },
+    {
+      "organization": "RP SFR",
+      "region": "\u2014",
+      "subdivision": "\u2014",
+      "status": "Vacant - On Market",
+      "count": 118
+    },
+    {
+      "organization": "Rivertown Park LLC",
+      "region": "\u2014",
+      "subdivision": "\u2014",
+      "status": "Vacant - Off Market",
+      "count": 73
+    },
+    {
+      "organization": "Rocklyn Homes",
+      "region": "\u2014",
+      "subdivision": "\u2014",
+      "status": "Tenant Leased",
+      "count": 162
+    },
+    {
+      "organization": "Rocklyn Homes",
+      "region": "\u2014",
+      "subdivision": "\u2014",
+      "status": "Trustee Leased",
+      "count": 111
+    },
+    {
+      "organization": "Rocklyn Homes",
+      "region": "\u2014",
+      "subdivision": "\u2014",
+      "status": "Turnkey",
+      "count": 11
+    },
+    {
+      "organization": "Rocklyn Homes",
+      "region": "\u2014",
+      "subdivision": "\u2014",
+      "status": "Vacant - FMI",
+      "count": 2
+    },
+    {
+      "organization": "Rocklyn Homes",
+      "region": "\u2014",
+      "subdivision": "\u2014",
+      "status": "Vacant - Off Market",
+      "count": 524
+    },
+    {
+      "organization": "Rocklyn Homes",
+      "region": "\u2014",
+      "subdivision": "\u2014",
+      "status": "Vacant - On Market",
+      "count": 39
+    },
+    {
+      "organization": "Wiltshire Park LLC",
+      "region": "\u2014",
+      "subdivision": "\u2014",
+      "status": "Vacant - Off Market",
+      "count": 168
+    }
   ],
   "monthlyTrend": [
-    { "month": "Mar 2026", "homes": 7531, "avgRent": 2065, "occBom": null, "occEom": null, "collections": null, "renewal": null, "turnover": null, "netTurnCost": null },
-    { "month": "Apr 2026", "homes": 7531, "avgRent": 2065, "occBom": null, "occEom": null, "collections": null, "renewal": null, "turnover": null, "netTurnCost": null },
-    { "month": "May 2026", "homes": 7781, "avgRent": 2066, "occBom": null, "occEom": null, "collections": null, "renewal": null, "turnover": null, "netTurnCost": null },
-    { "month": "Jun 2026", "homes": 8128, "avgRent": 2067, "occBom": null, "occEom": null, "collections": null, "renewal": null, "turnover": null, "netTurnCost": null }
+    {
+      "month": "Mar 2026",
+      "homes": 7531,
+      "avgRent": 2065,
+      "occBom": null,
+      "occEom": null,
+      "collections": 0.9894,
+      "renewal": null,
+      "turnover": null,
+      "netTurnCost": null
+    },
+    {
+      "month": "Apr 2026",
+      "homes": 7531,
+      "avgRent": 2065,
+      "occBom": null,
+      "occEom": null,
+      "collections": 0.9843,
+      "renewal": null,
+      "turnover": null,
+      "netTurnCost": null
+    },
+    {
+      "month": "May 2026",
+      "homes": 7781,
+      "avgRent": 2066,
+      "occBom": null,
+      "occEom": null,
+      "collections": 0.9721,
+      "renewal": null,
+      "turnover": null,
+      "netTurnCost": null
+    },
+    {
+      "month": "Jun 2026",
+      "homes": 8128,
+      "avgRent": 2067,
+      "occBom": null,
+      "occEom": null,
+      "collections": 0.7905,
+      "renewal": null,
+      "turnover": null,
+      "netTurnCost": null
+    }
   ]
 }

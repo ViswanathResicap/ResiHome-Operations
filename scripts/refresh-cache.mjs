@@ -63,6 +63,8 @@ async function main() {
     totalTenants: null, rentVar: null, holdingFees: null, projActualMis: null,
     netOccupancyGain: null, turnoverPct: null };
   let propertySummary = [], monthlyTrend = [], properties = [], podCount = null, imValue = null, internalMaintenance = null;
+  let collectionsByMonth = {}, eomCollections = null;
+  const MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   const log = (n, e) => console.error(`[refresh] ${n} failed:`, e.message);
   const str = (v) => (v == null ? "" : String(v));
   const LEASED = new Set(["Tenant Leased", "Trustee Leased"]);
@@ -111,8 +113,32 @@ async function main() {
     imValue = numOr(r?.IM);
   } catch (e) { log("internal maintenance", e); } })();
 
-  await Promise.allSettled([tProps, tListings, tTrend, tIM]);
+  // Collections % by month (MASTER_PM_COLLECTIONS): rent GL 4010, net of concessions
+  // (CreditTypeId<>2) = Paid / Charged. 0_4 EOM Collections gauge = latest complete month.
+  const tColl = (async () => { try {
+    const rows = await conn.query(`
+      SELECT "Year Charge Date" AS YR, "Month Charge Date" AS MO,
+             DIV0(SUM("Paid Amount"), SUM("Charge Amount")) AS PCT
+      FROM PROD_ANALYTICS.BI_MASTER_DATASETS.MASTER_PM_COLLECTIONS
+      WHERE "GL Code" = '4010' AND COALESCE("CreditTypeId",0) <> 2
+        AND DATE_FROM_PARTS("Year Charge Date","Month Charge Date",1) >= DATEADD('month',-4,DATE_TRUNC('month',CURRENT_DATE()))
+        AND DATE_FROM_PARTS("Year Charge Date","Month Charge Date",1) <= DATE_TRUNC('month',CURRENT_DATE())
+      GROUP BY 1,2`);
+    const now = new Date(), cy = now.getUTCFullYear(), cm = now.getUTCMonth() + 1;
+    let best = null;
+    for (const r of rows) {
+      const yr = Number(r.YR), mo = Number(r.MO), pct = numOr(r.PCT);
+      if (mo >= 1 && mo <= 12) collectionsByMonth[`${MON[mo - 1]} ${yr}`] = pct;
+      if (!(yr === cy && mo === cm) && (!best || yr * 12 + mo > best.k)) best = { k: yr * 12 + mo, pct };
+    }
+    if (best) eomCollections = { value: best.pct, target: 0.955, min: 0.9, max: 0.97, format: "percent", label: "EOM Collections" };
+  } catch (e) { log("collections", e); } })();
+
+  await Promise.allSettled([tProps, tListings, tTrend, tIM, tColl]);
   conn.close();
+
+  // Join collections into the monthly trend.
+  monthlyTrend.forEach((r) => { r.collections = collectionsByMonth[r.month] ?? null; });
 
   // Aggregate the property tiles from the per-property rows.
   if (properties.length) {
@@ -141,7 +167,7 @@ async function main() {
     _meta: { source: "SNOWFLAKE", generatedAt: new Date().toISOString(),
       note: "Live (refreshed hourly): property KPIs, Property Summary, Active Listings, monthly Homes/Avg Rent, Internal Maintenance. Remaining gauges & trend columns are being wired + validated." },
     filters: { occupancyStatusExcludes: ["Dispositions"], organizationNameExcludes: [null] },
-    kpis, gauges: { eomCollections: null, renewal: null, netTurnCost: null, internalMaintenance },
+    kpis, gauges: { eomCollections, renewal: null, netTurnCost: null, internalMaintenance },
     propertySummary, monthlyTrend, properties,
   };
   fs.writeFileSync(OUT, JSON.stringify(cache));
