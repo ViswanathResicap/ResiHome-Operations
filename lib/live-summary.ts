@@ -1,8 +1,5 @@
 import { connect } from "./snowflake";
-import {
-  DW_PROPERTIES_SQL, DW_LISTINGS_SQL, PM_BOM_SQL, DW_WO_SQL,
-  DW_TURNS_SQL, DW_MOVEOUT_SQL, DW_DEALS_SQL,
-} from "./generated/sql";
+import { source, VIEWS } from "./datasets";
 import type { SummaryCache, PropertyRow, PropertySummaryRow, MonthlyTrendRow, GaugeData } from "./types";
 
 const PAGE_FILTER = `OCCUPANCY_STATUS <> 'Dispositions' AND ORGANIZATION_NAME IS NOT NULL`;
@@ -46,32 +43,30 @@ export async function getLiveSummary(): Promise<SummaryCache> {
       if (v != null && k < curK() && (!best || k > best.k)) best = { k, v }; }
     return best?.v ?? null;
   };
-  const wrap = (sql: string) => `SELECT * FROM (\n${sql}\n)`;
-
   const tasks: Promise<void>[] = [];
   const add = (name: string, fn: () => Promise<void>) => tasks.push(fn().catch((e) => log(name, e)));
 
   // --- Property rows (drives property tiles + all slicers) ---
   add("property rows", async () => {
-    const rows = await q(`${wrap(DW_PROPERTIES_SQL)} WHERE ${PAGE_FILTER}`);
+    const rows = await q(`${source("properties")} WHERE ${PAGE_FILTER}`);
     const seen = new Set<unknown>();
     for (const r of rows) {
       const key = r.PROPERTY_KEY; if (key != null && seen.has(key)) continue; if (key != null) seen.add(key);
       properties.push({ org: remapOrg(str(r.ORGANIZATION_NAME)), region: str(r.REGION_NAME), subdivision: str(r.SUBDIVISION),
         pm: str(r.PROPERTY_MANAGER), apm: str(r.PROPERTY_MANAGER_ASSISTANT), pod: str(r.POD),
         status: str(r.OCCUPANCY_STATUS_SUMMARY), summaryId: numOr(r.OCCUPANCY_STATUS_SUMMARYID),
-        delinquent: str(r["1_Tenant Balance Status"]), address: str(r.FULL_ADDRESS),
+        delinquent: "", address: str(r.FULL_ADDRESS), // balance status not emitted by DW_PROPERTIES (slicer stays disabled)
         rent: numOr(r.CURRENT_RENT), uw: numOr(r.UNDER_WRITTEN_RENT) });
     }
   });
 
   add("active listings", async () => {
-    const [r] = await q(`WITH l AS (${wrap(DW_LISTINGS_SQL)}) SELECT COUNT(DISTINCT PROPERTY_KEY) AS N FROM l WHERE LISTING_STATUS='Active' AND IS_PUBLISHED='Y'`);
+    const [r] = await q(`WITH l AS (${source("listings")}) SELECT COUNT(DISTINCT PROPERTY_KEY) AS N FROM l WHERE LISTING_STATUS='Active' AND IS_PUBLISHED='Y'`);
     kpis.activeListings = numOr(r?.N);
   });
 
   add("trend homes/rent", async () => {
-    const rows = await q(`WITH b AS (${wrap(PM_BOM_SQL)})
+    const rows = await q(`WITH b AS (${source("pmBom")})
       SELECT TO_CHAR(BEG_OF_MONTH,'Mon YYYY') AS MONTH, MIN(BEG_OF_MONTH) AS BOM,
         COUNT(IFF(OCCUPANCY_STATUS IS NOT NULL,HBPM_PROPERTYID,NULL)) AS HOMES, AVG(CURRENT_RENT) AS AVG_RENT
       FROM b WHERE ${win("BEG_OF_MONTH")} GROUP BY 1 ORDER BY BOM`);
@@ -81,7 +76,7 @@ export async function getLiveSummary(): Promise<SummaryCache> {
 
   // --- Occupancy trend (best-effort from PM_BOM month snapshot) ---
   add("occupancy trend", async () => {
-    const rows = await q(`WITH b AS (${wrap(PM_BOM_SQL)})
+    const rows = await q(`WITH b AS (${source("pmBom")})
       SELECT TO_CHAR(BEG_OF_MONTH,'Mon YYYY') AS MONTH,
         DIV0(COUNT_IF(OCCUPANCY_STATUS IN ('Tenant Leased','Trustee Leased','Trustee Lease Honored','Vacant - Future Move In')), COUNT(*)) AS OCC
       FROM b WHERE ${win("BEG_OF_MONTH")} GROUP BY 1`);
@@ -92,7 +87,7 @@ export async function getLiveSummary(): Promise<SummaryCache> {
   // internal vendor, Closed Date_BOM in month) — per-month so the gauge shows
   // one month vs its goal. No vendor-name exclusion (not in the report).
   add("internal maintenance", async () => {
-    const rows = await q(`WITH w AS (${wrap(DW_WO_SQL)})
+    const rows = await q(`WITH w AS (${source("wo")})
       SELECT TO_CHAR(DATE_TRUNC('month',WO_CLOSED_DATE),'Mon YYYY') AS MONTH, SUM(CLIENT_INVOICE_AMOUNT) AS IM
       FROM w WHERE WORKORDER_STATUS='Closed' AND IS_INTERNAL_VENDOR='Y' AND ${win("DATE_TRUNC('month',WO_CLOSED_DATE)")} GROUP BY 1`);
     for (const r of rows) imByMonth[str(r.MONTH)] = numOr(r.IM);
@@ -100,13 +95,13 @@ export async function getLiveSummary(): Promise<SummaryCache> {
 
   // POD count for the IM goal (report: DISTINCTCOUNT(DW_Properties[POD])).
   add("pod count", async () => {
-    const [r] = await q(`${wrap(DW_PROPERTIES_SQL)} WHERE POD IS NOT NULL`.replace("SELECT *", "SELECT COUNT(DISTINCT POD) AS N"));
+    const [r] = await q(`SELECT COUNT(DISTINCT POD) AS N FROM (${source("properties")}) WHERE POD IS NOT NULL`);
     podCount = numOr(r?.N);
   });
 
   add("collections", async () => {
     const rows = await q(`SELECT "Year Charge Date" AS YR,"Month Charge Date" AS MO, DIV0(SUM("Paid Amount"),SUM("Charge Amount")) AS PCT
-      FROM PROD_ANALYTICS.BI_MASTER_DATASETS.MASTER_PM_COLLECTIONS WHERE "GL Code"='4010' AND COALESCE("CreditTypeId",0)<>2
+      FROM ${VIEWS.collections} WHERE "GL Code"='4010' AND COALESCE("CreditTypeId",0)<>2
         AND DATE_FROM_PARTS("Year Charge Date","Month Charge Date",1) >= DATEADD('month',-4,DATE_TRUNC('month',CURRENT_DATE()))
         AND DATE_FROM_PARTS("Year Charge Date","Month Charge Date",1) <= DATE_TRUNC('month',CURRENT_DATE()) GROUP BY 1,2`);
     for (const r of rows) { const mo = Number(r.MO); if (mo>=1&&mo<=12) collByMonth[`${MON[mo-1]} ${Number(r.YR)}`] = numOr(r.PCT); }
@@ -118,7 +113,7 @@ export async function getLiveSummary(): Promise<SummaryCache> {
   add("renewal", async () => {
     const rows = await q(`SELECT TO_CHAR(DATE_TRUNC('month',"LeaseTo"),'Mon YYYY') AS MONTH,
         DIV0(COUNT_IF("Release/Renewal Index"='Renewal'), COUNT_IF("Release/Renewal Index" IN ('Renewal','Re-Lease'))) AS PCT
-      FROM PROD_ANALYTICS.BI_MASTER_DATASETS.MASTER_PM_RENEWAL_RELEASE
+      FROM ${VIEWS.renewalRelease}
       WHERE "LeaseTo" >= DATEADD('month',-4,DATE_TRUNC('month',CURRENT_DATE())) AND "LeaseTo" <= DATE_TRUNC('month',CURRENT_DATE())
       GROUP BY 1, DATE_TRUNC('month',"LeaseTo")`);
     for (const r of rows) renewByMonth[str(r.MONTH)] = numOr(r.PCT);
@@ -127,7 +122,7 @@ export async function getLiveSummary(): Promise<SummaryCache> {
 
   // --- Net Turn Cost (best-effort: TKT_COST - move-out receipts, completed turns) ---
   add("net turn cost", async () => {
-    const rows = await q(`WITH t AS (${wrap(DW_TURNS_SQL)})
+    const rows = await q(`WITH t AS (${source("turns")})
       SELECT TO_CHAR(TURN_COMPLETED_BOM,'Mon YYYY') AS MONTH, AVG(GREATEST(ZEROIFNULL(TKT_COST)-ZEROIFNULL(MOVEOUTRECEIPTS_FINAL),0)) AS NTC
       FROM t WHERE N_LEASE_FROM_DATE IS NOT NULL AND ${win("TURN_COMPLETED_BOM")} GROUP BY 1`);
     for (const r of rows) ntcByMonth[str(r.MONTH)] = numOr(r.NTC);
@@ -136,7 +131,7 @@ export async function getLiveSummary(): Promise<SummaryCache> {
 
   // --- Holding Fees by month (report: DISTINCTCOUNT(DW_Deals[EMAIL]) by HF (BOM)) ---
   add("holding fees", async () => {
-    const rows = await q(`WITH d AS (${wrap(DW_DEALS_SQL)})
+    const rows = await q(`WITH d AS (${source("deals")})
       SELECT TO_CHAR("HF (BOM)",'Mon YYYY') AS MONTH, COUNT(DISTINCT EMAIL) AS HF
       FROM d WHERE ${win('"HF (BOM)"')} GROUP BY 1`);
     for (const r of rows) hfByMonth[str(r.MONTH)] = numOr(r.HF);
@@ -144,10 +139,10 @@ export async function getLiveSummary(): Promise<SummaryCache> {
 
   // --- Proj/Actual MIs = MoveIn Monthly + FMI Monthly (report 01_MI_Combined) ---
   add("move-ins (combined)", async () => {
-    const mi = await q(`WITH m AS (${wrap(DW_MOVEOUT_SQL)})
+    const mi = await q(`WITH m AS (${source("moveout")})
       SELECT TO_CHAR(MOVEIN_BOM,'Mon YYYY') AS MONTH, COUNT(DISTINCT TENANT_KEY) AS N
       FROM m WHERE ${win("MOVEIN_BOM")} GROUP BY 1`);
-    const fmi = await q(`WITH l AS (${wrap(DW_LISTINGS_SQL)})
+    const fmi = await q(`WITH l AS (${source("listings")})
       SELECT TO_CHAR(LEASE_START_DATE_BOM,'Mon YYYY') AS MONTH, COUNT(DISTINCT RENT_LIST_HIST_ID) AS N
       FROM l WHERE ${win("LEASE_START_DATE_BOM")} AND CURRENT_DEAL_STATUS NOT IN ('Deal Won','Closed Won')
         AND MOST_RECENT_LISTING='Yes' AND FMI_FLAG=1 GROUP BY 1`);
@@ -160,7 +155,7 @@ export async function getLiveSummary(): Promise<SummaryCache> {
   // MOVE_OUT_FORECAST_BOM. (The DAX also drops still-"Pending" renewals — a
   // cross-table calc column not reproduced here; small residual.) ---
   add("move-out forecast", async () => {
-    const rows = await q(`WITH m AS (${wrap(DW_MOVEOUT_SQL)})
+    const rows = await q(`WITH m AS (${source("moveout")})
       SELECT MONTH, SUM(N) AS MOF FROM (
         SELECT TO_CHAR(MOVEOUT_BOM,'Mon YYYY') AS MONTH, COUNT(DISTINCT TENANT_KEY) AS N
           FROM m WHERE ${win("MOVEOUT_BOM")} GROUP BY 1
