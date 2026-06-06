@@ -134,12 +134,13 @@ a { color: var(--brand-dark); }
 /* Tables */
 .tbl-wrap { background: var(--panel); border:1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); overflow:auto; }
 table.tbl { border-collapse: collapse; width: 100%; font-size: 12px; }
-table.tbl th, table.tbl td { padding: 8px 11px; border-bottom: 1px solid var(--line); text-align: right; white-space: nowrap; }
-table.tbl th { background: var(--brand-tint); color: var(--brand-dark); font-weight: 800; text-align: right; position: sticky; top: 0; text-transform: uppercase; letter-spacing: .3px; font-size: 11px; }
+table.tbl th, table.tbl td { padding: 8px 11px; border-bottom: 1px solid var(--line); text-align: center; white-space: nowrap; }
+table.tbl th { background: var(--brand-tint); color: var(--brand-dark); font-weight: 800; position: sticky; top: 0; text-transform: uppercase; letter-spacing: .3px; font-size: 11px; }
+/* Row-label column (Organization / Month) stays left-aligned */
+table.tbl th.lbl, table.tbl td.lbl { text-align: left; }
 table.tbl th:first-child, table.tbl td:first-child { text-align: left; }
 table.tbl tbody tr:hover { background: var(--brand-tint-2); }
 /* Property Summary drill-down (Org › Region › Subdivision) */
-table.tbl th.lbl, table.tbl td.lbl { text-align: left; }
 table.tbl tr.row-exp { cursor: pointer; }
 table.tbl tr.lvl0 td.lbl { font-weight: 700; }
 table.tbl tr.lvl1 td.lbl { padding-left: 26px; font-weight: 600; color: var(--ink); }

@@ -155,8 +155,11 @@ export function SummaryView({ initialData }: { initialData: SummaryCache }) {
 
         {!fullMode && (
           <div className="banner">
-            Filtering is limited to Organization &amp; Property Status until the per-property
-            refresh runs (then all slicers + every property tile filter live).
+            Per-property data hasn’t loaded — drill-down &amp; the full slicers are unavailable.
+            <span style={{ opacity: 0.85 }}>
+              {" "}(source: {d._meta.source}; properties: {d.properties?.length ?? 0}
+              {d._meta.errors?.length ? `; error: ${d._meta.errors[0]}` : ""})
+            </span>
           </div>
         )}
         {active && (
