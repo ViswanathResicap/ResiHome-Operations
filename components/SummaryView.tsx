@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { SummaryCache, PropertyRow, PropertySummaryRow } from "@/lib/types";
 import { LEASED_STATUSES } from "@/lib/types";
 import { KpiCard } from "./KpiCard";
@@ -19,6 +19,20 @@ const inSel = (sel: string[], v: string) => sel.length === 0 || sel.includes(v);
 type MultiKey = "org" | "status" | "region" | "subdivision" | "pm" | "apm" | "pod";
 type Filters = Record<MultiKey, string[]> & { address: string };
 const EMPTY: Filters = { org: [], status: [], region: [], subdivision: [], pm: [], apm: [], pod: [], address: "" };
+
+// Cross-filter selection from clicking a Property Summary row. Uses the table's
+// derived display labels (region "—", subdivision "Scattered" for SFR/blank).
+type Selection = { org: string; region?: string; subdivision?: string } | null;
+const isSFR = (org: string) => /\bSFR\b/i.test(org);
+const labelsOf = (p: PropertyRow) => ({
+  org: p.org, region: p.region || "—",
+  sub: isSFR(p.org) || !p.subdivision ? "Scattered" : p.subdivision,
+});
+const matchSel = (p: PropertyRow, s: Selection) => {
+  if (!s) return true;
+  const L = labelsOf(p);
+  return L.org === s.org && (!s.region || L.region === s.region) && (!s.subdivision || L.sub === s.subdivision);
+};
 
 export function SummaryView({ initialData }: { initialData: SummaryCache }) {
   // Render the instant committed snapshot, then swap in fresh data from the
@@ -67,9 +81,16 @@ export function SummaryView({ initialData }: { initialData: SummaryCache }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const [f, setF] = useState<Filters>(EMPTY);
+  const [selection, setSelection] = useState<Selection>(null);
   const setMulti = (k: MultiKey, v: string[]) => setF((p) => ({ ...p, [k]: v }));
   const props = d.properties ?? null;
   const fullMode = !!props && props.length > 0;
+
+  // Slicer predicate (left rail) — filters both the table and the KPIs.
+  const slicerPass = useCallback((p: PropertyRow) =>
+    inSel(f.org, p.org) && inSel(f.status, p.status) && inSel(f.region, p.region) &&
+    inSel(f.subdivision, p.subdivision) && inSel(f.pm, p.pm) && inSel(f.apm, p.apm) && inSel(f.pod, p.pod) &&
+    (f.address === "" || p.address.toLowerCase().includes(f.address.toLowerCase())), [f]);
 
   // Slicer options (from per-property rows in full mode; else just org/status).
   const opts = useMemo(() => {
@@ -83,47 +104,35 @@ export function SummaryView({ initialData }: { initialData: SummaryCache }) {
       region: [], subdivision: [], pm: [], apm: [], pod: [] };
   }, [fullMode, props, d.propertySummary]);
 
-  const active = f.address !== "" || (Object.keys(EMPTY) as (keyof Filters)[])
+  const slicerActive = f.address !== "" || (Object.keys(EMPTY) as (keyof Filters)[])
     .some((k) => k !== "address" && (f[k] as string[]).length > 0);
+  const active = slicerActive || selection !== null;
 
-  // Build the (filtered) Property Summary matrix + derived counts.
+  // Table rows reflect the slicers only — the clicked selection holds on the
+  // table (greying non-selected rows) and narrows the KPI numbers below.
   const { matrix, totalProps, totalTenants, occupancy, rentVar } = useMemo(() => {
-    let matrix: PropertySummaryRow[];
-    let totalProps: number, leased: number;
-    let rentVar: number | null = fullMode ? null : d.kpis.rentVar;
-
     if (fullMode) {
-      const fp = props!.filter((p) =>
-        inSel(f.org, p.org) && inSel(f.status, p.status) &&
-        inSel(f.region, p.region) && inSel(f.subdivision, p.subdivision) &&
-        inSel(f.pm, p.pm) && inSel(f.apm, p.apm) && inSel(f.pod, p.pod) &&
-        (f.address === "" || p.address.toLowerCase().includes(f.address.toLowerCase())));
+      const fp = props!.filter(slicerPass);
       const g = new Map<string, PropertySummaryRow>();
       for (const p of fp) {
-        // SFR homes (and any property without a subdivision) roll up as "Scattered".
-        const region = p.region || "—";
-        const subdivision = /\bSFR\b/i.test(p.org) || !p.subdivision ? "Scattered" : p.subdivision;
-        const key = `${p.org}|${region}|${subdivision}|${p.status}`;
-        const cur = g.get(key) ?? { organization: p.org, region, subdivision, status: p.status, count: 0 };
+        const L = labelsOf(p);
+        const key = `${p.org}|${L.region}|${L.sub}|${p.status}`;
+        const cur = g.get(key) ?? { organization: p.org, region: L.region, subdivision: L.sub, status: p.status, count: 0 };
         cur.count++; g.set(key, cur);
       }
-      matrix = Array.from(g.values());
-      totalProps = fp.length;
-      leased = fp.filter((p) => LEASED.has(p.status)).length;
-      const rs = fp.filter((p) => p.rent != null && p.uw != null);
-      const sr = rs.reduce((s, p) => s + (p.rent as number), 0);
-      const su = rs.reduce((s, p) => s + (p.uw as number), 0);
-      rentVar = su ? sr / su - 1 : null;
-    } else {
-      matrix = d.propertySummary.filter((r) =>
-        inSel(f.org, r.organization) && inSel(f.status, r.status));
-      totalProps = matrix.reduce((s, r) => s + r.count, 0);
-      leased = matrix.filter((r) => LEASED.has(r.status)).reduce((s, r) => s + r.count, 0);
+      const kp = selection ? fp.filter((p) => matchSel(p, selection)) : fp; // KPI scope (slicers + selection)
+      const leased = kp.filter((p) => LEASED.has(p.status)).length;
+      const rs = kp.filter((p) => p.rent != null && p.uw != null);
+      const sr = rs.reduce((s, p) => s + (p.rent as number), 0), su = rs.reduce((s, p) => s + (p.uw as number), 0);
+      return { matrix: Array.from(g.values()), totalProps: kp.length, totalTenants: leased,
+        occupancy: kp.length ? leased / kp.length : null, rentVar: su ? sr / su - 1 : null };
     }
-    // Report's 0_Current_Occupancy = leased (summaryId 7,8) / all properties
-    // (summaryId is never null in the source, so the denominator is every property).
-    return { matrix, totalProps, totalTenants: leased, occupancy: totalProps ? leased / totalProps : null, rentVar };
-  }, [fullMode, props, f, d.propertySummary, d.kpis.rentVar]);
+    const m = d.propertySummary.filter((r) => inSel(f.org, r.organization) && inSel(f.status, r.status));
+    const kp = selection?.org ? m.filter((r) => r.organization === selection.org) : m;
+    const totalProps = kp.reduce((s, r) => s + r.count, 0);
+    const leased = kp.filter((r) => LEASED.has(r.status)).reduce((s, r) => s + r.count, 0);
+    return { matrix: m, totalProps, totalTenants: leased, occupancy: totalProps ? leased / totalProps : null, rentVar: d.kpis.rentVar };
+  }, [fullMode, props, slicerPass, selection, f.org, f.status, d.propertySummary, d.kpis.rentVar]);
 
   const k = d.kpis;
   const isSample = d._meta.source === "SAMPLE";
@@ -133,10 +142,7 @@ export function SummaryView({ initialData }: { initialData: SummaryCache }) {
   // PROPERTY_KEY). Unfiltered, we show the exact server totals.
   const funnel = useMemo(() => {
     if (!fullMode || !active || !props) return null;
-    const pass = (p: PropertyRow) =>
-      inSel(f.org, p.org) && inSel(f.status, p.status) && inSel(f.region, p.region) &&
-      inSel(f.subdivision, p.subdivision) && inSel(f.pm, p.pm) && inSel(f.apm, p.apm) && inSel(f.pod, p.pod) &&
-      (f.address === "" || p.address.toLowerCase().includes(f.address.toLowerCase()));
+    const pass = (p: PropertyRow) => slicerPass(p) && matchSel(p, selection);
     const keyMap = new Map(props.map((p) => [p.key, p]));
     const countFlow = (evs?: { key: string; id: string }[]) => {
       const s = new Set<string>();
@@ -155,30 +161,18 @@ export function SummaryView({ initialData }: { initialData: SummaryCache }) {
       netOccupancyGain: mi != null && mof != null ? mi - mof : null,
       turnoverPct: mof != null && leased ? mof / leased : null,
     };
-  }, [fullMode, active, props, f, d.flows]);
+  }, [fullMode, active, props, slicerPass, selection, d.flows]);
 
   // KPI value: filtered (when a filter is active) else the exact server total.
   const fk = (server: number | null, filtered: number | null | undefined) =>
     active ? (filtered ?? null) : server;
 
-  // Cross-filter: clicking a Property Summary row filters the whole card to that
-  // Organization (→ Region → Subdivision). Clicking the same row again clears it.
-  const selPath = {
-    org: f.org.length === 1 ? f.org[0] : null,
-    region: f.region.length === 1 ? f.region[0] : null,
-    subdivision: f.subdivision.length === 1 ? f.subdivision[0] : null,
-  };
-  const eqArr = (a: string[], b: string[]) => a.length === b.length && a.every((x, i) => x === b[i]);
+  // Cross-highlight: clicking a Property Summary row holds the selection on the
+  // table (others grey out) and narrows the KPI cards. Clicking it again clears.
   const pick = (p: { org: string; region?: string; subdivision?: string }) => {
-    const target: Filters = { ...EMPTY, org: [p.org] };
-    // "—"/"Scattered" are derived display labels, not real slicer values.
-    if (p.region && p.region !== "—") target.region = [p.region];
-    if (p.subdivision && p.subdivision !== "Scattered" && p.subdivision !== "—") target.subdivision = [p.subdivision];
-    setF((prev) => {
-      const same = eqArr(prev.org, target.org) && eqArr(prev.region, target.region) && eqArr(prev.subdivision, target.subdivision)
-        && prev.status.length === 0 && prev.pm.length === 0 && prev.apm.length === 0 && prev.pod.length === 0 && prev.address === "";
-      return same ? EMPTY : target;
-    });
+    setSelection((prev) =>
+      prev && prev.org === p.org && prev.region === p.region && prev.subdivision === p.subdivision
+        ? null : { org: p.org, region: p.region, subdivision: p.subdivision });
   };
 
   const slicer = (label: string, key: MultiKey) => (
@@ -209,7 +203,7 @@ export function SummaryView({ initialData }: { initialData: SummaryCache }) {
         </div>
 
         {active && (
-          <button className="dd-clear" onClick={() => setF(EMPTY)}>Clear filters ✕</button>
+          <button className="dd-clear" onClick={() => { setF(EMPTY); setSelection(null); }}>Clear filters ✕</button>
         )}
       </aside>
 
@@ -271,7 +265,7 @@ export function SummaryView({ initialData }: { initialData: SummaryCache }) {
         </div>
 
         <div className="section-title">Property Summary</div>
-        {matrix.length ? <PropertySummaryTable rows={matrix} drilldown={fullMode} onPick={pick} sel={selPath} />
+        {matrix.length ? <PropertySummaryTable rows={matrix} drilldown={fullMode} onPick={pick} sel={selection} />
           : <div className="card" style={{ color: "var(--muted)" }}>No properties match the filter.</div>}
 
         <div className="section-title">Monthly KPI Trend</div>

@@ -10,7 +10,7 @@ import { num } from "@/lib/format";
 // via the +/- button; clicking a row cross-filters the rest of the page.
 type Agg = { buckets: Record<string, number>; total: number };
 type Pick = { org: string; region?: string; subdivision?: string };
-type Sel = { org: string | null; region: string | null; subdivision: string | null };
+type Sel = { org: string; region?: string; subdivision?: string } | null;
 const emptyAgg = (): Agg => ({ buckets: Object.fromEntries(STATUS_BUCKETS.map((b) => [b, 0])), total: 0 });
 const add = (a: Agg, status: string, c: number) => {
   a.total += c;
@@ -75,14 +75,19 @@ export function PropertySummaryTable({ rows, drilldown = false, onPick, sel }: {
     ) : <span className="drill-spacer" />;
 
   const pick = (p: Pick) => onPick?.(p);
-  const rowCls = (base: string, on: boolean) => `${base}${onPick ? " row-pick" : ""}${on ? " picked" : ""}`;
+  // Power BI cross-highlight: the picked row (and its branch) stays bright; when
+  // a selection exists, rows off the branch grey out (the table still shows all).
+  const depth = sel ? (sel.subdivision ? 3 : sel.region ? 2 : 1) : 0;
+  const cls = (base: string, inBranch: boolean, picked: boolean) =>
+    `${base}${onPick ? " row-pick" : ""}${picked ? " picked" : sel && !inBranch ? " dim" : ""}`;
 
   const trs: React.ReactNode[] = [];
   for (const [orgName, o] of orgEntries) {
     const oExpandable = drilldown && o.regions.size > 0;
-    const oOn = !!sel && sel.org === orgName && !sel.region && !sel.subdivision;
+    const oBranch = !sel || sel.org === orgName;
+    const oPicked = !!sel && depth === 1 && sel.org === orgName;
     trs.push(
-      <tr key={orgName} className={rowCls("lvl0", oOn)} onClick={() => pick({ org: orgName })}>
+      <tr key={orgName} className={cls("lvl0", oBranch, oPicked)} onClick={() => pick({ org: orgName })}>
         <td className="lbl">{drill(orgName, oExpandable)}{orgName}</td>
         {valueCells(o.agg)}
       </tr>
@@ -92,9 +97,10 @@ export function PropertySummaryTable({ rows, drilldown = false, onPick, sel }: {
     for (const [regName, reg] of byTotal([...o.regions.entries()])) {
       const rKey = `${orgName}|${regName}`;
       const rExpandable = reg.subs.size > 0;
-      const rOn = !!sel && sel.org === orgName && sel.region === regName && !sel.subdivision;
+      const rBranch = !sel || (sel.org === orgName && (!sel.region || sel.region === regName));
+      const rPicked = !!sel && depth === 2 && sel.org === orgName && sel.region === regName;
       trs.push(
-        <tr key={rKey} className={rowCls("lvl1", rOn)} onClick={() => pick({ org: orgName, region: regName })}>
+        <tr key={rKey} className={cls("lvl1", rBranch, rPicked)} onClick={() => pick({ org: orgName, region: regName })}>
           <td className="lbl">{drill(rKey, rExpandable)}{regName}</td>
           {valueCells(reg.agg)}
         </tr>
@@ -102,9 +108,10 @@ export function PropertySummaryTable({ rows, drilldown = false, onPick, sel }: {
       if (!open.has(rKey)) continue;
 
       for (const [subName, sub] of [...reg.subs.entries()].sort((a, b) => b[1].total - a[1].total)) {
-        const sOn = !!sel && sel.org === orgName && sel.region === regName && sel.subdivision === subName;
+        const sBranch = !sel || (sel.org === orgName && (!sel.region || sel.region === regName) && (!sel.subdivision || sel.subdivision === subName));
+        const sPicked = !!sel && depth === 3 && sel.org === orgName && sel.region === regName && sel.subdivision === subName;
         trs.push(
-          <tr key={`${rKey}|${subName}`} className={rowCls("lvl2", sOn)}
+          <tr key={`${rKey}|${subName}`} className={cls("lvl2", sBranch, sPicked)}
             onClick={() => pick({ org: orgName, region: regName, subdivision: subName })}>
             <td className="lbl"><span className="drill-spacer" />{subName}</td>
             {valueCells(sub)}
