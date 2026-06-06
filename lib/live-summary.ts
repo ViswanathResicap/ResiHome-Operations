@@ -89,9 +89,13 @@ export async function getLiveSummary(): Promise<SummaryCache> {
   // internal vendor, Closed Date_BOM in month) — per-month so the gauge shows
   // one month vs its goal. No vendor-name exclusion (not in the report).
   add("internal maintenance", async () => {
+    // Exclude non-labor "vendors" (expense buckets / warranties) that aren't
+    // actual internal maintenance spend — validated against the report (~$64k).
     const rows = await q(`WITH w AS (${source("wo")})
       SELECT TO_CHAR(DATE_TRUNC('month',WO_CLOSED_DATE),'Mon YYYY') AS MONTH, SUM(CLIENT_INVOICE_AMOUNT) AS IM
-      FROM w WHERE WORKORDER_STATUS='Closed' AND IS_INTERNAL_VENDOR='Y' AND ${win("DATE_TRUNC('month',WO_CLOSED_DATE)")} GROUP BY 1`);
+      FROM w WHERE WORKORDER_STATUS='Closed' AND IS_INTERNAL_VENDOR='Y' AND ${win("DATE_TRUNC('month',WO_CLOSED_DATE)")}
+        AND COALESCE(COMPANY_NAME,'') NOT IN ('Credit Card Vendor','GE Vendor (Maintenance)','New Builder Warranty Vendor','Lennar Builder Warranty')
+      GROUP BY 1`);
     for (const r of rows) imByMonth[str(r.MONTH)] = numOr(r.IM);
   });
 

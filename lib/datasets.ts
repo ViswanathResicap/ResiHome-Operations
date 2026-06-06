@@ -45,7 +45,7 @@ const DATASETS = {
   // Month-grain property snapshot → Homes / Avg Rent / occupancy trend.
   pmBom: { sql: PM_BOM_SQL, cols: ["BEG_OF_MONTH", "OCCUPANCY_STATUS", "HBPM_PROPERTYID", "CURRENT_RENT"] },
   // Work orders → Internal Maintenance gauge.
-  wo: { sql: DW_WO_SQL, cols: ["CLIENT_INVOICE_AMOUNT", "WORKORDER_STATUS", "IS_INTERNAL_VENDOR", "WO_CLOSED_DATE"] },
+  wo: { sql: DW_WO_SQL, cols: ["CLIENT_INVOICE_AMOUNT", "WORKORDER_STATUS", "IS_INTERNAL_VENDOR", "WO_CLOSED_DATE", "COMPANY_NAME"] },
   // Turns → Net Turn Cost gauge.
   turns: { sql: DW_TURNS_SQL, cols: ["TURN_COMPLETED_BOM", "TKT_COST", "MOVEOUTRECEIPTS_FINAL", "N_LEASE_FROM_DATE"] },
   // Move-in / move-out → Proj-Actual MIs, Net Occupancy Gain, Turnover.
