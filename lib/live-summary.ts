@@ -73,21 +73,15 @@ export async function getLiveSummary(): Promise<SummaryCache> {
     kpis.activeListings = numOr(r?.N);
   });
 
-  add("trend homes/rent", async () => {
+  // Homes / Avg Rent / BOM occupancy — one PM_BOM scan for the whole trend.
+  add("trend (homes/rent/occupancy)", async () => {
     const rows = await q(`WITH b AS (${source("pmBom")})
       SELECT TO_CHAR(BEG_OF_MONTH,'Mon YYYY') AS MONTH, MIN(BEG_OF_MONTH) AS BOM,
-        COUNT(IFF(OCCUPANCY_STATUS IS NOT NULL,HBPM_PROPERTYID,NULL)) AS HOMES, AVG(CURRENT_RENT) AS AVG_RENT
+        COUNT(IFF(OCCUPANCY_STATUS IS NOT NULL,HBPM_PROPERTYID,NULL)) AS HOMES, AVG(CURRENT_RENT) AS AVG_RENT,
+        DIV0(COUNT_IF(OCCUPANCY_STATUS IN ('Tenant Leased','Trustee Leased','Trustee Lease Honored','Vacant - Future Move In')), COUNT(*)) AS OCC
       FROM b WHERE ${win("BEG_OF_MONTH")} GROUP BY 1 ORDER BY BOM`);
     monthlyTrend = rows.map((r) => ({ month: str(r.MONTH), homes: numOr(r.HOMES), avgRent: numOr(r.AVG_RENT),
       occBom: null, occEom: null, collections: null, renewal: null, turnover: null, netTurnCost: null }));
-  });
-
-  // --- Occupancy trend (best-effort from PM_BOM month snapshot) ---
-  add("occupancy trend", async () => {
-    const rows = await q(`WITH b AS (${source("pmBom")})
-      SELECT TO_CHAR(BEG_OF_MONTH,'Mon YYYY') AS MONTH,
-        DIV0(COUNT_IF(OCCUPANCY_STATUS IN ('Tenant Leased','Trustee Leased','Trustee Lease Honored','Vacant - Future Move In')), COUNT(*)) AS OCC
-      FROM b WHERE ${win("BEG_OF_MONTH")} GROUP BY 1`);
     for (const r of rows) occByMonth[str(r.MONTH)] = numOr(r.OCC);
   });
 
@@ -99,12 +93,6 @@ export async function getLiveSummary(): Promise<SummaryCache> {
       SELECT TO_CHAR(DATE_TRUNC('month',WO_CLOSED_DATE),'Mon YYYY') AS MONTH, SUM(CLIENT_INVOICE_AMOUNT) AS IM
       FROM w WHERE WORKORDER_STATUS='Closed' AND IS_INTERNAL_VENDOR='Y' AND ${win("DATE_TRUNC('month',WO_CLOSED_DATE)")} GROUP BY 1`);
     for (const r of rows) imByMonth[str(r.MONTH)] = numOr(r.IM);
-  });
-
-  // POD count for the IM goal (report: DISTINCTCOUNT(DW_Properties[POD])).
-  add("pod count", async () => {
-    const [r] = await q(`SELECT COUNT(DISTINCT POD) AS N FROM (${source("properties")}) WHERE POD IS NOT NULL`);
-    podCount = numOr(r?.N);
   });
 
   add("collections", async () => {
