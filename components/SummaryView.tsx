@@ -69,8 +69,11 @@ export function SummaryView({ initialData }: { initialData: SummaryCache }) {
         (f.address === "" || p.address.toLowerCase().includes(f.address.toLowerCase())));
       const g = new Map<string, PropertySummaryRow>();
       for (const p of fp) {
-        const key = `${p.org}|${p.status}`;
-        const cur = g.get(key) ?? { organization: p.org, region: "—", subdivision: "—", status: p.status, count: 0 };
+        // SFR homes (and any property without a subdivision) roll up as "Scattered".
+        const region = p.region || "—";
+        const subdivision = /\bSFR\b/i.test(p.org) || !p.subdivision ? "Scattered" : p.subdivision;
+        const key = `${p.org}|${region}|${subdivision}|${p.status}`;
+        const cur = g.get(key) ?? { organization: p.org, region, subdivision, status: p.status, count: 0 };
         cur.count++; g.set(key, cur);
       }
       matrix = Array.from(g.values());
@@ -188,7 +191,7 @@ export function SummaryView({ initialData }: { initialData: SummaryCache }) {
         </div>
 
         <div className="section-title">Property Summary</div>
-        {matrix.length ? <PropertySummaryTable rows={matrix} />
+        {matrix.length ? <PropertySummaryTable rows={matrix} drilldown={fullMode} />
           : <div className="card" style={{ color: "var(--muted)" }}>No properties match the filter.</div>}
 
         <div className="section-title">Monthly KPI Trend</div>

@@ -138,4 +138,13 @@ table.tbl th, table.tbl td { padding: 8px 11px; border-bottom: 1px solid var(--l
 table.tbl th { background: var(--brand-tint); color: var(--brand-dark); font-weight: 800; text-align: right; position: sticky; top: 0; text-transform: uppercase; letter-spacing: .3px; font-size: 11px; }
 table.tbl th:first-child, table.tbl td:first-child { text-align: left; }
 table.tbl tbody tr:hover { background: var(--brand-tint-2); }
+/* Property Summary drill-down (Org › Region › Subdivision) */
+table.tbl th.lbl, table.tbl td.lbl { text-align: left; }
+table.tbl tr.row-exp { cursor: pointer; }
+table.tbl tr.lvl0 td.lbl { font-weight: 700; }
+table.tbl tr.lvl1 td.lbl { padding-left: 26px; font-weight: 600; color: var(--ink); }
+table.tbl tr.lvl1 td { background: #fcfdff; }
+table.tbl tr.lvl2 td.lbl { padding-left: 48px; color: var(--muted); font-weight: 500; }
+table.tbl tr.lvl2 td { background: #fff; }
+table.tbl .chev { display: inline-block; width: 15px; color: var(--brand); font-size: 10px; }
 table.tbl tfoot td { font-weight: 800; background: #fbfcfe; border-top: 2px solid var(--brand); }
