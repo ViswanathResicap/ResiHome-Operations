@@ -161,6 +161,9 @@ table.tbl th:first-child, table.tbl td:first-child { text-align: left; }
 table.tbl tbody tr:hover { background: var(--brand-tint-2); }
 /* Property Summary drill-down (Org › Region › Subdivision) */
 table.tbl tr.row-exp { cursor: pointer; }
+table.tbl tr.row-pick { cursor: pointer; }
+table.tbl tr.picked > td { background: var(--brand-tint); }
+table.tbl tr.picked > td.lbl { box-shadow: inset 3px 0 0 var(--brand); font-weight: 800; }
 table.tbl tr.lvl0 td.lbl { font-weight: 700; }
 table.tbl tr.lvl1 td.lbl { padding-left: 26px; font-weight: 600; color: var(--ink); }
 table.tbl tr.lvl1 td { background: #fcfdff; }

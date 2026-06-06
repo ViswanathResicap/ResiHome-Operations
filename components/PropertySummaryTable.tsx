@@ -6,9 +6,11 @@ import { STATUS_BUCKETS, statusBucket } from "@/lib/types";
 import { num } from "@/lib/format";
 
 // "Property Summary": columns are status roll-ups (Off Market | On Market |
-// Leased | Turnkey) + Total. With drilldown on, rows expand Organization →
-// Region → Subdivision; otherwise a flat Organization pivot.
+// Leased | Turnkey) + Total. Rows expand Organization → Region → Subdivision
+// via the +/- button; clicking a row cross-filters the rest of the page.
 type Agg = { buckets: Record<string, number>; total: number };
+type Pick = { org: string; region?: string; subdivision?: string };
+type Sel = { org: string | null; region: string | null; subdivision: string | null };
 const emptyAgg = (): Agg => ({ buckets: Object.fromEntries(STATUS_BUCKETS.map((b) => [b, 0])), total: 0 });
 const add = (a: Agg, status: string, c: number) => {
   a.total += c;
@@ -17,7 +19,12 @@ const add = (a: Agg, status: string, c: number) => {
 };
 const byTotal = <T extends { agg: Agg }>(e: [string, T][]) => e.sort((a, b) => b[1].agg.total - a[1].agg.total);
 
-export function PropertySummaryTable({ rows, drilldown = false }: { rows: PropertySummaryRow[]; drilldown?: boolean }) {
+export function PropertySummaryTable({ rows, drilldown = false, onPick, sel }: {
+  rows: PropertySummaryRow[];
+  drilldown?: boolean;
+  onPick?: (p: Pick) => void;
+  sel?: Sel;
+}) {
   const [open, setOpen] = useState<Set<string>>(new Set());
   const toggle = (k: string) =>
     setOpen((s) => { const n = new Set(s); if (n.has(k)) n.delete(k); else n.add(k); return n; });
@@ -42,7 +49,6 @@ export function PropertySummaryTable({ rows, drilldown = false }: { rows: Proper
   const colTotal = (b: string) => orgEntries.reduce((s, [, o]) => s + o.agg.buckets[b], 0);
   const grand = orgEntries.reduce((s, [, o]) => s + o.agg.total, 0);
 
-  // Every expandable key (orgs with regions, org|region with subdivisions).
   const allKeys: string[] = [];
   for (const [orgName, o] of orgEntries) {
     if (o.regions.size) allKeys.push(orgName);
@@ -68,11 +74,15 @@ export function PropertySummaryTable({ rows, drilldown = false }: { rows: Proper
       </button>
     ) : <span className="drill-spacer" />;
 
+  const pick = (p: Pick) => onPick?.(p);
+  const rowCls = (base: string, on: boolean) => `${base}${onPick ? " row-pick" : ""}${on ? " picked" : ""}`;
+
   const trs: React.ReactNode[] = [];
   for (const [orgName, o] of orgEntries) {
     const oExpandable = drilldown && o.regions.size > 0;
+    const oOn = !!sel && sel.org === orgName && !sel.region && !sel.subdivision;
     trs.push(
-      <tr key={orgName} className={`lvl0${oExpandable ? " row-exp" : ""}`} onClick={oExpandable ? () => toggle(orgName) : undefined}>
+      <tr key={orgName} className={rowCls("lvl0", oOn)} onClick={() => pick({ org: orgName })}>
         <td className="lbl">{drill(orgName, oExpandable)}{orgName}</td>
         {valueCells(o.agg)}
       </tr>
@@ -82,8 +92,9 @@ export function PropertySummaryTable({ rows, drilldown = false }: { rows: Proper
     for (const [regName, reg] of byTotal([...o.regions.entries()])) {
       const rKey = `${orgName}|${regName}`;
       const rExpandable = reg.subs.size > 0;
+      const rOn = !!sel && sel.org === orgName && sel.region === regName && !sel.subdivision;
       trs.push(
-        <tr key={rKey} className={`lvl1${rExpandable ? " row-exp" : ""}`} onClick={rExpandable ? () => toggle(rKey) : undefined}>
+        <tr key={rKey} className={rowCls("lvl1", rOn)} onClick={() => pick({ org: orgName, region: regName })}>
           <td className="lbl">{drill(rKey, rExpandable)}{regName}</td>
           {valueCells(reg.agg)}
         </tr>
@@ -91,8 +102,10 @@ export function PropertySummaryTable({ rows, drilldown = false }: { rows: Proper
       if (!open.has(rKey)) continue;
 
       for (const [subName, sub] of [...reg.subs.entries()].sort((a, b) => b[1].total - a[1].total)) {
+        const sOn = !!sel && sel.org === orgName && sel.region === regName && sel.subdivision === subName;
         trs.push(
-          <tr key={`${rKey}|${subName}`} className="lvl2">
+          <tr key={`${rKey}|${subName}`} className={rowCls("lvl2", sOn)}
+            onClick={() => pick({ org: orgName, region: regName, subdivision: subName })}>
             <td className="lbl"><span className="drill-spacer" />{subName}</td>
             {valueCells(sub)}
           </tr>

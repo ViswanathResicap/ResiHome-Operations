@@ -161,6 +161,26 @@ export function SummaryView({ initialData }: { initialData: SummaryCache }) {
   const fk = (server: number | null, filtered: number | null | undefined) =>
     active ? (filtered ?? null) : server;
 
+  // Cross-filter: clicking a Property Summary row filters the whole card to that
+  // Organization (→ Region → Subdivision). Clicking the same row again clears it.
+  const selPath = {
+    org: f.org.length === 1 ? f.org[0] : null,
+    region: f.region.length === 1 ? f.region[0] : null,
+    subdivision: f.subdivision.length === 1 ? f.subdivision[0] : null,
+  };
+  const eqArr = (a: string[], b: string[]) => a.length === b.length && a.every((x, i) => x === b[i]);
+  const pick = (p: { org: string; region?: string; subdivision?: string }) => {
+    const target: Filters = { ...EMPTY, org: [p.org] };
+    // "—"/"Scattered" are derived display labels, not real slicer values.
+    if (p.region && p.region !== "—") target.region = [p.region];
+    if (p.subdivision && p.subdivision !== "Scattered" && p.subdivision !== "—") target.subdivision = [p.subdivision];
+    setF((prev) => {
+      const same = eqArr(prev.org, target.org) && eqArr(prev.region, target.region) && eqArr(prev.subdivision, target.subdivision)
+        && prev.status.length === 0 && prev.pm.length === 0 && prev.apm.length === 0 && prev.pod.length === 0 && prev.address === "";
+      return same ? EMPTY : target;
+    });
+  };
+
   const slicer = (label: string, key: MultiKey) => (
     <Dropdown key={label} label={label} options={opts[key]} selected={f[key]}
       onChange={(v) => setMulti(key, v)} multiple disabled={opts[key].length === 0} />
@@ -251,7 +271,7 @@ export function SummaryView({ initialData }: { initialData: SummaryCache }) {
         </div>
 
         <div className="section-title">Property Summary</div>
-        {matrix.length ? <PropertySummaryTable rows={matrix} drilldown={fullMode} />
+        {matrix.length ? <PropertySummaryTable rows={matrix} drilldown={fullMode} onPick={pick} sel={selPath} />
           : <div className="card" style={{ color: "var(--muted)" }}>No properties match the filter.</div>}
 
         <div className="section-title">Monthly KPI Trend</div>
