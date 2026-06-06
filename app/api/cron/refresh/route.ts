@@ -1,13 +1,12 @@
 import { getSummary } from "@/lib/summary";
 
-// Hit hourly by Vercel Cron (see vercel.json). Calling getSummary() refreshes
-// the Data Cache when the 1h entry is stale; spammed calls just return the
-// cached value, so no auth/secret is required to stay safe.
+// Hit hourly by Vercel Cron (see vercel.json). Forces a fresh compute so the
+// in-memory cache stays warm and the page renders live data without blocking.
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
 export async function GET() {
-  const data = await getSummary();
+  const data = await getSummary(true);
   return Response.json({
     ok: true,
     source: data._meta.source,

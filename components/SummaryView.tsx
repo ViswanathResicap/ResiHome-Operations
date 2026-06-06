@@ -59,7 +59,12 @@ export function SummaryView({ initialData }: { initialData: SummaryCache }) {
       setRefreshing(false);
     }
   };
-  useEffect(() => { load(false); /* initial hydrate */ // eslint-disable-next-line react-hooks/exhaustive-deps
+  // If the server already rendered live per-property rows, the breakdowns and
+  // slicers are functional immediately — no fetch needed. Only hydrate when the
+  // server fell back to the sample (cold cache).
+  useEffect(() => {
+    if (!(initialData.properties?.length) || initialData._meta.source !== "SNOWFLAKE") load(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const [f, setF] = useState<Filters>(EMPTY);
   const setMulti = (k: MultiKey, v: string[]) => setF((p) => ({ ...p, [k]: v }));
