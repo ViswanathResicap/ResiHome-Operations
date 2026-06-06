@@ -38,10 +38,17 @@ export function PropertySummaryTable({ rows, drilldown = false }: { rows: Proper
     orgs.set(r.organization, o);
   }
 
-  const orgEntries = byTotal([...orgs.entries()].map(([k, v]) => [k, v] as [string, { agg: Agg }])) as
-    [string, { agg: Agg; regions: Map<string, { agg: Agg; subs: Map<string, Agg> }> }][];
+  const orgEntries = byTotal([...orgs.entries()]);
   const colTotal = (b: string) => orgEntries.reduce((s, [, o]) => s + o.agg.buckets[b], 0);
   const grand = orgEntries.reduce((s, [, o]) => s + o.agg.total, 0);
+
+  // Every expandable key (orgs with regions, org|region with subdivisions).
+  const allKeys: string[] = [];
+  for (const [orgName, o] of orgEntries) {
+    if (o.regions.size) allKeys.push(orgName);
+    for (const [regName, reg] of o.regions) if (reg.subs.size) allKeys.push(`${orgName}|${regName}`);
+  }
+  const canDrill = drilldown && allKeys.length > 0;
 
   const valueCells = (a: Agg) => (
     <>
@@ -49,39 +56,44 @@ export function PropertySummaryTable({ rows, drilldown = false }: { rows: Proper
       <td>{num(a.total)}</td>
     </>
   );
-  const chevron = (expandable: boolean, isOpen: boolean) =>
-    <span className="chev">{expandable ? (isOpen ? "▾" : "▸") : ""}</span>;
+  const drill = (key: string, expandable: boolean) =>
+    expandable ? (
+      <button
+        type="button"
+        className="drill-btn"
+        aria-label={open.has(key) ? "Collapse" : "Expand"}
+        onClick={(e) => { e.stopPropagation(); toggle(key); }}
+      >
+        {open.has(key) ? "−" : "+"}
+      </button>
+    ) : <span className="drill-spacer" />;
 
   const trs: React.ReactNode[] = [];
   for (const [orgName, o] of orgEntries) {
     const oExpandable = drilldown && o.regions.size > 0;
-    const oOpen = open.has(orgName);
     trs.push(
       <tr key={orgName} className={`lvl0${oExpandable ? " row-exp" : ""}`} onClick={oExpandable ? () => toggle(orgName) : undefined}>
-        <td className="lbl">{chevron(oExpandable, oOpen)}{orgName}</td>
+        <td className="lbl">{drill(orgName, oExpandable)}{orgName}</td>
         {valueCells(o.agg)}
       </tr>
     );
-    if (!oOpen) continue;
+    if (!open.has(orgName)) continue;
 
-    const regEntries = byTotal([...o.regions.entries()]);
-    for (const [regName, reg] of regEntries) {
+    for (const [regName, reg] of byTotal([...o.regions.entries()])) {
       const rKey = `${orgName}|${regName}`;
       const rExpandable = reg.subs.size > 0;
-      const rOpen = open.has(rKey);
       trs.push(
         <tr key={rKey} className={`lvl1${rExpandable ? " row-exp" : ""}`} onClick={rExpandable ? () => toggle(rKey) : undefined}>
-          <td className="lbl">{chevron(rExpandable, rOpen)}{regName}</td>
+          <td className="lbl">{drill(rKey, rExpandable)}{regName}</td>
           {valueCells(reg.agg)}
         </tr>
       );
-      if (!rOpen) continue;
+      if (!open.has(rKey)) continue;
 
-      const subEntries = [...reg.subs.entries()].sort((a, b) => b[1].total - a[1].total);
-      for (const [subName, sub] of subEntries) {
+      for (const [subName, sub] of [...reg.subs.entries()].sort((a, b) => b[1].total - a[1].total)) {
         trs.push(
           <tr key={`${rKey}|${subName}`} className="lvl2">
-            <td className="lbl">{chevron(false, false)}{subName}</td>
+            <td className="lbl"><span className="drill-spacer" />{subName}</td>
             {valueCells(sub)}
           </tr>
         );
@@ -90,24 +102,32 @@ export function PropertySummaryTable({ rows, drilldown = false }: { rows: Proper
   }
 
   return (
-    <div className="tbl-wrap">
-      <table className="tbl">
-        <thead>
-          <tr>
-            <th className="lbl">Organization{drilldown ? " › Region › Subdivision" : ""}</th>
-            {STATUS_BUCKETS.map((b) => <th key={b}>{b}</th>)}
-            <th>Total</th>
-          </tr>
-        </thead>
-        <tbody>{trs}</tbody>
-        <tfoot>
-          <tr>
-            <td className="lbl">Total</td>
-            {STATUS_BUCKETS.map((b) => <td key={b}>{num(colTotal(b))}</td>)}
-            <td>{num(grand)}</td>
-          </tr>
-        </tfoot>
-      </table>
-    </div>
+    <>
+      {canDrill && (
+        <div className="tbl-toolbar">
+          <button type="button" className="tbl-btn" onClick={() => setOpen(new Set(allKeys))}>⊞ Expand all</button>
+          <button type="button" className="tbl-btn" onClick={() => setOpen(new Set())}>⊟ Collapse all</button>
+        </div>
+      )}
+      <div className="tbl-wrap">
+        <table className="tbl">
+          <thead>
+            <tr>
+              <th className="lbl">Organization{drilldown ? " › Region › Subdivision" : ""}</th>
+              {STATUS_BUCKETS.map((b) => <th key={b}>{b}</th>)}
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>{trs}</tbody>
+          <tfoot>
+            <tr>
+              <td className="lbl">Total</td>
+              {STATUS_BUCKETS.map((b) => <td key={b}>{num(colTotal(b))}</td>)}
+              <td>{num(grand)}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </>
   );
 }

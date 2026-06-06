@@ -1,5 +1,5 @@
 import { connect } from "./snowflake";
-import { source, VIEWS } from "./datasets";
+import { source, sourceRaw, VIEWS } from "./datasets";
 import type { SummaryCache, PropertyRow, PropertySummaryRow, MonthlyTrendRow, GaugeData } from "./types";
 
 const PAGE_FILTER = `OCCUPANCY_STATUS <> 'Dispositions' AND ORGANIZATION_NAME IS NOT NULL`;
@@ -48,7 +48,15 @@ export async function getLiveSummary(): Promise<SummaryCache> {
 
   // --- Property rows (drives property tiles + all slicers) ---
   add("property rows", async () => {
-    const rows = await q(`${source("properties")} WHERE ${PAGE_FILTER}`);
+    // Slim projection first; if any projected column is off, fall back to the
+    // full native query so the page never silently drops to the seed snapshot.
+    let rows: Record<string, unknown>[];
+    try {
+      rows = await q(`${source("properties")} WHERE ${PAGE_FILTER}`);
+    } catch (e) {
+      log("property rows projection (fell back to SELECT *)", e);
+      rows = await q(`${sourceRaw("properties")} WHERE ${PAGE_FILTER}`);
+    }
     const seen = new Set<unknown>();
     for (const r of rows) {
       const key = r.PROPERTY_KEY; if (key != null && seen.has(key)) continue; if (key != null) seen.add(key);

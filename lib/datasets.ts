@@ -68,6 +68,11 @@ export function source(name: DatasetName): string {
   return `SELECT ${d.cols.map(ident).join(", ")} FROM (\n${d.sql}\n)`;
 }
 
+/** Forgiving fallback: the full native query (SELECT *) when a projection fails. */
+export function sourceRaw(name: DatasetName): string {
+  return `SELECT * FROM (\n${DATASETS[name].sql}\n)`;
+}
+
 /** Curated BI views queried directly (already minimal — no native mirror). */
 export const VIEWS = {
   collections: "PROD_ANALYTICS.BI_MASTER_DATASETS.MASTER_PM_COLLECTIONS",

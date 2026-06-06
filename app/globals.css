@@ -146,5 +146,17 @@ table.tbl tr.lvl1 td.lbl { padding-left: 26px; font-weight: 600; color: var(--in
 table.tbl tr.lvl1 td { background: #fcfdff; }
 table.tbl tr.lvl2 td.lbl { padding-left: 48px; color: var(--muted); font-weight: 500; }
 table.tbl tr.lvl2 td { background: #fff; }
-table.tbl .chev { display: inline-block; width: 15px; color: var(--brand); font-size: 10px; }
+table.tbl .drill-spacer { display: inline-block; width: 22px; margin-right: 8px; }
+.drill-btn {
+  font: inherit; cursor: pointer; width: 20px; height: 20px; margin-right: 8px; padding: 0;
+  border: 1px solid var(--brand); background: #fff; color: var(--brand-dark); border-radius: 5px;
+  display: inline-grid; place-items: center; font-weight: 800; font-size: 13px; line-height: 1; vertical-align: middle;
+}
+.drill-btn:hover { background: var(--brand); color: #fff; }
+.tbl-toolbar { display: flex; gap: 8px; margin-bottom: 8px; }
+.tbl-btn {
+  font: inherit; font-size: 11px; font-weight: 800; letter-spacing: .4px; text-transform: uppercase; cursor: pointer;
+  color: var(--brand-dark); background: #fff; border: 1px solid var(--brand); border-radius: 7px; padding: 6px 11px;
+}
+.tbl-btn:hover { background: var(--brand-tint); }
 table.tbl tfoot td { font-weight: 800; background: #fbfcfe; border-top: 2px solid var(--brand); }
