@@ -6,6 +6,14 @@ import {
 import type { SummaryCache, PropertyRow, PropertySummaryRow, MonthlyTrendRow, GaugeData } from "./types";
 
 const PAGE_FILTER = `OCCUPANCY_STATUS <> 'Dispositions' AND ORGANIZATION_NAME IS NOT NULL`;
+// Roll several legal entities up under one display organization.
+const ORG_REMAP: Record<string, string> = {
+  "Array Park LLC": "McKinley Homes",
+  "Oak Hill Residence Park LLC": "McKinley Homes",
+  "Rivertown Park LLC": "McKinley Homes",
+  "Wiltshire Park LLC": "McKinley Homes",
+};
+const remapOrg = (o: string) => ORG_REMAP[o] ?? o;
 const MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 const LEASED = new Set(["Tenant Leased", "Trustee Leased"]);
 const numOr = (v: unknown): number | null => (v == null || Number.isNaN(Number(v)) ? null : Number(v));
@@ -49,7 +57,7 @@ export async function getLiveSummary(): Promise<SummaryCache> {
     const seen = new Set<unknown>();
     for (const r of rows) {
       const key = r.PROPERTY_KEY; if (key != null && seen.has(key)) continue; if (key != null) seen.add(key);
-      properties.push({ org: str(r.ORGANIZATION_NAME), region: str(r.REGION_NAME), subdivision: str(r.SUBDIVISION),
+      properties.push({ org: remapOrg(str(r.ORGANIZATION_NAME)), region: str(r.REGION_NAME), subdivision: str(r.SUBDIVISION),
         pm: str(r.PROPERTY_MANAGER), apm: str(r.PROPERTY_MANAGER_ASSISTANT), pod: str(r.POD),
         status: str(r.OCCUPANCY_STATUS_SUMMARY), summaryId: numOr(r.OCCUPANCY_STATUS_SUMMARYID),
         delinquent: str(r["1_Tenant Balance Status"]), address: str(r.FULL_ADDRESS),
