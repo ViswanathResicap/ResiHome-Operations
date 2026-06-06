@@ -30,3 +30,4 @@ Thumbs.db
 *.p8
 *.pem
 .snowflake/
+tsconfig.tsbuildinfo

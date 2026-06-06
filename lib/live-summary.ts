@@ -21,12 +21,13 @@ export async function getLiveSummary(): Promise<SummaryCache> {
     rentVar: null, holdingFees: null, projActualMis: null, netOccupancyGain: null, turnoverPct: null,
   };
   let properties: PropertyRow[] = [], propertySummary: PropertySummaryRow[] = [], monthlyTrend: MonthlyTrendRow[] = [];
-  let podCount: number | null = null, imValue: number | null = null, leasedCount = 0;
-  let moForecastCur: number | null = null, miCur: number | null = null;
+  let podCount: number | null = null, leasedCount = 0;
   let internalMaintenance: GaugeData | null = null, eomCollections: GaugeData | null = null,
       renewal: GaugeData | null = null, netTurnCost: GaugeData | null = null;
   const collByMonth: Record<string, number | null> = {}, renewByMonth: Record<string, number | null> = {},
-        ntcByMonth: Record<string, number | null> = {}, occByMonth: Record<string, number | null> = {};
+        ntcByMonth: Record<string, number | null> = {}, occByMonth: Record<string, number | null> = {},
+        imByMonth: Record<string, number | null> = {}, hfByMonth: Record<string, number | null> = {},
+        miByMonth: Record<string, number | null> = {}, mofByMonth: Record<string, number | null> = {};
   const errors: string[] = [];
   const q = <T = Record<string, unknown>>(sql: string) => conn.query<T>(sql);
   const log = (n: string, e: unknown) => { errors.push(`${n}: ${(e as Error).message}`); console.error(`[live] ${n}:`, (e as Error).message); };
@@ -79,11 +80,20 @@ export async function getLiveSummary(): Promise<SummaryCache> {
     for (const r of rows) occByMonth[str(r.MONTH)] = numOr(r.OCC);
   });
 
+  // Internal Maintenance (report DAX: SUM(CLIENT_INVOICE_AMOUNT) where Closed,
+  // internal vendor, Closed Date_BOM in month) — per-month so the gauge shows
+  // one month vs its goal. No vendor-name exclusion (not in the report).
   add("internal maintenance", async () => {
-    const [r] = await q(`WITH w AS (${wrap(DW_WO_SQL)}) SELECT SUM(CLIENT_INVOICE_AMOUNT) AS IM FROM w
-      WHERE WORKORDER_STATUS='Closed' AND IS_INTERNAL_VENDOR='Y' AND ${win("DATE_TRUNC('month',WO_CLOSED_DATE)")}
-        AND COMPANY_NAME NOT IN ('Credit Card Vendor','GE Vendor (Maintenance)','New Builder Warranty Vendor','Lennar Builder Warranty')`);
-    imValue = numOr(r?.IM);
+    const rows = await q(`WITH w AS (${wrap(DW_WO_SQL)})
+      SELECT TO_CHAR(DATE_TRUNC('month',WO_CLOSED_DATE),'Mon YYYY') AS MONTH, SUM(CLIENT_INVOICE_AMOUNT) AS IM
+      FROM w WHERE WORKORDER_STATUS='Closed' AND IS_INTERNAL_VENDOR='Y' AND ${win("DATE_TRUNC('month',WO_CLOSED_DATE)")} GROUP BY 1`);
+    for (const r of rows) imByMonth[str(r.MONTH)] = numOr(r.IM);
+  });
+
+  // POD count for the IM goal (report: DISTINCTCOUNT(DW_Properties[POD])).
+  add("pod count", async () => {
+    const [r] = await q(`${wrap(DW_PROPERTIES_SQL)} WHERE POD IS NOT NULL`.replace("SELECT *", "SELECT COUNT(DISTINCT POD) AS N"));
+    podCount = numOr(r?.N);
   });
 
   add("collections", async () => {
@@ -116,22 +126,42 @@ export async function getLiveSummary(): Promise<SummaryCache> {
     const v = latest(ntcByMonth); if (v != null) netTurnCost = { value: v, target: 1750, min: 1000, max: 3000, format: "currency", label: "Net Turn Cost (All)" };
   });
 
-  // --- Holding Fees (distinct deals with a holding fee in the window) ---
+  // --- Holding Fees by month (report: DISTINCTCOUNT(DW_Deals[EMAIL]) by HF (BOM)) ---
   add("holding fees", async () => {
-    const [r] = await q(`WITH d AS (${wrap(DW_DEALS_SQL)}) SELECT COUNT(DISTINCT EMAIL) AS HF FROM d WHERE ${win('"HF (BOM)"')}`);
-    kpis.holdingFees = numOr(r?.HF);
+    const rows = await q(`WITH d AS (${wrap(DW_DEALS_SQL)})
+      SELECT TO_CHAR("HF (BOM)",'Mon YYYY') AS MONTH, COUNT(DISTINCT EMAIL) AS HF
+      FROM d WHERE ${win('"HF (BOM)"')} GROUP BY 1`);
+    for (const r of rows) hfByMonth[str(r.MONTH)] = numOr(r.HF);
   });
 
-  // --- Move-ins (current month) + move-out forecast (current month) ---
-  add("move-ins", async () => {
-    const [r] = await q(`WITH m AS (${wrap(DW_MOVEOUT_SQL)}) SELECT COUNT(DISTINCT TENANT_KEY) AS MI FROM m
-      WHERE DATE_TRUNC('month',LEASE_FROM_DATE) = DATE_TRUNC('month',CURRENT_DATE())`);
-    miCur = numOr(r?.MI);
+  // --- Proj/Actual MIs = MoveIn Monthly + FMI Monthly (report 01_MI_Combined) ---
+  add("move-ins (combined)", async () => {
+    const mi = await q(`WITH m AS (${wrap(DW_MOVEOUT_SQL)})
+      SELECT TO_CHAR(MOVEIN_BOM,'Mon YYYY') AS MONTH, COUNT(DISTINCT TENANT_KEY) AS N
+      FROM m WHERE ${win("MOVEIN_BOM")} GROUP BY 1`);
+    const fmi = await q(`WITH l AS (${wrap(DW_LISTINGS_SQL)})
+      SELECT TO_CHAR(LEASE_START_DATE_BOM,'Mon YYYY') AS MONTH, COUNT(DISTINCT RENT_LIST_HIST_ID) AS N
+      FROM l WHERE ${win("LEASE_START_DATE_BOM")} AND CURRENT_DEAL_STATUS NOT IN ('Deal Won','Closed Won')
+        AND MOST_RECENT_LISTING='Yes' AND FMI_FLAG=1 GROUP BY 1`);
+    for (const r of mi) miByMonth[str(r.MONTH)] = numOr(r.N);
+    for (const r of fmi) miByMonth[str(r.MONTH)] = (miByMonth[str(r.MONTH)] ?? 0) + (numOr(r.N) ?? 0);
   });
+
+  // --- Move-out forecast (report 01_MoveOut_Forecast): actual move-outs by
+  // MOVEOUT_BOM PLUS forecasted (no move-out yet, not eviction/repair-sell) by
+  // MOVE_OUT_FORECAST_BOM. (The DAX also drops still-"Pending" renewals — a
+  // cross-table calc column not reproduced here; small residual.) ---
   add("move-out forecast", async () => {
-    const [r] = await q(`WITH m AS (${wrap(DW_MOVEOUT_SQL)}) SELECT COUNT(DISTINCT TENANT_KEY) AS MOF FROM m
-      WHERE Move_Out_Forecast_BOM = DATE_TRUNC('month',CURRENT_DATE())`);
-    moForecastCur = numOr(r?.MOF);
+    const rows = await q(`WITH m AS (${wrap(DW_MOVEOUT_SQL)})
+      SELECT MONTH, SUM(N) AS MOF FROM (
+        SELECT TO_CHAR(MOVEOUT_BOM,'Mon YYYY') AS MONTH, COUNT(DISTINCT TENANT_KEY) AS N
+          FROM m WHERE ${win("MOVEOUT_BOM")} GROUP BY 1
+        UNION ALL
+        SELECT TO_CHAR(MOVE_OUT_FORECAST_BOM,'Mon YYYY') AS MONTH, COUNT(DISTINCT TENANT_KEY) AS N
+          FROM m WHERE MOVEOUT IS NULL AND ZEROIFNULL(EVICITON_AMOD_FLAG)=0
+            AND COALESCE(STRATEGY_NAME,'')<>'Repair/Sell' AND ${win("MOVE_OUT_FORECAST_BOM")} GROUP BY 1
+      ) GROUP BY MONTH`);
+    for (const r of rows) mofByMonth[str(r.MONTH)] = numOr(r.MOF);
   });
 
   try { await Promise.allSettled(tasks); } finally { conn.close(); }
@@ -151,18 +181,22 @@ export async function getLiveSummary(): Promise<SummaryCache> {
       const c = g.get(key) ?? { organization: p.org, region: "—", subdivision: "—", status: p.status, count: 0 }; c.count++; g.set(key, c); }
     propertySummary = Array.from(g.values()).filter((r) => r.status);
   }
-  // Funnel KPIs.
-  kpis.projActualMis = miCur;
-  kpis.netOccupancyGain = miCur != null && moForecastCur != null ? miCur - moForecastCur : null;
-  kpis.turnoverPct = moForecastCur != null && leasedCount ? moForecastCur / leasedCount : null;
+  // Funnel KPIs — latest complete month (matches the validated gauge month).
+  const miLatest = latest(miByMonth), mofLatest = latest(mofByMonth);
+  kpis.holdingFees = latest(hfByMonth);
+  kpis.projActualMis = miLatest;
+  kpis.netOccupancyGain = miLatest != null && mofLatest != null ? miLatest - mofLatest : null;
+  kpis.turnoverPct = mofLatest != null && leasedCount ? mofLatest / leasedCount : null;
   // Trend joins.
   monthlyTrend.forEach((r) => {
     r.collections = collByMonth[r.month] ?? null; r.renewal = renewByMonth[r.month] ?? null;
     r.netTurnCost = ntcByMonth[r.month] ?? null; r.occBom = occByMonth[r.month] ?? null;
+    r.turnover = mofByMonth[r.month] != null && leasedCount ? (mofByMonth[r.month] as number) / leasedCount : null;
   });
-  // IM gauge (goal = POD*2*2000*4).
+  // IM gauge — latest complete month vs goal (DISTINCTCOUNT(POD)*2*2000*4).
   const goal = podCount != null ? podCount * 2 * 2000 * 4 : null;
-  if (imValue != null && goal) internalMaintenance = { value: imValue, target: goal, min: 0, max: goal, format: "currency", label: "Internal Maintenance" };
+  const imLatest = latest(imByMonth);
+  if (imLatest != null && goal) internalMaintenance = { value: imLatest, target: goal, min: 0, max: goal, format: "currency", label: "Internal Maintenance" };
 
   return {
     _meta: { source: "SNOWFLAKE", generatedAt: new Date().toISOString(),
