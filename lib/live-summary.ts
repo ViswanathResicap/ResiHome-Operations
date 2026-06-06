@@ -1,7 +1,7 @@
 import { connect } from "./snowflake";
 import {
   DW_PROPERTIES_SQL, DW_LISTINGS_SQL, PM_BOM_SQL, DW_WO_SQL,
-  DW_RENEWALS_SQL, DW_TURNS_SQL, DW_MOVEOUT_SQL, DW_DEALS_SQL,
+  DW_TURNS_SQL, DW_MOVEOUT_SQL, DW_DEALS_SQL,
 } from "./generated/sql";
 import type { SummaryCache, PropertyRow, PropertySummaryRow, MonthlyTrendRow, GaugeData } from "./types";
 
@@ -95,11 +95,14 @@ export async function getLiveSummary(): Promise<SummaryCache> {
     const v = latest(collByMonth); if (v != null) eomCollections = { value: v, target: 0.955, min: 0.9, max: 0.97, format: "percent", label: "EOM Collections" };
   });
 
+  // Renewal %: retention = Renewals / (Renewals + Re-Leases) by lease-end month
+  // (validated vs the report's ~70% gauge). Uses the curated renewal master.
   add("renewal", async () => {
-    const rows = await q(`WITH r AS (${wrap(DW_RENEWALS_SQL)})
-      SELECT TO_CHAR("1_C_LeaseEnd(BOM)",'Mon YYYY') AS MONTH,
-        DIV0(COUNT_IF("Renewal Result"='Renewed'), COUNT_IF(STRATEGY_NAME<>'Repair/Sell' AND "Renewal Result" IN ('Renewed','Notice','MTM'))) AS PCT
-      FROM r WHERE ${win('"1_C_LeaseEnd(BOM)"')} GROUP BY 1`);
+    const rows = await q(`SELECT TO_CHAR(DATE_TRUNC('month',"LeaseTo"),'Mon YYYY') AS MONTH,
+        DIV0(COUNT_IF("Release/Renewal Index"='Renewal'), COUNT_IF("Release/Renewal Index" IN ('Renewal','Re-Lease'))) AS PCT
+      FROM PROD_ANALYTICS.BI_MASTER_DATASETS.MASTER_PM_RENEWAL_RELEASE
+      WHERE "LeaseTo" >= DATEADD('month',-4,DATE_TRUNC('month',CURRENT_DATE())) AND "LeaseTo" <= DATE_TRUNC('month',CURRENT_DATE())
+      GROUP BY 1, DATE_TRUNC('month',"LeaseTo")`);
     for (const r of rows) renewByMonth[str(r.MONTH)] = numOr(r.PCT);
     const v = latest(renewByMonth); if (v != null) renewal = { value: v, target: 0.75, min: 0, max: 1, format: "percent", label: "Renewal" };
   });

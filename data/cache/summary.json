@@ -32,7 +32,14 @@
       "format": "percent",
       "label": "EOM Collections"
     },
-    "renewal": null,
+    "renewal": {
+      "value": 0.654,
+      "target": 0.75,
+      "min": 0,
+      "max": 1,
+      "format": "percent",
+      "label": "Renewal"
+    },
     "netTurnCost": null,
     "internalMaintenance": null
   },
@@ -270,7 +277,7 @@
       "occBom": null,
       "occEom": null,
       "collections": 0.9894,
-      "renewal": null,
+      "renewal": 0.563,
       "turnover": null,
       "netTurnCost": null
     },
@@ -281,7 +288,7 @@
       "occBom": null,
       "occEom": null,
       "collections": 0.9843,
-      "renewal": null,
+      "renewal": 0.697,
       "turnover": null,
       "netTurnCost": null
     },
@@ -292,7 +299,7 @@
       "occBom": null,
       "occEom": null,
       "collections": 0.9721,
-      "renewal": null,
+      "renewal": 0.654,
       "turnover": null,
       "netTurnCost": null
     },
