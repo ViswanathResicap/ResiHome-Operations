@@ -26,21 +26,33 @@ export function SummaryView({ initialData }: { initialData: SummaryCache }) {
   const [d, setData] = useState<SummaryCache>(initialData);
   const [refreshing, setRefreshing] = useState(false);
   const [justUpdated, setJustUpdated] = useState(false);
-  // Background refresh: the page keeps showing current data and stays fully
-  // interactive; fresh numbers are swapped in when they arrive. A ref guards
-  // against overlapping fetches (e.g. double-clicks).
+  // Background refresh: the page keeps showing the latest good data and stays
+  // fully interactive; fresh numbers are swapped in when they arrive. A ref
+  // guards against overlapping fetches (e.g. double-clicks). `dataRef` mirrors
+  // the rendered data so we never downgrade live rows to a sample fallback.
   const inflight = useRef(false);
+  const dataRef = useRef(d);
+  useEffect(() => { dataRef.current = d; }, [d]);
   const load = async (fresh: boolean) => {
     if (inflight.current) return;
     inflight.current = true;
     setRefreshing(true);
     try {
       const r = await fetch(`/api/summary${fresh ? "?fresh=1" : ""}`, { cache: "no-store" });
-      const j = r.ok ? await r.json() : null;
+      const j = r.ok ? ((await r.json()) as SummaryCache) : null;
       if (j && j._meta) {
-        setData(j as SummaryCache);
-        setJustUpdated(true);
-        setTimeout(() => setJustUpdated(false), 2600);
+        const incomingProps = j.properties?.length ?? 0;
+        const currentProps = dataRef.current.properties?.length ?? 0;
+        const incomingLive = j._meta.source === "SNOWFLAKE";
+        const currentLive = dataRef.current._meta.source === "SNOWFLAKE";
+        // Only swap in data that isn't a downgrade: keep current live rows
+        // rather than clobbering them with a sample/empty fallback.
+        const keepCurrent = (currentProps > 0 && incomingProps === 0) || (currentLive && !incomingLive);
+        if (!keepCurrent) {
+          setData(j);
+          setJustUpdated(true);
+          setTimeout(() => setJustUpdated(false), 2600);
+        }
       }
     } catch { /* keep current data */ } finally {
       inflight.current = false;
