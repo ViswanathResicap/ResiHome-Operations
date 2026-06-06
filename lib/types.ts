@@ -9,6 +9,8 @@ export interface GaugeData {
   max: number;
   format: "percent" | "currency" | "number";
   label: string;
+  /** Whether being above target is good (collections) or bad (cost). Default true. */
+  higherIsBetter?: boolean;
 }
 
 export interface PropertySummaryRow {

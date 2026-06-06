@@ -122,7 +122,7 @@ export async function getLiveSummary(): Promise<SummaryCache> {
       SELECT TO_CHAR(TURN_COMPLETED_BOM,'Mon YYYY') AS MONTH, AVG(GREATEST(ZEROIFNULL(TKT_COST)-ZEROIFNULL(MOVEOUTRECEIPTS_FINAL),0)) AS NTC
       FROM t WHERE N_LEASE_FROM_DATE IS NOT NULL AND ${win("TURN_COMPLETED_BOM")} GROUP BY 1`);
     for (const r of rows) ntcByMonth[str(r.MONTH)] = numOr(r.NTC);
-    const v = latest(ntcByMonth); if (v != null) netTurnCost = { value: v, target: 1750, min: 1000, max: 3000, format: "currency", label: "Net Turn Cost (All)" };
+    const v = latest(ntcByMonth); if (v != null) netTurnCost = { value: v, target: 1750, min: 1000, max: 3000, format: "currency", label: "Net Turn Cost (All)", higherIsBetter: false };
   });
 
   // --- Holding Fees by month (report: DISTINCTCOUNT(DW_Deals[EMAIL]) by HF (BOM)) ---
@@ -197,7 +197,10 @@ export async function getLiveSummary(): Promise<SummaryCache> {
   // IM gauge — latest complete month vs goal (DISTINCTCOUNT(POD)*2*2000*4).
   const goal = podCount != null ? podCount * 2 * 2000 * 4 : null;
   const imLatest = latest(imByMonth);
-  if (imLatest != null && goal) internalMaintenance = { value: imLatest, target: goal, min: 0, max: goal, format: "currency", label: "Internal Maintenance" };
+  // Cost metric: lower is better, and the scale extends past the goal so an
+  // over-budget month shows its true magnitude instead of pegging at full.
+  if (imLatest != null && goal) internalMaintenance = { value: imLatest, target: goal, min: 0,
+    max: Math.max(goal, imLatest) * 1.1, format: "currency", label: "Internal Maintenance", higherIsBetter: false };
 
   return {
     _meta: { source: "SNOWFLAKE", generatedAt: new Date().toISOString(),

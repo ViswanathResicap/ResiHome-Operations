@@ -22,10 +22,11 @@ export function Gauge({ g }: { g: GaugeData }) {
   const arc = (f0: number, f1: number) => {
     const [x0, y0] = toXY(f0);
     const [x1, y1] = toXY(f1);
-    const large = f1 - f0 > 0.5 ? 1 : 0;
-    return `M ${x0} ${y0} A ${R} ${R} 0 ${large} 1 ${x1} ${y1}`;
+    // The gauge spans at most 180°, so the sweep is always the minor arc.
+    return `M ${x0} ${y0} A ${R} ${R} 0 0 1 ${x1} ${y1}`;
   };
-  const onTarget = g.value >= g.target;
+  // For cost gauges (higherIsBetter === false) being under target is good.
+  const onTarget = (g.higherIsBetter ?? true) ? g.value >= g.target : g.value <= g.target;
   const valColor = onTarget ? "var(--good)" : "var(--warn)";
 
   return (
