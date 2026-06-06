@@ -5,21 +5,20 @@ import type { SummaryCache, PropertyRow, PropertySummaryRow } from "@/lib/types"
 import { LEASED_STATUSES } from "@/lib/types";
 import { KpiCard } from "./KpiCard";
 import { Gauge } from "./Gauge";
+import { Dropdown } from "./Dropdown";
 import { PropertySummaryTable } from "./PropertySummaryTable";
 import { MonthlyTrendTable } from "./MonthlyTrendTable";
 import { pct, num } from "@/lib/format";
 
-const ALL = "All";
 const LEASED = new Set(LEASED_STATUSES);
 const show = (v: number | null, fmt: (n: number) => string) => (v == null ? "—" : fmt(v));
 const uniq = (xs: string[]) => Array.from(new Set(xs.filter(Boolean))).sort();
+// Empty selection = no filter (All); otherwise keep rows whose value is selected.
+const inSel = (sel: string[], v: string) => sel.length === 0 || sel.includes(v);
 
-type Filters = {
-  org: string; status: string; region: string; subdivision: string;
-  pm: string; apm: string; pod: string; delinquent: string; address: string;
-};
-const EMPTY: Filters = { org: ALL, status: ALL, region: ALL, subdivision: ALL,
-  pm: ALL, apm: ALL, pod: ALL, delinquent: ALL, address: "" };
+type MultiKey = "org" | "status" | "region" | "subdivision" | "pm" | "apm" | "pod";
+type Filters = Record<MultiKey, string[]> & { address: string };
+const EMPTY: Filters = { org: [], status: [], region: [], subdivision: [], pm: [], apm: [], pod: [], address: "" };
 
 export function SummaryView({ initialData }: { initialData: SummaryCache }) {
   // Render the instant committed snapshot, then swap in fresh data from the
@@ -37,7 +36,7 @@ export function SummaryView({ initialData }: { initialData: SummaryCache }) {
   useEffect(() => { load(false); /* initial hydrate */ // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const [f, setF] = useState<Filters>(EMPTY);
-  const set = (k: keyof Filters, v: string) => setF((p) => ({ ...p, [k]: v }));
+  const setMulti = (k: MultiKey, v: string[]) => setF((p) => ({ ...p, [k]: v }));
   const props = d.properties ?? null;
   const fullMode = !!props && props.length > 0;
 
@@ -47,13 +46,14 @@ export function SummaryView({ initialData }: { initialData: SummaryCache }) {
       org: uniq(props!.map((p) => p.org)), status: uniq(props!.map((p) => p.status)),
       region: uniq(props!.map((p) => p.region)), subdivision: uniq(props!.map((p) => p.subdivision)),
       pm: uniq(props!.map((p) => p.pm)), apm: uniq(props!.map((p) => p.apm)),
-      pod: uniq(props!.map((p) => p.pod)), delinquent: uniq(props!.map((p) => p.delinquent)),
+      pod: uniq(props!.map((p) => p.pod)),
     };
     return { org: uniq(d.propertySummary.map((r) => r.organization)), status: uniq(d.propertySummary.map((r) => r.status)),
-      region: [], subdivision: [], pm: [], apm: [], pod: [], delinquent: [] };
+      region: [], subdivision: [], pm: [], apm: [], pod: [] };
   }, [fullMode, props, d.propertySummary]);
 
-  const active = Object.entries(f).some(([k, v]) => (k === "address" ? v !== "" : v !== ALL));
+  const active = f.address !== "" || (Object.keys(EMPTY) as (keyof Filters)[])
+    .some((k) => k !== "address" && (f[k] as string[]).length > 0);
 
   // Build the (filtered) Property Summary matrix + derived counts.
   const { matrix, totalProps, totalTenants, occupancy, rentVar } = useMemo(() => {
@@ -63,10 +63,9 @@ export function SummaryView({ initialData }: { initialData: SummaryCache }) {
 
     if (fullMode) {
       const fp = props!.filter((p) =>
-        (f.org === ALL || p.org === f.org) && (f.status === ALL || p.status === f.status) &&
-        (f.region === ALL || p.region === f.region) && (f.subdivision === ALL || p.subdivision === f.subdivision) &&
-        (f.pm === ALL || p.pm === f.pm) && (f.apm === ALL || p.apm === f.apm) &&
-        (f.pod === ALL || p.pod === f.pod) && (f.delinquent === ALL || p.delinquent === f.delinquent) &&
+        inSel(f.org, p.org) && inSel(f.status, p.status) &&
+        inSel(f.region, p.region) && inSel(f.subdivision, p.subdivision) &&
+        inSel(f.pm, p.pm) && inSel(f.apm, p.apm) && inSel(f.pod, p.pod) &&
         (f.address === "" || p.address.toLowerCase().includes(f.address.toLowerCase())));
       const g = new Map<string, PropertySummaryRow>();
       for (const p of fp) {
@@ -83,7 +82,7 @@ export function SummaryView({ initialData }: { initialData: SummaryCache }) {
       rentVar = su ? sr / su - 1 : null;
     } else {
       matrix = d.propertySummary.filter((r) =>
-        (f.org === ALL || r.organization === f.org) && (f.status === ALL || r.status === f.status));
+        inSel(f.org, r.organization) && inSel(f.status, r.status));
       totalProps = matrix.reduce((s, r) => s + r.count, 0);
       leased = matrix.filter((r) => LEASED.has(r.status)).reduce((s, r) => s + r.count, 0);
     }
@@ -97,20 +96,9 @@ export function SummaryView({ initialData }: { initialData: SummaryCache }) {
   // Portfolio-wide tiles can't be re-filtered from cached aggregates.
   const port = (v: number | null) => (active ? null : v);
 
-  const slicer = (label: string, key: keyof Filters, options: string[]) => (
-    <div className="slicer" key={label}>
-      <h4>{label}</h4>
-      {options.length ? (
-        <select className="control" value={f[key]} onChange={(e) => set(key, e.target.value)}>
-          <option value={ALL}>All</option>
-          {options.map((o) => <option key={o} value={o}>{o}</option>)}
-        </select>
-      ) : (
-        <select className="control" disabled defaultValue="all" style={{ opacity: 0.55 }} title="Needs the per-property refresh">
-          <option value="all">All</option>
-        </select>
-      )}
-    </div>
+  const slicer = (label: string, key: MultiKey) => (
+    <Dropdown key={label} label={label} options={opts[key]} selected={f[key]}
+      onChange={(v) => setMulti(key, v)} multiple disabled={opts[key].length === 0} />
   );
 
   return (
@@ -121,22 +109,22 @@ export function SummaryView({ initialData }: { initialData: SummaryCache }) {
         <div className="accent" />
         <div className="tagline">OPERATIONS · SUMMARY</div>
 
-        {slicer("Organization", "org", opts.org)}
-        {slicer("Property Status", "status", opts.status)}
-        {slicer("POD", "pod", opts.pod)}
-        {slicer("Region", "region", opts.region)}
-        {slicer("PM Assigned", "pm", opts.pm)}
-        {slicer("APM Assigned", "apm", opts.apm)}
-        {slicer("Subdivision", "subdivision", opts.subdivision)}
+        {slicer("Organization", "org")}
+        {slicer("Property Status", "status")}
+        {slicer("POD", "pod")}
+        {slicer("Region", "region")}
+        {slicer("PM Assigned", "pm")}
+        {slicer("APM Assigned", "apm")}
+        {slicer("Subdivision", "subdivision")}
         <div className="slicer">
           <h4>Address Search</h4>
-          <input className="control" placeholder={fullMode ? "Search address…" : "—"} disabled={!fullMode}
-            value={f.address} onChange={(e) => set("address", e.target.value)} style={fullMode ? {} : { opacity: 0.55 }} />
+          <input className="control dd-input" placeholder={fullMode ? "Search address…" : "—"} disabled={!fullMode}
+            value={f.address} onChange={(e) => setF((p) => ({ ...p, address: e.target.value }))}
+            style={fullMode ? {} : { opacity: 0.55 }} />
         </div>
 
         {active && (
-          <button className="control" style={{ marginTop: 12, cursor: "pointer", color: "var(--brand-dark)", width: "100%" }}
-            onClick={() => setF(EMPTY)}>Clear filters ✕</button>
+          <button className="dd-clear" onClick={() => setF(EMPTY)}>Clear filters ✕</button>
         )}
       </aside>
 
