@@ -1,6 +1,6 @@
 import { connect } from "./snowflake";
 import { source, sourceRaw, VIEWS } from "./datasets";
-import type { SummaryCache, PropertyRow, PropertySummaryRow, MonthlyTrendRow, GaugeData } from "./types";
+import type { SummaryCache, PropertyRow, PropertySummaryRow, MonthlyTrendRow, GaugeData, FlowEvent } from "./types";
 
 const PAGE_FILTER = `OCCUPANCY_STATUS <> 'Dispositions' AND ORGANIZATION_NAME IS NOT NULL`;
 // Roll several legal entities up under one display organization.
@@ -33,6 +33,9 @@ export async function getLiveSummary(): Promise<SummaryCache> {
         ntcByMonth: Record<string, number | null> = {}, occByMonth: Record<string, number | null> = {},
         imByMonth: Record<string, number | null> = {}, hfByMonth: Record<string, number | null> = {},
         miByMonth: Record<string, number | null> = {}, mofByMonth: Record<string, number | null> = {};
+  // Per-month flow events (PROPERTY_KEY + distinct unit) so the client can re-filter.
+  const activeKeys = new Set<string>();
+  const hfEv: Record<string, FlowEvent[]> = {}, miEv: Record<string, FlowEvent[]> = {}, mofEv: Record<string, FlowEvent[]> = {};
   const errors: string[] = [];
   const q = <T = Record<string, unknown>>(sql: string) => conn.query<T>(sql);
   const log = (n: string, e: unknown) => { errors.push(`${n}: ${(e as Error).message}`); console.error(`[live] ${n}:`, (e as Error).message); };
@@ -42,6 +45,12 @@ export async function getLiveSummary(): Promise<SummaryCache> {
     for (const [l, v] of Object.entries(m)) { const [mo, yr] = l.split(" "); const k = +yr * 12 + MON.indexOf(mo) + 1;
       if (v != null && k < curK() && (!best || k > best.k)) best = { k, v }; }
     return best?.v ?? null;
+  };
+  const latestKey = (m: Record<string, number | null>) => {
+    let best: { k: number; l: string } | null = null;
+    for (const [l, v] of Object.entries(m)) { const [mo, yr] = l.split(" "); const k = +yr * 12 + MON.indexOf(mo) + 1;
+      if (v != null && k < curK() && (!best || k > best.k)) best = { k, l }; }
+    return best?.l ?? null;
   };
   const tasks: Promise<void>[] = [];
   const add = (name: string, fn: () => Promise<void>) => tasks.push(fn().catch((e) => log(name, e)));
@@ -60,7 +69,7 @@ export async function getLiveSummary(): Promise<SummaryCache> {
     const seen = new Set<unknown>();
     for (const r of rows) {
       const key = r.PROPERTY_KEY; if (key != null && seen.has(key)) continue; if (key != null) seen.add(key);
-      properties.push({ org: remapOrg(str(r.ORGANIZATION_NAME)), region: str(r.REGION_NAME), subdivision: str(r.SUBDIVISION),
+      properties.push({ key: str(r.PROPERTY_KEY), org: remapOrg(str(r.ORGANIZATION_NAME)), region: str(r.REGION_NAME), subdivision: str(r.SUBDIVISION),
         pm: str(r.PROPERTY_MANAGER), apm: str(r.PROPERTY_MANAGER_ASSISTANT), pod: str(r.POD),
         status: str(r.OCCUPANCY_STATUS_SUMMARY), summaryId: numOr(r.OCCUPANCY_STATUS_SUMMARYID),
         delinquent: "", address: str(r.FULL_ADDRESS), // balance status not emitted by DW_PROPERTIES (slicer stays disabled)
@@ -69,8 +78,9 @@ export async function getLiveSummary(): Promise<SummaryCache> {
   });
 
   add("active listings", async () => {
-    const [r] = await q(`WITH l AS (${source("listings")}) SELECT COUNT(DISTINCT PROPERTY_KEY) AS N FROM l WHERE LISTING_STATUS='Active' AND IS_PUBLISHED='Y'`);
-    kpis.activeListings = numOr(r?.N);
+    const rows = await q(`WITH l AS (${source("listings")}) SELECT DISTINCT PROPERTY_KEY AS KEY FROM l WHERE LISTING_STATUS='Active' AND IS_PUBLISHED='Y'`);
+    for (const r of rows) { const k = str(r.KEY); if (k) activeKeys.add(k); }
+    kpis.activeListings = activeKeys.size;
   });
 
   // Homes / Avg Rent / BOM occupancy — one PM_BOM scan for the whole trend.
@@ -129,45 +139,56 @@ export async function getLiveSummary(): Promise<SummaryCache> {
     const v = latest(ntcByMonth); if (v != null) netTurnCost = { value: v, target: 1750, min: 1000, max: 3000, format: "currency", label: "Net Turn Cost (All)", higherIsBetter: false };
   });
 
-  // --- Holding Fees by month (report: DISTINCTCOUNT(DW_Deals[EMAIL]) by HF (BOM)) ---
+  // --- Holding Fees by month (report: DISTINCTCOUNT(DW_Deals[EMAIL]) by HF (BOM)).
+  // Detail rows (key + email) → JS distinct count + filterable events. ---
   add("holding fees", async () => {
     const rows = await q(`WITH d AS (${source("deals")})
-      SELECT TO_CHAR("HF (BOM)",'Mon YYYY') AS MONTH, COUNT(DISTINCT EMAIL) AS HF
-      FROM d WHERE ${win('"HF (BOM)"')} GROUP BY 1`);
-    for (const r of rows) hfByMonth[str(r.MONTH)] = numOr(r.HF);
+      SELECT TO_CHAR("HF (BOM)",'Mon YYYY') AS MONTH, EMAIL, PROPERTY_KEY AS KEY
+      FROM d WHERE ${win('"HF (BOM)"')}`);
+    const set: Record<string, Set<string>> = {};
+    for (const r of rows) { const mo = str(r.MONTH), email = str(r.EMAIL); if (!email) continue;
+      (set[mo] ??= new Set()).add(email); (hfEv[mo] ??= []).push({ key: str(r.KEY), id: "D" + email }); }
+    for (const mo in set) hfByMonth[mo] = set[mo].size;
   });
 
   // --- Proj/Actual MIs = MoveIn Monthly + FMI Monthly (report 01_MI_Combined) ---
   add("move-ins (combined)", async () => {
     const mi = await q(`WITH m AS (${source("moveout")})
-      SELECT TO_CHAR(MOVEIN_BOM,'Mon YYYY') AS MONTH, COUNT(DISTINCT TENANT_KEY) AS N
-      FROM m WHERE ${win("MOVEIN_BOM")} GROUP BY 1`);
+      SELECT TO_CHAR(MOVEIN_BOM,'Mon YYYY') AS MONTH, TENANT_KEY AS ID, PROPERTY_KEY AS KEY
+      FROM m WHERE ${win("MOVEIN_BOM")}`);
     const fmi = await q(`WITH l AS (${source("listings")})
-      SELECT TO_CHAR(LEASE_START_DATE_BOM,'Mon YYYY') AS MONTH, COUNT(DISTINCT RENT_LIST_HIST_ID) AS N
+      SELECT TO_CHAR(LEASE_START_DATE_BOM,'Mon YYYY') AS MONTH, RENT_LIST_HIST_ID AS ID, PROPERTY_KEY AS KEY
       FROM l WHERE ${win("LEASE_START_DATE_BOM")} AND CURRENT_DEAL_STATUS NOT IN ('Deal Won','Closed Won')
-        AND MOST_RECENT_LISTING='Yes' AND FMI_FLAG=1 GROUP BY 1`);
-    for (const r of mi) miByMonth[str(r.MONTH)] = numOr(r.N);
-    for (const r of fmi) miByMonth[str(r.MONTH)] = (miByMonth[str(r.MONTH)] ?? 0) + (numOr(r.N) ?? 0);
+        AND MOST_RECENT_LISTING='Yes' AND FMI_FLAG=1`);
+    const tset: Record<string, Set<string>> = {}, lset: Record<string, Set<string>> = {};
+    for (const r of mi) { const mo = str(r.MONTH), id = str(r.ID); (tset[mo] ??= new Set()).add(id); (miEv[mo] ??= []).push({ key: str(r.KEY), id: "T" + id }); }
+    for (const r of fmi) { const mo = str(r.MONTH), id = str(r.ID); (lset[mo] ??= new Set()).add(id); (miEv[mo] ??= []).push({ key: str(r.KEY), id: "L" + id }); }
+    for (const mo of new Set([...Object.keys(tset), ...Object.keys(lset)])) miByMonth[mo] = (tset[mo]?.size ?? 0) + (lset[mo]?.size ?? 0);
   });
 
   // --- Move-out forecast (report 01_MoveOut_Forecast): actual move-outs by
   // MOVEOUT_BOM PLUS forecasted (no move-out yet, not eviction/repair-sell) by
-  // MOVE_OUT_FORECAST_BOM. (The DAX also drops still-"Pending" renewals — a
-  // cross-table calc column not reproduced here; small residual.) ---
+  // MOVE_OUT_FORECAST_BOM. Detail rows → JS distinct count + filterable events. ---
   add("move-out forecast", async () => {
     const rows = await q(`WITH m AS (${source("moveout")})
-      SELECT MONTH, SUM(N) AS MOF FROM (
-        SELECT TO_CHAR(MOVEOUT_BOM,'Mon YYYY') AS MONTH, COUNT(DISTINCT TENANT_KEY) AS N
-          FROM m WHERE ${win("MOVEOUT_BOM")} GROUP BY 1
+      SELECT MONTH, ID, KEY FROM (
+        SELECT TO_CHAR(MOVEOUT_BOM,'Mon YYYY') AS MONTH, TENANT_KEY AS ID, PROPERTY_KEY AS KEY
+          FROM m WHERE ${win("MOVEOUT_BOM")}
         UNION ALL
-        SELECT TO_CHAR(MOVE_OUT_FORECAST_BOM,'Mon YYYY') AS MONTH, COUNT(DISTINCT TENANT_KEY) AS N
+        SELECT TO_CHAR(MOVE_OUT_FORECAST_BOM,'Mon YYYY') AS MONTH, TENANT_KEY AS ID, PROPERTY_KEY AS KEY
           FROM m WHERE MOVEOUT IS NULL AND ZEROIFNULL(EVICITON_AMOD_FLAG)=0
-            AND COALESCE(STRATEGY_NAME,'')<>'Repair/Sell' AND ${win("MOVE_OUT_FORECAST_BOM")} GROUP BY 1
-      ) GROUP BY MONTH`);
-    for (const r of rows) mofByMonth[str(r.MONTH)] = numOr(r.MOF);
+            AND COALESCE(STRATEGY_NAME,'')<>'Repair/Sell' AND ${win("MOVE_OUT_FORECAST_BOM")}
+      )`);
+    const set: Record<string, Set<string>> = {};
+    for (const r of rows) { const mo = str(r.MONTH), id = str(r.ID); (set[mo] ??= new Set()).add(id);
+      (mofEv[mo] ??= []).push({ key: str(r.KEY), id: "T" + id }); }
+    for (const mo in set) mofByMonth[mo] = set[mo].size;
   });
 
   try { await Promise.allSettled(tasks); } finally { conn.close(); }
+
+  // Tag active-published listings now that both queries have resolved.
+  if (activeKeys.size) for (const p of properties) p.activeListing = activeKeys.has(p.key);
 
   // Property aggregates from rows (report-exact).
   if (properties.length) {
@@ -213,5 +234,10 @@ export async function getLiveSummary(): Promise<SummaryCache> {
     kpis,
     gauges: { eomCollections, renewal, netTurnCost, internalMaintenance },
     propertySummary, monthlyTrend, properties,
+    flows: properties.length ? {
+      holdingFees: hfEv[latestKey(hfByMonth) ?? ""] ?? [],
+      moveIns: miEv[latestKey(miByMonth) ?? ""] ?? [],
+      moveOuts: mofEv[latestKey(mofByMonth) ?? ""] ?? [],
+    } : undefined,
   };
 }

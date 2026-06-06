@@ -52,12 +52,12 @@ const DATASETS = {
   moveout: {
     sql: DW_MOVEOUT_SQL,
     cols: [
-      "TENANT_KEY", "MOVEIN_BOM", "MOVEOUT_BOM", "MOVE_OUT_FORECAST_BOM",
+      "TENANT_KEY", "PROPERTY_KEY", "MOVEIN_BOM", "MOVEOUT_BOM", "MOVE_OUT_FORECAST_BOM",
       "MOVEOUT", "EVICITON_AMOD_FLAG", "STRATEGY_NAME",
     ],
   },
   // Deals → Holding Fees KPI.
-  deals: { sql: DW_DEALS_SQL, cols: ["EMAIL", "HF (BOM)"] },
+  deals: { sql: DW_DEALS_SQL, cols: ["EMAIL", "PROPERTY_KEY", "HF (BOM)"] },
 } as const;
 
 export type DatasetName = keyof typeof DATASETS;

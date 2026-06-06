@@ -110,8 +110,39 @@ export function SummaryView({ initialData }: { initialData: SummaryCache }) {
 
   const k = d.kpis;
   const isSample = d._meta.source === "SAMPLE";
-  // Portfolio-wide tiles can't be re-filtered from cached aggregates.
-  const port = (v: number | null) => (active ? null : v);
+
+  // Filtered funnel KPIs: when a filter is active, recompute the monthly flow
+  // measures from per-property rows + latest-month flow events (keyed by
+  // PROPERTY_KEY). Unfiltered, we show the exact server totals.
+  const funnel = useMemo(() => {
+    if (!fullMode || !active || !props) return null;
+    const pass = (p: PropertyRow) =>
+      inSel(f.org, p.org) && inSel(f.status, p.status) && inSel(f.region, p.region) &&
+      inSel(f.subdivision, p.subdivision) && inSel(f.pm, p.pm) && inSel(f.apm, p.apm) && inSel(f.pod, p.pod) &&
+      (f.address === "" || p.address.toLowerCase().includes(f.address.toLowerCase()));
+    const keyMap = new Map(props.map((p) => [p.key, p]));
+    const countFlow = (evs?: { key: string; id: string }[]) => {
+      const s = new Set<string>();
+      for (const e of evs ?? []) { const p = keyMap.get(e.key); if (p && pass(p)) s.add(e.id); }
+      return s.size;
+    };
+    const fp = props.filter(pass);
+    const leased = fp.filter((p) => LEASED.has(p.status)).length;
+    const fl = d.flows;
+    const mi = fl ? countFlow(fl.moveIns) : null;
+    const mof = fl ? countFlow(fl.moveOuts) : null;
+    return {
+      activeListings: fp.filter((p) => p.activeListing).length,
+      holdingFees: fl ? countFlow(fl.holdingFees) : null,
+      projActualMis: mi,
+      netOccupancyGain: mi != null && mof != null ? mi - mof : null,
+      turnoverPct: mof != null && leased ? mof / leased : null,
+    };
+  }, [fullMode, active, props, f, d.flows]);
+
+  // KPI value: filtered (when a filter is active) else the exact server total.
+  const fk = (server: number | null, filtered: number | null | undefined) =>
+    active ? (filtered ?? null) : server;
 
   const slicer = (label: string, key: MultiKey) => (
     <Dropdown key={label} label={label} options={opts[key]} selected={f[key]}
@@ -172,17 +203,17 @@ export function SummaryView({ initialData }: { initialData: SummaryCache }) {
           </div>
         )}
         {active && (
-          <div className="banner">Filtered — property tiles &amp; Property Summary reflect the selection; monthly tiles are portfolio-wide.</div>
+          <div className="banner">Filtered — all KPI tiles &amp; the Property Summary reflect the current selection. (Monthly Performance gauges remain portfolio-wide.)</div>
         )}
 
         <div className="grid kpi-row">
           <KpiCard label="Total Properties" value={show(totalProps, num)} />
           <KpiCard label="Occupancy %" value={show(occupancy, (n) => pct(n))} />
-          <KpiCard label="Active Listings" value={show(port(k.activeListings), num)} />
+          <KpiCard label="Active Listings" value={show(fk(k.activeListings, funnel?.activeListings), num)} />
           <KpiCard label="Total Tenants" value={show(totalTenants, num)} />
           <KpiCard label="vs. UW Rent" value={show(rentVar, (n) => pct(n))}
             tone={rentVar == null ? undefined : rentVar >= 0 ? "pos" : "neg"} />
-          <KpiCard label="Holding Fees" value={show(port(k.holdingFees), num)} />
+          <KpiCard label="Holding Fees" value={show(fk(k.holdingFees, funnel?.holdingFees), num)} />
         </div>
 
         <div className="section-title">Monthly Performance</div>
@@ -197,9 +228,9 @@ export function SummaryView({ initialData }: { initialData: SummaryCache }) {
         </div>
 
         <div className="grid kpi-row" style={{ marginTop: 12 }}>
-          <KpiCard label="Proj / Actual MIs" value={show(port(k.projActualMis), num)} />
-          <KpiCard label="Net Occupancy Gain" value={show(port(k.netOccupancyGain), num)} />
-          <KpiCard label="Turnover %" value={show(port(k.turnoverPct), (n) => pct(n))} />
+          <KpiCard label="Proj / Actual MIs" value={show(fk(k.projActualMis, funnel?.projActualMis), num)} />
+          <KpiCard label="Net Occupancy Gain" value={show(fk(k.netOccupancyGain, funnel?.netOccupancyGain), num)} />
+          <KpiCard label="Turnover %" value={show(fk(k.turnoverPct, funnel?.turnoverPct), (n) => pct(n))} />
         </div>
 
         <div className="section-title">Property Summary</div>

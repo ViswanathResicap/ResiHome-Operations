@@ -23,6 +23,8 @@ export interface PropertySummaryRow {
 
 // One row per property — powers all slicers + client-side aggregation.
 export interface PropertyRow {
+  key: string;           // PROPERTY_KEY (joins flow events to property dimensions)
+  activeListing?: boolean; // currently active+published listing
   org: string;
   region: string;
   subdivision: string;
@@ -81,6 +83,18 @@ export interface SummaryCache {
   monthlyTrend: MonthlyTrendRow[];
   /** Per-property rows (present once the refresh job runs); enables all slicers. */
   properties?: PropertyRow[];
+  /** Latest-month flow events keyed by PROPERTY_KEY, so the funnel KPIs can be
+   *  re-filtered client-side. `id` is the distinct unit counted (deal/tenant/listing). */
+  flows?: {
+    holdingFees: FlowEvent[];
+    moveIns: FlowEvent[];
+    moveOuts: FlowEvent[];
+  };
+}
+
+export interface FlowEvent {
+  key: string; // PROPERTY_KEY
+  id: string;  // distinct unit (prefixed so spaces don't collide)
 }
 
 /** Stabilized-occupancy statuses used as the Occupancy % denominator. */
