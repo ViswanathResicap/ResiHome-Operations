@@ -196,6 +196,8 @@ export async function getLiveSummary(): Promise<SummaryCache> {
     r.netTurnCost = ntcByMonth[r.month] ?? null; r.occBom = occByMonth[r.month] ?? null;
     r.turnover = mofByMonth[r.month] != null && leasedCount ? (mofByMonth[r.month] as number) / leasedCount : null;
   });
+  // EOM occupancy ≈ the next month's BOM snapshot.
+  for (let i = 0; i < monthlyTrend.length; i++) monthlyTrend[i].occEom = monthlyTrend[i + 1]?.occBom ?? null;
   // IM gauge — latest complete month vs goal (DISTINCTCOUNT(POD)*2*2000*4).
   const goal = podCount != null ? podCount * 2 * 2000 * 4 : null;
   const imLatest = latest(imByMonth);

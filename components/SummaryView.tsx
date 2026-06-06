@@ -123,7 +123,8 @@ export function SummaryView({ initialData }: { initialData: SummaryCache }) {
 
         {slicer("Organization", "org", opts.org)}
         {slicer("Property Status", "status", opts.status)}
-        {slicer("Pod / Region", "region", opts.region.length ? opts.region : opts.pod)}
+        {slicer("POD", "pod", opts.pod)}
+        {slicer("Region", "region", opts.region)}
         {slicer("PM Assigned", "pm", opts.pm)}
         {slicer("APM Assigned", "apm", opts.apm)}
         {slicer("Subdivision", "subdivision", opts.subdivision)}
@@ -132,7 +133,6 @@ export function SummaryView({ initialData }: { initialData: SummaryCache }) {
           <input className="control" placeholder={fullMode ? "Search address…" : "—"} disabled={!fullMode}
             value={f.address} onChange={(e) => set("address", e.target.value)} style={fullMode ? {} : { opacity: 0.55 }} />
         </div>
-        {slicer("Tenant Delinquent Status", "delinquent", opts.delinquent)}
 
         {active && (
           <button className="control" style={{ marginTop: 12, cursor: "pointer", color: "var(--brand-dark)", width: "100%" }}

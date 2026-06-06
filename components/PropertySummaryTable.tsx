@@ -1,20 +1,23 @@
 import type { PropertySummaryRow } from "@/lib/types";
+import { STATUS_BUCKETS, statusBucket } from "@/lib/types";
 import { num } from "@/lib/format";
 
-// Replicates the "Property Summary" pivot: rows = Organization > Region >
-// Subdivision, columns = Occupancy status (matrix), values = property count.
+// "Property Summary": rows = Organization, columns = status roll-ups
+// (Off Market | On Market | Leased | Turnkey) + Total across every status.
 export function PropertySummaryTable({ rows }: { rows: PropertySummaryRow[] }) {
-  const statuses = Array.from(new Set(rows.map((r) => r.status))).sort();
-  const orgs = Array.from(new Set(rows.map((r) => r.organization))).sort();
+  const orgs = Array.from(new Set(rows.map((r) => r.organization)));
+  const byOrg = new Map<string, { buckets: Record<string, number>; total: number }>();
+  for (const o of orgs) byOrg.set(o, { buckets: Object.fromEntries(STATUS_BUCKETS.map((b) => [b, 0])), total: 0 });
+  for (const r of rows) {
+    const d = byOrg.get(r.organization)!;
+    d.total += r.count;
+    const b = statusBucket(r.status);
+    if (b) d.buckets[b] += r.count;
+  }
 
-  const cell = (org: string, status: string) =>
-    rows.filter((r) => r.organization === org && r.status === status)
-        .reduce((s, r) => s + r.count, 0);
-  const orgTotal = (org: string) =>
-    rows.filter((r) => r.organization === org).reduce((s, r) => s + r.count, 0);
-  const statusTotal = (status: string) =>
-    rows.filter((r) => r.status === status).reduce((s, r) => s + r.count, 0);
-  const grand = rows.reduce((s, r) => s + r.count, 0);
+  const orgRows = orgs.map((o) => ({ org: o, ...byOrg.get(o)! })).sort((a, b) => b.total - a.total);
+  const colTotal = (b: string) => orgRows.reduce((s, r) => s + r.buckets[b], 0);
+  const grand = orgRows.reduce((s, r) => s + r.total, 0);
 
   return (
     <div className="tbl-wrap">
@@ -22,23 +25,23 @@ export function PropertySummaryTable({ rows }: { rows: PropertySummaryRow[] }) {
         <thead>
           <tr>
             <th>Organization</th>
-            {statuses.map((s) => <th key={s}>{s}</th>)}
+            {STATUS_BUCKETS.map((b) => <th key={b}>{b}</th>)}
             <th>Total</th>
           </tr>
         </thead>
         <tbody>
-          {orgs.map((org) => (
-            <tr key={org}>
-              <td>{org}</td>
-              {statuses.map((s) => <td key={s}>{num(cell(org, s)) }</td>)}
-              <td>{num(orgTotal(org))}</td>
+          {orgRows.map((r) => (
+            <tr key={r.org}>
+              <td>{r.org}</td>
+              {STATUS_BUCKETS.map((b) => <td key={b}>{num(r.buckets[b])}</td>)}
+              <td>{num(r.total)}</td>
             </tr>
           ))}
         </tbody>
         <tfoot>
           <tr>
             <td>Total</td>
-            {statuses.map((s) => <td key={s}>{num(statusTotal(s))}</td>)}
+            {STATUS_BUCKETS.map((b) => <td key={b}>{num(colTotal(b))}</td>)}
             <td>{num(grand)}</td>
           </tr>
         </tfoot>

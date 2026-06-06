@@ -84,3 +84,20 @@ export interface SummaryCache {
 /** Stabilized-occupancy statuses used as the Occupancy % denominator. */
 export const STABILIZED_STATUSES = ["Tenant Leased", "Trustee Leased", "Vacant - On Market", "Vacant - FMI"];
 export const LEASED_STATUSES = ["Tenant Leased", "Trustee Leased"];
+
+/**
+ * Property Summary status roll-up columns (in display order). Off Market first,
+ * then On Market (Future Move-In / FMI fold in here), then Leased (Tenant +
+ * Trustee), then Turnkey — with a Total computed across every status.
+ */
+export const STATUS_BUCKETS = ["Off Market", "On Market", "Leased", "Turnkey"] as const;
+export type StatusBucket = (typeof STATUS_BUCKETS)[number];
+
+export function statusBucket(status: string): StatusBucket | null {
+  const s = (status || "").toLowerCase();
+  if (s.includes("off market")) return "Off Market";
+  if (s.includes("on market") || s.includes("future move") || s.includes("fmi") || s.includes("pre-leas")) return "On Market";
+  if (s.includes("leased") || s.includes("lease honored")) return "Leased";
+  if (s.includes("turnkey")) return "Turnkey";
+  return null; // unmapped statuses still count toward Total
+}
