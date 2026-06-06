@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { SummaryCache, PropertyRow, PropertySummaryRow } from "@/lib/types";
 import { LEASED_STATUSES } from "@/lib/types";
 import { KpiCard } from "./KpiCard";
@@ -25,13 +25,27 @@ export function SummaryView({ initialData }: { initialData: SummaryCache }) {
   // cron-warmed API (full per-property rows + live numbers) once it arrives.
   const [d, setData] = useState<SummaryCache>(initialData);
   const [refreshing, setRefreshing] = useState(false);
+  const [justUpdated, setJustUpdated] = useState(false);
+  // Background refresh: the page keeps showing current data and stays fully
+  // interactive; fresh numbers are swapped in when they arrive. A ref guards
+  // against overlapping fetches (e.g. double-clicks).
+  const inflight = useRef(false);
   const load = async (fresh: boolean) => {
+    if (inflight.current) return;
+    inflight.current = true;
+    setRefreshing(true);
     try {
-      setRefreshing(true);
       const r = await fetch(`/api/summary${fresh ? "?fresh=1" : ""}`, { cache: "no-store" });
       const j = r.ok ? await r.json() : null;
-      if (j && j._meta) setData(j as SummaryCache);
-    } catch { /* keep current data */ } finally { setRefreshing(false); }
+      if (j && j._meta) {
+        setData(j as SummaryCache);
+        setJustUpdated(true);
+        setTimeout(() => setJustUpdated(false), 2600);
+      }
+    } catch { /* keep current data */ } finally {
+      inflight.current = false;
+      setRefreshing(false);
+    }
   };
   useEffect(() => { load(false); /* initial hydrate */ // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -138,20 +152,15 @@ export function SummaryView({ initialData }: { initialData: SummaryCache }) {
             <div className="ctx">
               {isSample ? "Sample" : "Live · Snowflake"} · updated{" "}
               {new Date(d._meta.generatedAt).toLocaleString("en-US")}
+              {refreshing && <span className="refresh-pill"><span className="spin">↻</span> refreshing in background…</span>}
+              {!refreshing && justUpdated && <span className="updated-pill">✓ updated</span>}
             </div>
-            <button
-              onClick={() => load(true)}
-              disabled={refreshing}
-              style={{
-                border: "1px solid var(--brand)", color: "#fff", background: "var(--brand)",
-                borderRadius: 8, padding: "7px 14px", fontWeight: 700, cursor: refreshing ? "default" : "pointer",
-                opacity: refreshing ? 0.6 : 1, fontFamily: "inherit",
-              }}
-            >
-              {refreshing ? "Refreshing…" : "↻ Refresh data"}
+            <button className="refresh-btn" onClick={() => load(true)} aria-busy={refreshing}>
+              <span className={refreshing ? "spin" : ""}>↻</span> {refreshing ? "Refreshing" : "Refresh data"}
             </button>
           </div>
         </div>
+        {refreshing && <div className="refresh-bar" aria-hidden />}
 
         {!fullMode && (
           <div className="banner">
