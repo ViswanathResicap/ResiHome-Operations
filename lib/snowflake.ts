@@ -37,7 +37,7 @@ export async function connect(): Promise<Conn> {
     account: process.env.SNOWFLAKE_ACCOUNT!,
     username: process.env.SNOWFLAKE_USERNAME!,
     warehouse: process.env.SNOWFLAKE_WAREHOUSE || "DEVELOPER_WH",
-    role: process.env.SNOWFLAKE_ROLE || "UAT",
+    role: process.env.SNOWFLAKE_ROLE || "RESICAP_ANALYST",
     database: "PROD_ANALYTICS",
     application: "ResiHomeOperations",
   } as snowflake.ConnectionOptions;
