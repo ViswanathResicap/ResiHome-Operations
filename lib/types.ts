@@ -117,3 +117,61 @@ export function statusBucket(status: string): StatusBucket | null {
   if (s.includes("turnkey")) return "Turnkey";
   return null; // unmapped statuses still count toward Total
 }
+
+// --- Off-Market / QC page ---
+
+export interface OffMarketRow {
+  key: string;            // PROPERTY_KEY
+  entityId: string;
+  org: string;
+  region: string;
+  subdivision: string;
+  floorplan: string;
+  address: string;
+  occupancyStatus: string;     // OCCUPANCY_STATUS
+  propertyStatus: string;      // AM_PROPERTY_STATUS
+  purchaseType: string;
+  pcStatus: string | null;     // 2_PC Status — requires QC_ResiAims (manual SharePoint CSV); null until wired
+  transferDate: string | null;
+  purchaseDate: string | null;
+  daysOffMarket: number | null;     // 2_Days_Off_Market_Active
+  diq: number | null;               // 2_Days in Status
+  conCompleteOrFinalWalk: string | null;
+  offMarketDate: string | null;
+  reasonOffMarket: string | null;
+  wosOpen: number | null;
+  wosClosed: number | null;
+  lastTktCreated: string | null;
+  lastWoClosed: string | null;
+  status: string | null;       // 2_STATUS_Off Market bucket (the hero-tile bucket)
+  daysInStatus: number | null; // 2_Days_In_Status_Card
+}
+
+export interface OffMarketHero {
+  finalWalkConQC: number;
+  sendUnderCon: number;
+  notPcPassed: number;
+  squatter: number;
+  other: number;
+  pendingMaint: number;
+  pendingRRQC: number;
+  rrqcFail: number;
+  missingRently: number;
+  rtlNeedsPhotos: number;
+  readyToListPL: number;
+  readyToList: number;
+  avgDaysInStatus: Record<string, number | null>; // bucket label -> avg days in status
+}
+
+export interface OffMarketCache {
+  _meta: {
+    source: "SAMPLE" | "SNOWFLAKE";
+    generatedAt: string;
+    note?: string;
+    errors?: string[];
+  };
+  hero: OffMarketHero;
+  offMarketSelected: number;
+  avgDaysOffMarket: number | null;
+  rows: OffMarketRow[];
+}

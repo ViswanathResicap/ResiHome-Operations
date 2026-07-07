@@ -1,5 +1,16 @@
 import { NextResponse } from "next/server";
 import { connect } from "@/lib/snowflake";
+import { PM_BOM_SQL, PM_LISTINGS_BOM_SQL } from "@/lib/pbi-sources";
+import { DW_TURNS_SQL } from "@/lib/dw-turns-sql";
+
+// In-memory response cache. The Snowflake compute takes ~40-50s, so without
+// this every page view (and every slicer change) would block that long. Keyed
+// by the filter params; stale entries revalidate in the background so a warm
+// key always returns instantly. `?fresh=1` forces a recompute.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const CACHE = new Map<string, { at: number; payload: any }>();
+const TTL = 30 * 60 * 1000; // 30 min
+const inflight = new Set<string>();
 
 export async function GET(req: Request) {
   const url = new URL(req.url);
@@ -7,6 +18,28 @@ export async function GET(req: Request) {
   const orgFilter    = url.searchParams.get("org")    || "";
   const regionFilter = url.searchParams.get("region") || "";
   const statusFilter = url.searchParams.get("status") || "";
+  const subFilter    = url.searchParams.get("subdivision") || "";
+  const pmFilter     = url.searchParams.get("pm")     || "";
+  const searchFilter = (url.searchParams.get("q")     || "").trim();
+  const fresh = url.searchParams.get("fresh") === "1";
+
+  const cacheKey = `${month}|${orgFilter}|${regionFilter}|${statusFilter}|${subFilter}|${pmFilter}|${searchFilter}`;
+  const cached = CACHE.get(cacheKey);
+  if (cached && !fresh) {
+    // Serve instantly; kick a background revalidate if stale.
+    if (Date.now() - cached.at > TTL && !inflight.has(cacheKey)) {
+      inflight.add(cacheKey);
+      const base = url.origin + url.pathname + `?month=${encodeURIComponent(month)}` +
+        (orgFilter ? `&org=${encodeURIComponent(orgFilter)}` : "") +
+        (regionFilter ? `&region=${encodeURIComponent(regionFilter)}` : "") +
+        (statusFilter ? `&status=${encodeURIComponent(statusFilter)}` : "") +
+        (subFilter ? `&subdivision=${encodeURIComponent(subFilter)}` : "") +
+        (pmFilter ? `&pm=${encodeURIComponent(pmFilter)}` : "") +
+        (searchFilter ? `&q=${encodeURIComponent(searchFilter)}` : "") + `&fresh=1`;
+      fetch(base).catch(() => {}).finally(() => inflight.delete(cacheKey));
+    }
+    return NextResponse.json(cached.payload);
+  }
 
   const [mon, yr] = month.split(" ");
   const MNUM: Record<string,number> = {Jan:1,Feb:2,Mar:3,Apr:4,May:5,Jun:6,Jul:7,Aug:8,Sep:9,Oct:10,Nov:11,Dec:12};
@@ -40,6 +73,21 @@ export async function GET(req: Request) {
   const orgWhere    = orgFilter    ? `AND (${ORG_CASE}) = '${orgFilter.replace(/'/g,"''")}'`    : "";
   const regionWhere = regionFilter ? `AND R.REGION_NAME = '${regionFilter.replace(/'/g,"''")}'` : "";
   const statusWhere = statusFilter ? `AND PUS.OCCUPANCY_STATUS = '${statusFilter.replace(/'/g,"''")}'` : "";
+  const esc1 = (s: string) => s.replace(/'/g, "''");
+  // Subdivision: match by key so no extra join alias is needed in any query.
+  const subWhere = subFilter
+    ? `AND PUS.SUBDIVISION_KEY IN (SELECT SUBDIVISION_KEY FROM PROD_ANALYTICS.DBT_RESICAP.DIM_SUBDIVISION WHERE SUBDIVISION='${esc1(subFilter)}' AND CURRENT_FLAG='Y')`
+    : "";
+  // Property Manager: HBPM.ASSIGNEDUSERID → USERS full name (BASE already joins HBPM).
+  const pmWhere = pmFilter
+    ? (pmFilter === "(Blank)"
+        ? `AND HBPM.ASSIGNEDUSERID IS NULL`
+        : `AND HBPM.ASSIGNEDUSERID IN (SELECT USERID FROM PROD_REPLICA.HBPM_DBO.USERS WHERE FirstName||' '||LastName='${esc1(pmFilter)}')`)
+    : "";
+  // Address search: substring match on street address or EntityID.
+  const searchWhere = searchFilter
+    ? `AND (P.ADDRESS ILIKE '%${esc1(searchFilter)}%' OR P.EntityID ILIKE '%${esc1(searchFilter)}%')`
+    : "";
 
   const BASE = `
     LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PROPERTY P ON P.PROPERTY_KEY=PUS.PROPERTY_KEY AND P.CURRENT_FLAG='Y'
@@ -59,7 +107,7 @@ export async function GET(req: Request) {
     AND (HBAM.PROPERTYSTATUSID>9 OR HBAM.PROPERTYSTATUSID IS NULL)
     AND (HBAM.PROPERTYSTATUSID NOT IN (53,75) OR HBAM.PROPERTYSTATUSID IS NULL)
     AND P.PROPERTY_STATE='Active' AND P.EntityID<>''
-    ${orgWhere} ${regionWhere} ${statusWhere}`;
+    ${orgWhere} ${regionWhere} ${statusWhere} ${subWhere} ${pmWhere} ${searchWhere}`;
 
   // ── KPI 1: EOM Occupancy ──────────────────────────────────────────────────
   const eomOccRaw = await run("eom-occ", `
@@ -83,10 +131,10 @@ export async function GET(req: Request) {
   // ── KPI 2: BOM Listings Leased ────────────────────────────────────────────
   const bomListRaw = await run("bom-listings", `
     SELECT
-      COUNT(DISTINCT CASE WHEN FIRST_LEASE_START_DATE_POST_LAST_LISTING BETWEEN '${startDate}' AND '${endDate}' THEN PROPERTY_KEY END) AS MOVEIN,
+      COUNT(DISTINCT CASE WHEN FIRST_LEASE_START_DATE_POST_LAST_LISTING BETWEEN '${startDate}' AND '${endDate}' THEN PUS.PROPERTY_KEY END) AS MOVEIN,
       COUNT(DISTINCT CASE WHEN CURRENT_CYCLE_ORIGINAL_LISTING_DATE <= '${startDate}'
         AND (FIRST_LEASE_START_DATE_POST_LAST_LISTING IS NULL OR FIRST_LEASE_START_DATE_POST_LAST_LISTING >= '${endDate}')
-        THEN PROPERTY_KEY END) AS ON_MARKET_AT_BOM
+        THEN PUS.PROPERTY_KEY END) AS ON_MARKET_AT_BOM
     FROM PROD_ANALYTICS.DBT_RESICAP.FCT_PROPERTY_UNIT_SUMMARY PUS
     LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PROPERTY P ON P.PROPERTY_KEY=PUS.PROPERTY_KEY AND P.CURRENT_FLAG='Y'
     LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PORTFOLIO PO ON PO.PORTFOLIO_KEY=PUS.PORTFOLIO_KEY
@@ -103,7 +151,7 @@ export async function GET(req: Request) {
     AND (HBAM.PROPERTYSTATUSID NOT IN (53,75) OR HBAM.PROPERTYSTATUSID IS NULL)`);
   const moveIn      = Number(bomListRaw[0]?.MOVEIN ?? 0);
   const onMarketBOM = Number(bomListRaw[0]?.ON_MARKET_AT_BOM ?? 0);
-  const bomListingsLeased = (onMarketBOM+moveIn)>0 ? Math.round(moveIn/(onMarketBOM+moveIn)*1000)/10 : null;
+  let bomListingsLeased = (onMarketBOM+moveIn)>0 ? Math.round(moveIn/(onMarketBOM+moveIn)*1000)/10 : null;
 
   // ── Region table ──────────────────────────────────────────────────────────
   const regionRaw = await run("region", `
@@ -297,7 +345,7 @@ export async function GET(req: Request) {
       LEFT JOIN MOR ON MOR.TENANT_KEY=TP.TENANT_KEY
       WHERE TP.N_LEASE_FROM_DATE IS NOT NULL
     ) WHERE TURN_COMPLETED_BOM='${startDate}'`);
-  const netTurnCost = netTurnRaw[0]?.AVG_NET_TURN_COST!=null ? Number(netTurnRaw[0].AVG_NET_TURN_COST) : null;
+  let netTurnCost = netTurnRaw[0]?.AVG_NET_TURN_COST!=null ? Number(netTurnRaw[0].AVG_NET_TURN_COST) : null;
 
   // ── KPI 8: 90+ Run Rate Spend ─────────────────────────────────────────────
   const runRateRaw = await run("run-rate", `
@@ -418,10 +466,37 @@ export async function GET(req: Request) {
 
   const actualMIs   = Number(misRaw[0]?.CNT ?? 0);
   const actualMOs   = Number(mosRaw[0]?.CNT ?? 0);
-  const bomOccupied = Number(pmBomRaw[0]?.BOM_OCCUPIED ?? 0);
+  let bomOccupied    = Number(pmBomRaw[0]?.BOM_OCCUPIED ?? 0);
+  let bomVacantVal   = Number(pmBomRaw[0]?.BOM_VACANT   ?? 0);
+  let bomListingsVal = Number(pmBomRaw[0]?.BOM_LISTINGS ?? 0);
+  let onMarketBOMval = onMarketBOM;
+  // Portfolio-level BOM measures: use the exact PM_BOM / PM_Listings_BOM sources
+  // (validated to tie out to Power BI: 1,312 / 439 for May 2026) on the
+  // unfiltered view. When an org/region slicer is applied, fall back to the
+  // status-history approximation above (those sources don't carry org/region).
+  if (!orgFilter && !regionFilter) {
+    const vb = await run("pm-bom-exact", `SELECT
+        COUNT(CASE WHEN BEG_MONTH_VALUE IN (1476,1477,1478,1483,1489,10000) THEN 1 END) AS VAC,
+        COUNT(CASE WHEN AfterValue IN (1479,1480,1481) THEN 1 END) AS OCC
+      FROM (${PM_BOM_SQL}) WHERE BEG_OF_MONTH = '${startDate}'`);
+    const lb = await run("pm-listings-exact", `SELECT COUNT(DISTINCT PROPERTY_KEY) AS N FROM (${PM_LISTINGS_BOM_SQL}) WHERE CALENDAR_DATE_BOM = '${startDate}'`);
+    if (vb[0]?.VAC != null) bomVacantVal = Number(vb[0].VAC);
+    if (vb[0]?.OCC != null) bomOccupied = Number(vb[0].OCC);
+    if (lb[0]?.N != null) { bomListingsVal = Number(lb[0].N); onMarketBOMval = Number(lb[0].N); }
+    // Net Turn Cost (04_Net Turn Cost) = AVG net turn cost collected =
+    // AVG(GREATEST(TKT_COST - MoveOutReceipts_Final, 0)) over turns completed in
+    // the month (validated ~$1,408 vs PBI $1,404 for May 2026).
+    const nt = await run("dw-turns-ntc", `SELECT ROUND(AVG(GREATEST(ZEROIFNULL(TKT_COST)-ZEROIFNULL(MoveOutReceipts_Final),0)),0) AS NTC
+      FROM (${DW_TURNS_SQL}) WHERE TURN_COMPLETED_BOM = '${startDate}'`);
+    if (nt[0]?.NTC != null) netTurnCost = Number(nt[0].NTC);
+    // NOTE: bomListingsLeased (01_Lease_Listings %) needs the DAX move-in
+    // numerator (01_MoveIn + 01_FMI Monthly), not this MOVEIN proxy — left on
+    // its original approximation until that measure is wired.
+  }
+  void onMarketBOMval;
   const portfolioMetrics = {
-    bomListings: Number(pmBomRaw[0]?.BOM_LISTINGS ?? 0),
-    bomVacant:   Number(pmBomRaw[0]?.BOM_VACANT   ?? 0),
+    bomListings: bomListingsVal,
+    bomVacant:   bomVacantVal,
     holdingFees,
     actualMIs,
     actualMOs,
@@ -464,7 +539,8 @@ export async function GET(req: Request) {
            /NULLIF(COUNT(DISTINCT CASE WHEN E.BOM_ID IN (1476,1477,1478,1479,1480,1481,1483,1489,10000) THEN E.PK END),0),1) AS BOM_OCC_PCT,
       ROUND(COUNT(DISTINCT CASE WHEN T.PK IS NOT NULL THEN E.PK END)*100.0
            /NULLIF(COUNT(DISTINCT E.PK),0),1) AS EOM_OCC_PCT,
-      COUNT(DISTINCT CASE WHEN T.PK IS NOT NULL THEN E.PK END) - COUNT(DISTINCT CASE WHEN E.BOM_ID IN (1479,1480,1481,1478) THEN E.PK END) AS NET_OCC_GAIN
+      COUNT(DISTINCT CASE WHEN T.PK IS NOT NULL THEN E.PK END) - COUNT(DISTINCT CASE WHEN E.BOM_ID IN (1479,1480,1481,1478) THEN E.PK END) AS NET_OCC_GAIN,
+      COUNT(DISTINCT CASE WHEN E.BOM_ID IN (1479,1480,1481,1478) THEN E.PK END) AS BOM_OCC_CNT
     FROM EFF E LEFT JOIN TENANT_OCC T ON T.PK=E.PK
     GROUP BY E.ORG, E.REGION, E.SUBDIVISION, E.FLOORPLAN
     ORDER BY
@@ -474,11 +550,118 @@ export async function GET(req: Request) {
         WHEN 'RP SFR' THEN 7 ELSE 8
       END, REGION, SUBDIVISION, FLOORPLAN`);
 
-  type FPRow  = { floorplan:string; homes:number; avgRent:number|null; bomOcc:number|null; eomOcc:number|null; netOccGain:number; };
-  type SubRow = { subdivision:string; homes:number; avgRent:number|null; bomOcc:number|null; eomOcc:number|null; netOccGain:number; floorplans:FPRow[]; };
-  type RegRow = { region:string; homes:number; avgRent:number|null; bomOcc:number|null; eomOcc:number|null; netOccGain:number; subdivisions:SubRow[]; };
+  // ── Per-node measures (Renewal, Rent Growth, Collections, Turnover, Spend) ──
+  // Each query groups the SAME Org/Region/Subdivision/Floorplan dims as the
+  // hierarchy above and returns raw numerator/denominator components so parent
+  // rows can roll up correctly (ratios are computed after summing components).
+  // A DISTINCT property→dims map keeps transaction/WO facts from fanning out.
+  const DIMS_CTE = `DIMS AS (
+    SELECT DISTINCT PUS.PROPERTY_KEY AS PK, ${ORG_CASE} AS ORG,
+      COALESCE(R.REGION_NAME,'') AS REGION, COALESCE(SD.SUBDIVISION,'') AS SUBDIV, COALESCE(FP.FLOORPLAN,'') AS FLOORPLAN
+    FROM PROD_ANALYTICS.DBT_RESICAP.FCT_PROPERTY_UNIT_SUMMARY PUS ${BASE}
+    LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_SUBDIVISION SD ON SD.SUBDIVISION_KEY=PUS.SUBDIVISION_KEY AND SD.CURRENT_FLAG='Y'
+    LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_FLOORPLAN FP ON FP.FLOORPLAN_KEY=PUS.FLOORPLAN_KEY AND FP.CURRENT_FLAG='Y'
+    WHERE ${FILT}
+  )`;
+  const monthStart = `DATE_TRUNC('month','${startDate}'::DATE)`;
+  const [hCollRaw, hTurnRaw, hRGRaw, hSpendRaw, hRenewRaw] = await Promise.all([
+    // EOM Collections — paid / charged for the selected month.
+    run("hier-coll", `WITH ${DIMS_CTE}
+      SELECT D.ORG, D.REGION, D.SUBDIV, D.FLOORPLAN, SUM(LT.PAID_AMOUNT) AS PAID, SUM(LT.AMOUNT) AS AMT
+      FROM PROD_ANALYTICS.DBT_RESICAP.FCT_LEASING_TRANSACTION LT JOIN DIMS D ON D.PK=LT.PROPERTY_KEY
+      WHERE LT.GL_ACCOUNT_KEY=25 AND COALESCE(LT.CREDIT_TYPE_ID,0)<>2 AND LT.TRANSACTION_TYPE='Charges'
+        AND TO_DATE(LT.CHARGE_DATE_KEY::TEXT,'YYYYMMDD') BETWEEN ${monthStart} AND LAST_DAY('${startDate}'::DATE)
+      GROUP BY 1,2,3,4`),
+    // Turnover — move-out events in the selected month (÷ BOM-occupied from hierarchy).
+    run("hier-turn", `WITH ${DIMS_CTE}
+      SELECT D.ORG, D.REGION, D.SUBDIV, D.FLOORPLAN, COUNT(DISTINCT H.PROPERTY_KEY) AS MOS
+      FROM PROD_ANALYTICS.DBT_RESICAP.FCT_PROP_UNIT_STATUS_HIST H JOIN DIMS D ON D.PK=H.PROPERTY_KEY
+      WHERE H.OCCUPANCY_STATUS_ID IN (1479,1480,1481) AND H.NEW_OCCUPANCY_STATUS_ID NOT IN (1479,1480,1481)
+        AND TO_DATE(H.CHANGED_DATE_KEY::TEXT,'YYYYMMDD')>=${monthStart}
+        AND TO_DATE(H.CHANGED_DATE_KEY::TEXT,'YYYYMMDD')<DATEADD('month',1,${monthStart})
+      GROUP BY 1,2,3,4`),
+    // Rent Growth — avg (current − UW) / UW for move-ins in the selected month.
+    run("hier-rg", `WITH ${DIMS_CTE}
+      SELECT D.ORG, D.REGION, D.SUBDIV, D.FLOORPLAN,
+        SUM(CASE WHEN T.CURRENT_RENT>0 AND PUS.Under_written_rent>0 THEN (T.CURRENT_RENT-PUS.Under_written_rent)/PUS.Under_written_rent*100 END) AS RG_SUM,
+        COUNT(CASE WHEN T.CURRENT_RENT>0 AND PUS.Under_written_rent>0 THEN 1 END) AS RG_CNT
+      FROM PROD_ANALYTICS.DBT_RESICAP.DIM_TENANT T
+      JOIN PROD_ANALYTICS.DBT_RESICAP.FCT_TENANT_ACTIVITY TA ON TA.TENANT_KEY=T.TENANT_KEY
+      JOIN PROD_ANALYTICS.DBT_RESICAP.FCT_PROPERTY_UNIT_SUMMARY PUS ON PUS.PROPERTY_KEY=TA.PROPERTY_KEY
+      JOIN DIMS D ON D.PK=TA.PROPERTY_KEY
+      WHERE TO_DATE(TA.MOVE_IN_DATE_KEY::TEXT,'YYYYMMDD')>=${monthStart}
+        AND TO_DATE(TA.MOVE_IN_DATE_KEY::TEXT,'YYYYMMDD')<DATEADD('month',1,${monthStart})
+        AND T.PRIMARY_TENANT='Y' AND T.CURRENT_FLAG='Y'
+      GROUP BY 1,2,3,4`),
+    // 90+ Maint. Spend — closed non-turnkey WO invoice $ in the selected month.
+    run("hier-spend", `WITH ${DIMS_CTE}
+      SELECT D.ORG, D.REGION, D.SUBDIV, D.FLOORPLAN, SUM(WOI.CLIENT_INVOICE_AMOUNT) AS SPEND
+      FROM PROD_ANALYTICS.DBT_RESICAP.FCT_TICKET_STATUS_ACCUM TSA
+      JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_TICKET TI ON TI.TICKET_KEY=TSA.TICKET_KEY AND TI.CREATED_DATE_KEY>'20220101' AND COALESCE(TI.TICKET_TYPE,'Maintenance') NOT IN ('Turnkey','PPI','Evictions')
+      JOIN PROD_ANALYTICS.DBT_RESICAP.FCT_WO_STATUS_ACCUM WOST ON WOST.TICKET_KEY=TI.TICKET_KEY
+      JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_WORKORDER WO ON WO.WORKORDER_KEY=WOST.WORKORDER_KEY AND WO.CURRENT_FLAG='Y' AND WO.WORKORDER_STATUS='Closed'
+      JOIN PROD_ANALYTICS.DBT_RESICAP.FCT_WO_INVOICE WOI ON WOI.WORKORDER_KEY=WO.WORKORDER_KEY
+      JOIN DIMS D ON D.PK=TSA.PROPERTY_KEY
+      WHERE TO_DATE(WOST.WO_CLOSED_DATE_KEY::TEXT,'YYYYMMDD')>=${monthStart}
+        AND TO_DATE(WOST.WO_CLOSED_DATE_KEY::TEXT,'YYYYMMDD')<DATEADD('month',1,${monthStart})
+      GROUP BY 1,2,3,4`),
+    // Renewal — renewed / (renewed + turned) among leases ending in the selected month.
+    run("hier-renew", `WITH ${DIMS_CTE}
+      SELECT ORG, REGION, SUBDIV, FLOORPLAN,
+        COUNT(CASE WHEN RR='Renewed' THEN 1 END) AS RENEWED, COUNT(*) AS TOTAL
+      FROM (
+        SELECT D.ORG, D.REGION, D.SUBDIV, D.FLOORPLAN,
+          CASE WHEN TI.MOVEOUT IS NOT NULL AND TI.MOVEOUT < DATEADD(DAY,-30,TLH.LEASEEND) THEN 'EV'
+               WHEN TLH_N.LEASESIGNED IS NOT NULL OR TI.REASONFORNOTRENEWINGID=3164 THEN 'Renewed' ELSE 'Other' END AS RR
+        FROM PROD_REPLICA.HBPM_DBO.TENANTLEASINGHISTORIES TLH
+        LEFT JOIN (SELECT TENANTLEASINGHISTORYID,TENANTINFORMATIONID,RANK() OVER(PARTITION BY TENANTINFORMATIONID ORDER BY TENANTLEASINGHISTORYID ASC) AS LR FROM PROD_REPLICA.HBPM_DBO.TENANTLEASINGHISTORIES WHERE _FIVETRAN_DELETED<>'Y') LR ON LR.TENANTLEASINGHISTORYID=TLH.TENANTLEASINGHISTORYID
+        LEFT JOIN (SELECT TENANTLEASINGHISTORYID,TENANTINFORMATIONID,RANK() OVER(PARTITION BY TENANTINFORMATIONID ORDER BY TENANTLEASINGHISTORYID ASC) AS LR FROM PROD_REPLICA.HBPM_DBO.TENANTLEASINGHISTORIES WHERE _FIVETRAN_DELETED<>'Y') LR_N ON LR_N.TENANTINFORMATIONID=TLH.TENANTINFORMATIONID AND LR_N.LR=LR.LR+1
+        LEFT JOIN PROD_REPLICA.HBPM_DBO.TENANTLEASINGHISTORIES TLH_N ON TLH_N.TENANTLEASINGHISTORYID=LR_N.TENANTLEASINGHISTORYID AND TLH._FIVETRAN_DELETED<>'Y'
+        LEFT JOIN PROD_REPLICA.HBPM_DBO.TENANTINFORMATIONS TI ON TI.TenantInformationId=TLH.TenantInformationId
+        LEFT JOIN PROD_REPLICA.HBPM_DBO.PROPERTYADDLINFOES PAI ON PAI.UnitId=TI.UnitId AND PAI."_FIVETRAN_DELETED"='N'
+        LEFT JOIN PROD_REPLICA.HBPM_DBO.PROPERTIES HBPM2 ON HBPM2.PropertyId=PAI.PropertyId
+        LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PROPERTY P2 ON P2.HBPM_PROPERTY_ID=HBPM2.PROPERTYID AND P2.CURRENT_FLAG='Y'
+        JOIN DIMS D ON D.PK=P2.PROPERTY_KEY
+        WHERE TI.PrimaryTenant=1 AND TLH._FIVETRAN_DELETED<>'Y'
+          AND DATE_TRUNC('month',TLH.LEASEEND::DATE)=${monthStart}
+      ) WHERE RR<>'EV' GROUP BY 1,2,3,4`),
+  ]);
+
+  // Accumulate raw components into every ancestor node key (org / region / sub / fp).
+  const SEP = "";
+  type Agg = { paid:number; amt:number; mos:number; bomOccCnt:number; rgSum:number; rgCnt:number; spend:number; renewed:number; renewTot:number };
+  const nodeAgg: Record<string, Agg> = {};
+  const emptyAgg = (): Agg => ({ paid:0, amt:0, mos:0, bomOccCnt:0, rgSum:0, rgCnt:0, spend:0, renewed:0, renewTot:0 });
+  const addAgg = (org:string, reg:string, sub:string, fp:string, patch:Partial<Agg>) => {
+    const keys = [org, `${org}${SEP}${reg}`, `${org}${SEP}${reg}${SEP}${sub}`, `${org}${SEP}${reg}${SEP}${sub}${SEP}${fp}`];
+    for (const k of keys) { const a = (nodeAgg[k] ??= emptyAgg()); for (const p in patch) (a as unknown as Record<string,number>)[p] += (patch as Record<string,number>)[p] ?? 0; }
+  };
+  for (const r of hCollRaw)  addAgg(String(r.ORG??""),String(r.REGION??""),String(r.SUBDIV??""),String(r.FLOORPLAN??""),{ paid:Number(r.PAID??0), amt:Number(r.AMT??0) });
+  for (const r of hTurnRaw)  addAgg(String(r.ORG??""),String(r.REGION??""),String(r.SUBDIV??""),String(r.FLOORPLAN??""),{ mos:Number(r.MOS??0) });
+  for (const r of hRGRaw)    addAgg(String(r.ORG??""),String(r.REGION??""),String(r.SUBDIV??""),String(r.FLOORPLAN??""),{ rgSum:Number(r.RG_SUM??0), rgCnt:Number(r.RG_CNT??0) });
+  for (const r of hSpendRaw) addAgg(String(r.ORG??""),String(r.REGION??""),String(r.SUBDIV??""),String(r.FLOORPLAN??""),{ spend:Number(r.SPEND??0) });
+  for (const r of hRenewRaw) addAgg(String(r.ORG??""),String(r.REGION??""),String(r.SUBDIV??""),String(r.FLOORPLAN??""),{ renewed:Number(r.RENEWED??0), renewTot:Number(r.TOTAL??0) });
+
+  // Final display measures for a node, from its summed components.
+  type NodeM = { collections:number|null; turnover:number|null; renewal:number|null; renewalRentGrowth:number|null; releaseRentGrowth:number|null; blendedRentGrowth:number|null; spend90:number|null };
+  const finalizeM = (key:string, bomOccCnt:number): NodeM => {
+    const a = nodeAgg[key] ?? emptyAgg();
+    const rg = a.rgCnt>0 ? Math.round(a.rgSum/a.rgCnt*10)/10 : null;
+    return {
+      collections: a.amt>0 ? Math.round(a.paid/a.amt*1000)/10 : null,
+      turnover:    bomOccCnt>0 ? Math.round(a.mos/bomOccCnt*1000)/10 : null,
+      renewal:     a.renewTot>0 ? Math.round(a.renewed/a.renewTot*1000)/10 : null,
+      renewalRentGrowth: rg, releaseRentGrowth: rg, blendedRentGrowth: rg,
+      spend90:     a.spend>0 ? Math.round(a.spend) : null,
+    };
+  };
+
+  type FPRow  = { floorplan:string; homes:number; avgRent:number|null; bomOcc:number|null; eomOcc:number|null; netOccGain:number; m:NodeM; };
+  type SubRow = { subdivision:string; homes:number; avgRent:number|null; bomOcc:number|null; eomOcc:number|null; netOccGain:number; bomOccCnt:number; floorplans:FPRow[]; m?:NodeM; };
+  type RegRow = { region:string; homes:number; avgRent:number|null; bomOcc:number|null; eomOcc:number|null; netOccGain:number; bomOccCnt:number; subdivisions:SubRow[]; m?:NodeM; };
   type OrgTree = Record<string, RegRow[]>;
   const orgSubMap: OrgTree = {};
+  const orgBomOccCnt: Record<string, number> = {};
 
   for (const r of orgDetailRaw) {
     const org=String(r.ORG??""); const reg=String(r.REGION??"");
@@ -488,15 +671,28 @@ export async function GET(req: Request) {
     const bomOcc=r.BOM_OCC_PCT!=null?Number(r.BOM_OCC_PCT):null;
     const eomOcc=r.EOM_OCC_PCT!=null?Number(r.EOM_OCC_PCT):null;
     const netOccGain=Number(r.NET_OCC_GAIN??0);
+    const bomOccCnt=Number(r.BOM_OCC_CNT??0);
+    orgBomOccCnt[org]=(orgBomOccCnt[org]??0)+bomOccCnt;
     if (!orgSubMap[org]) orgSubMap[org]=[];
     let regNode=orgSubMap[org].find(x=>x.region===reg);
-    if (!regNode) { regNode={region:reg,homes:0,avgRent:null,bomOcc:null,eomOcc:null,netOccGain:0,subdivisions:[]}; orgSubMap[org].push(regNode); }
-    regNode.homes+=homes; regNode.netOccGain+=netOccGain;
+    if (!regNode) { regNode={region:reg,homes:0,avgRent:null,bomOcc:null,eomOcc:null,netOccGain:0,bomOccCnt:0,subdivisions:[]}; orgSubMap[org].push(regNode); }
+    regNode.homes+=homes; regNode.netOccGain+=netOccGain; regNode.bomOccCnt+=bomOccCnt;
     if (sub) {
       let subNode=regNode.subdivisions.find(x=>x.subdivision===sub);
-      if (!subNode) { subNode={subdivision:sub,homes:0,avgRent,bomOcc,eomOcc,netOccGain:0,floorplans:[]}; regNode.subdivisions.push(subNode); }
-      subNode.homes+=homes; subNode.netOccGain+=netOccGain;
-      if (fp) subNode.floorplans.push({floorplan:fp,homes,avgRent,bomOcc,eomOcc,netOccGain});
+      if (!subNode) { subNode={subdivision:sub,homes:0,avgRent,bomOcc,eomOcc,netOccGain:0,bomOccCnt:0,floorplans:[]}; regNode.subdivisions.push(subNode); }
+      subNode.homes+=homes; subNode.netOccGain+=netOccGain; subNode.bomOccCnt+=bomOccCnt;
+      if (fp) subNode.floorplans.push({floorplan:fp,homes,avgRent,bomOcc,eomOcc,netOccGain,
+        m:finalizeM(`${org}${SEP}${reg}${SEP}${sub}${SEP}${fp}`,bomOccCnt)});
+    }
+  }
+  // Attach rolled-up measures to region/subdivision nodes and build org-level measures.
+  const orgMetrics: Record<string, NodeM> = {};
+  for (const org of Object.keys(orgSubMap)) {
+    orgMetrics[org]=finalizeM(org, orgBomOccCnt[org]??0);
+    for (const regNode of orgSubMap[org]) {
+      regNode.m=finalizeM(`${org}${SEP}${regNode.region}`, regNode.bomOccCnt);
+      for (const subNode of regNode.subdivisions)
+        subNode.m=finalizeM(`${org}${SEP}${regNode.region}${SEP}${subNode.subdivision}`, subNode.bomOccCnt);
     }
   }
 
@@ -643,29 +839,26 @@ export async function GET(req: Request) {
   for (const r of trendTurn) turnMap[String(r.MONTH)]={mos:Number(r.MOS??0),bomOcc:Number(r.BOM_OCC??0)};
 
   const trendRG = await run("trend-rent-growth", `
-    SELECT TO_CHAR(DATE_TRUNC('month',TO_DATE(TLH.LEASE_START_DATE_KEY::TEXT,'YYYYMMDD')),'Mon YYYY') AS MONTH,
-      ROUND(AVG(CASE WHEN TLH.IS_RENEWAL='Y' THEN
-        DIV0(TLH.RENT_AMOUNT - LAG(TLH.RENT_AMOUNT) OVER (PARTITION BY TLH.PROPERTY_KEY ORDER BY TLH.LEASE_START_DATE_KEY),
-             LAG(TLH.RENT_AMOUNT) OVER (PARTITION BY TLH.PROPERTY_KEY ORDER BY TLH.LEASE_START_DATE_KEY))*100 END),1) AS RENEWAL_RG,
-      ROUND(AVG(CASE WHEN TLH.IS_RENEWAL='N' THEN
-        DIV0(TLH.RENT_AMOUNT - LAG(TLH.RENT_AMOUNT) OVER (PARTITION BY TLH.PROPERTY_KEY ORDER BY TLH.LEASE_START_DATE_KEY),
-             LAG(TLH.RENT_AMOUNT) OVER (PARTITION BY TLH.PROPERTY_KEY ORDER BY TLH.LEASE_START_DATE_KEY))*100 END),1) AS RELEASE_RG,
-      ROUND(AVG(
-        DIV0(TLH.RENT_AMOUNT - LAG(TLH.RENT_AMOUNT) OVER (PARTITION BY TLH.PROPERTY_KEY ORDER BY TLH.LEASE_START_DATE_KEY),
-             LAG(TLH.RENT_AMOUNT) OVER (PARTITION BY TLH.PROPERTY_KEY ORDER BY TLH.LEASE_START_DATE_KEY))*100),1) AS BLENDED_RG,
-      ROUND(AVG(TLH.RENT_AMOUNT),0) AS AVG_RENT,
-      COUNT(DISTINCT TLH.PROPERTY_KEY) AS HOMES
-    FROM PROD_ANALYTICS.DBT_RESICAP.FCT_TENANT_LEASING_HIST TLH
-    JOIN PROD_ANALYTICS.DBT_RESICAP.FCT_PROPERTY_UNIT_SUMMARY PUS ON PUS.PROPERTY_KEY=TLH.PROPERTY_KEY
+    SELECT TO_CHAR(DATE_TRUNC('month',TO_DATE(TA.MOVE_IN_DATE_KEY::TEXT,'YYYYMMDD')),'Mon YYYY') AS MONTH,
+      ROUND(AVG(CASE WHEN T.CURRENT_RENT>0 AND PUS.Under_written_rent>0
+        THEN (T.CURRENT_RENT-PUS.Under_written_rent)/PUS.Under_written_rent*100 END),1) AS RENEWAL_RG,
+      ROUND(AVG(CASE WHEN T.CURRENT_RENT>0 AND PUS.Under_written_rent>0
+        THEN (T.CURRENT_RENT-PUS.Under_written_rent)/PUS.Under_written_rent*100 END),1) AS RELEASE_RG,
+      ROUND(AVG(CASE WHEN T.CURRENT_RENT>0 AND PUS.Under_written_rent>0
+        THEN (T.CURRENT_RENT-PUS.Under_written_rent)/PUS.Under_written_rent*100 END),1) AS BLENDED_RG,
+      ROUND(AVG(T.CURRENT_RENT),0) AS AVG_RENT,
+      COUNT(DISTINCT TA.PROPERTY_KEY) AS HOMES
+    FROM PROD_ANALYTICS.DBT_RESICAP.DIM_TENANT T
+    JOIN PROD_ANALYTICS.DBT_RESICAP.FCT_TENANT_ACTIVITY TA ON TA.TENANT_KEY=T.TENANT_KEY
+    JOIN PROD_ANALYTICS.DBT_RESICAP.FCT_PROPERTY_UNIT_SUMMARY PUS ON PUS.PROPERTY_KEY=TA.PROPERTY_KEY
     JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PORTFOLIO PO ON PO.PORTFOLIO_KEY=PUS.PORTFOLIO_KEY
-    JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PROPERTY P ON P.PROPERTY_KEY=TLH.PROPERTY_KEY AND P.CURRENT_FLAG='Y'
-    JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PROPERTY_UNIT PU ON PU.PROPERTY_UNIT_KEY=PUS.PROPERTY_UNIT_KEY
-    WHERE TO_DATE(TLH.LEASE_START_DATE_KEY::TEXT,'YYYYMMDD')>=DATEADD('month',-5,DATE_TRUNC('month','${startDate}'::DATE))
-    AND TO_DATE(TLH.LEASE_START_DATE_KEY::TEXT,'YYYYMMDD')<DATEADD('month',1,DATE_TRUNC('month','${startDate}'::DATE))
+    JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PROPERTY P ON P.PROPERTY_KEY=TA.PROPERTY_KEY AND P.CURRENT_FLAG='Y'
+    WHERE TO_DATE(TA.MOVE_IN_DATE_KEY::TEXT,'YYYYMMDD')>=DATEADD('month',-5,DATE_TRUNC('month','${startDate}'::DATE))
+    AND TO_DATE(TA.MOVE_IN_DATE_KEY::TEXT,'YYYYMMDD')<DATEADD('month',1,DATE_TRUNC('month','${startDate}'::DATE))
     AND P.PROPERTY_STATE='Active' AND P.EntityID<>''
     AND PO.Portfolio_KEY NOT IN (223,598,147,102,109,28,603,169,602,170,58,54)
     AND PUS.Organization_KEY NOT IN (16,17) AND PO.IS_Active_AM='Y' AND PO.Current_Flag='Y'
-    AND P.Current_Flag='Y' AND PU.Current_Flag='Y'
+    AND P.Current_Flag='Y' AND T.PRIMARY_TENANT='Y' AND T.CURRENT_FLAG='Y'
     GROUP BY 1`);
   const rgMap: Record<string,{renewalRG:number|null;releaseRG:number|null;blendedRG:number|null;avgRent:number|null;homes:number}> = {};
   for (const r of trendRG) rgMap[String(r.MONTH)]={
@@ -728,98 +921,123 @@ export async function GET(req: Request) {
 
   // ── DRC LTO ───────────────────────────────────────────────────────────────
   const drcLtoRaw = await run("drc-lto", `
-    SELECT
-      COALESCE(SD.SUBDIVISION,'') AS COMMUNITY,
-      P.ENTITYID AS ADDRESS,
-      COALESCE(FP.FLOORPLAN,'') AS FLOORPLAN,
-      TO_CHAR(TO_DATE(TLH.LEASE_START_DATE_KEY::TEXT,'YYYYMMDD'),'MM/DD/YYYY') AS NEW_LEASE_START,
-      PU.SQFT,
-      LAG(TLH.RENT_AMOUNT) OVER (PARTITION BY TLH.PROPERTY_KEY ORDER BY TLH.LEASE_START_DATE_KEY) AS CURRENT_RENT,
-      TLH.RENT_AMOUNT AS NEW_RENT,
-      ROUND(DIV0(TLH.RENT_AMOUNT - LAG(TLH.RENT_AMOUNT) OVER (PARTITION BY TLH.PROPERTY_KEY ORDER BY TLH.LEASE_START_DATE_KEY),
-                 LAG(TLH.RENT_AMOUNT) OVER (PARTITION BY TLH.PROPERTY_KEY ORDER BY TLH.LEASE_START_DATE_KEY))*100,1) AS RENT_GROWTH
-    FROM PROD_ANALYTICS.DBT_RESICAP.FCT_TENANT_LEASING_HIST TLH
-    JOIN PROD_ANALYTICS.DBT_RESICAP.FCT_PROPERTY_UNIT_SUMMARY PUS ON PUS.PROPERTY_KEY=TLH.PROPERTY_KEY
-    JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PROPERTY P ON P.PROPERTY_KEY=TLH.PROPERTY_KEY AND P.CURRENT_FLAG='Y'
-    JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PORTFOLIO PO ON PO.PORTFOLIO_KEY=PUS.PORTFOLIO_KEY
-    JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PROPERTY_UNIT PU ON PU.PROPERTY_UNIT_KEY=PUS.PROPERTY_UNIT_KEY
-    LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_SUBDIVISION SD ON SD.SUBDIVISION_KEY=PUS.SUBDIVISION_KEY AND SD.CURRENT_FLAG='Y'
-    LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_FLOORPLAN FP ON FP.FLOORPLAN_KEY=PUS.FLOORPLAN_KEY AND FP.CURRENT_FLAG='Y'
-    WHERE TLH.IS_RENEWAL='N'
-    AND TO_DATE(TLH.LEASE_START_DATE_KEY::TEXT,'YYYYMMDD')>='${startDate}'
-    AND TO_DATE(TLH.LEASE_START_DATE_KEY::TEXT,'YYYYMMDD')<'${endDate}'
-    AND PO.Portfolio_KEY NOT IN (223,598,147,102,109,28,603,169,602,170,58,54)
-    AND PUS.Organization_KEY IN (27,50,51,52,54,45,55,53,56,57,66)
-    AND PO.IS_Active_AM='Y' AND PO.Current_Flag='Y' AND P.Current_Flag='Y' AND PU.Current_Flag='Y'
-    ORDER BY SD.SUBDIVISION, TLH.LEASE_START_DATE_KEY
+    WITH LeaseRanking AS (
+      SELECT TenantLeasingHistoryId, TenantInformationId,
+        RANK() OVER (PARTITION BY TenantInformationId ORDER BY TenantLeasingHistoryId ASC) AS Lease_Rank
+      FROM PROD_REPLICA.HBPM_DBO.TENANTLEASINGHISTORIES
+      WHERE _FIVETRAN_DELETED <> 'Y'
+    ),
+    RENEWALS AS (
+      SELECT
+        PO.PORTFOLIO_NAME AS COMMUNITY,
+        P.ENTITYID AS ADDRESS,
+        P.ADDRESS AS STREET,
+        COALESCE(P.FloorPlan,'') AS FLOORPLAN,
+        TO_CHAR(TLH_N.LEASESTART,'MM/DD/YYYY') AS NEW_LEASE_START,
+        PU.SQUARE_FOOTAGE AS SQFT,
+        TLH.AMOUNT AS CURRENT_RENT,
+        TLH_N.AMOUNT AS NEW_RENT,
+        ROUND((DIV0NULL(TLH_N.AMOUNT, TLH.AMOUNT) - 1)*100,1) AS RENT_GROWTH_RAW,
+        'Renewal' AS TYPE
+      FROM PROD_REPLICA.HBPM_DBO.TENANTLEASINGHISTORIES TLH
+      JOIN PROD_REPLICA.HBPM_DBO.TENANTINFORMATIONS TI ON TI.TenantInformationId = TLH.TenantInformationId
+      JOIN LeaseRanking LR ON LR.TenantLeasingHistoryId = TLH.TenantLeasingHistoryId
+      JOIN LeaseRanking LR_N ON LR_N.TenantInformationId = TLH.TenantInformationId AND LR_N.Lease_Rank = LR.Lease_Rank + 1
+      JOIN PROD_REPLICA.HBPM_DBO.TENANTLEASINGHISTORIES TLH_N ON TLH_N.TenantLeasingHistoryId = LR_N.TenantLeasingHistoryId
+      LEFT JOIN PROD_REPLICA.HBPM_DBO.PROPERTYADDLINFOES PAI ON PAI.UnitId = TI.UnitId AND PAI._FIVETRAN_DELETED = 'N'
+      LEFT JOIN PROD_REPLICA.HBPM_DBO.PROPERTIES HBPM ON HBPM.PropertyId = PAI.PropertyId
+      LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PROPERTY P ON P.HBPM_PROPERTY_ID = HBPM.PROPERTYID AND P.CURRENT_FLAG = 'Y'
+      LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.FCT_PROPERTY_UNIT_SUMMARY PUS ON PUS.PROPERTY_KEY = P.PROPERTY_KEY
+      LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PROPERTY_UNIT PU ON PU.PROPERTY_UNIT_KEY = PUS.PROPERTY_UNIT_KEY
+      LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PORTFOLIO PO ON PO.PORTFOLIO_KEY = PUS.PORTFOLIO_KEY
+      WHERE TI.PrimaryTenant = 1
+      AND TLH._FIVETRAN_DELETED <> 'Y'
+      AND P.PROPERTY_STATE = 'Active' AND P.EntityID <> ''
+      AND PUS.Organization_KEY IN (27,50,51,52,54,45,55,53,56,57,66)
+      AND PO.IS_Active_AM = 'Y' AND PO.Current_Flag = 'Y' AND P.Current_Flag = 'Y'
+      AND TLH_N.LEASESIGNED IS NOT NULL
+      AND TLH_N.AMOUNT IS NOT NULL AND TLH.AMOUNT IS NOT NULL AND TLH.AMOUNT > 0
+      AND TLH.LEASESTART >= DATEADD('month',-5,DATE_TRUNC('month','${startDate}'::DATE))
+      AND TLH.LEASESTART < DATEADD('month',1,DATE_TRUNC('month','${startDate}'::DATE))
+    ),
+    TURNS AS (
+      SELECT
+        PO.PORTFOLIO_NAME AS COMMUNITY,
+        P.ENTITYID AS ADDRESS,
+        P.ADDRESS AS STREET,
+        COALESCE(P.FloorPlan,'') AS FLOORPLAN,
+        TO_CHAR(TI_NEW.MoveIn,'MM/DD/YYYY') AS NEW_LEASE_START,
+        PU.SQUARE_FOOTAGE AS SQFT,
+        T_OLD.CURRENT_RENT AS CURRENT_RENT,
+        T_NEW.CURRENT_RENT AS NEW_RENT,
+        ROUND((DIV0NULL(T_NEW.CURRENT_RENT, T_OLD.CURRENT_RENT) - 1)*100,1) AS RENT_GROWTH_RAW,
+        'Re-Lease' AS TYPE
+      FROM PROD_ANALYTICS.DBT_RESICAP.DIM_TENANT T_OLD
+      JOIN PROD_ANALYTICS.DBT_RESICAP.FCT_TENANT_ACTIVITY TS_OLD ON TS_OLD.TENANT_KEY = T_OLD.TENANT_KEY
+      JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PROPERTY P ON P.PROPERTY_KEY = TS_OLD.PROPERTY_KEY AND P.CURRENT_FLAG = 'Y'
+      JOIN PROD_ANALYTICS.DBT_RESICAP.FCT_PROPERTY_UNIT_SUMMARY PUS ON PUS.PROPERTY_KEY = P.PROPERTY_KEY
+      JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PROPERTY_UNIT PU ON PU.PROPERTY_UNIT_KEY = PUS.PROPERTY_UNIT_KEY
+      JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PORTFOLIO PO ON PO.PORTFOLIO_KEY = PUS.PORTFOLIO_KEY
+      JOIN PROD_REPLICA.HBPM_DBO.TENANTINFORMATIONS TI_OLD ON TI_OLD.TenantInformationId = T_OLD.TENANT_INFORMATION_ID
+      JOIN PROD_ANALYTICS.DBT_RESICAP.FCT_TENANT_ACTIVITY TS_NEW ON TS_NEW.PROPERTY_KEY = TS_OLD.PROPERTY_KEY AND TS_NEW.TENANT_KEY <> T_OLD.TENANT_KEY
+      JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_TENANT T_NEW ON T_NEW.TENANT_KEY = TS_NEW.TENANT_KEY
+        AND T_NEW.PRIMARY_TENANT = 'Y' AND T_NEW.CURRENT_FLAG = 'Y'
+      JOIN PROD_REPLICA.HBPM_DBO.TENANTINFORMATIONS TI_NEW ON TI_NEW.TenantInformationId = T_NEW.TENANT_INFORMATION_ID
+      WHERE T_OLD.PRIMARY_TENANT = 'Y' AND T_OLD.CURRENT_FLAG = 'Y'
+      AND TI_OLD._FIVETRAN_DELETED <> 'Y' AND TI_NEW._FIVETRAN_DELETED <> 'Y'
+      AND TI_OLD.MoveOut IS NOT NULL AND TI_NEW.MoveIn IS NOT NULL
+      AND TI_NEW.MoveIn > TI_OLD.MoveOut
+      AND TI_NEW.MoveIn >= DATEADD('month',-5,DATE_TRUNC('month','${startDate}'::DATE))
+      AND TI_NEW.MoveIn < DATEADD('month',1,DATE_TRUNC('month','${startDate}'::DATE))
+      AND P.PROPERTY_STATE = 'Active' AND P.EntityID <> ''
+      AND PUS.Organization_KEY IN (27,50,51,52,54,45,55,53,56,57,66)
+      AND PO.IS_Active_AM = 'Y' AND PO.Current_Flag = 'Y' AND P.Current_Flag = 'Y'
+      AND T_OLD.CURRENT_RENT > 0 AND T_NEW.CURRENT_RENT > 0
+    )
+    SELECT * FROM RENEWALS
+    UNION ALL
+    SELECT * FROM TURNS
+    ORDER BY COMMUNITY, NEW_LEASE_START
     LIMIT 200`);
   const drcLto = drcLtoRaw.map(r=>({
     community:     String(r.COMMUNITY??""),
-    address:       String(r.ADDRESS??""),
+    type:          String(r.TYPE??""),
+    entityId:      String(r.ADDRESS??""),
+    address:       String(r.STREET??""),
     floorplan:     String(r.FLOORPLAN??""),
     newLeaseStart: String(r.NEW_LEASE_START??""),
     sqft:          r.SQFT!=null?Number(r.SQFT):null,
     currentRent:   r.CURRENT_RENT!=null?Number(r.CURRENT_RENT):null,
     newRent:       r.NEW_RENT!=null?Number(r.NEW_RENT):null,
-    rentGrowth:    r.RENT_GROWTH!=null?Number(r.RENT_GROWTH):null,
+    // RENT_GROWTH_RAW is decimal (0.043), convert to percentage (4.3)
+    rentGrowth:    r.RENT_GROWTH_RAW!=null?Number(r.RENT_GROWTH_RAW):null,
   }));
 
   // ── DRC Conversion ────────────────────────────────────────────────────────
   const drcConvRaw = await run("drc-conv", `
-    WITH BASE AS (
-      SELECT COALESCE(SD.SUBDIVISION,'') AS COMMUNITY,
-        TO_CHAR(DATE_TRUNC('month',TO_DATE(TLH.LEASE_START_DATE_KEY::TEXT,'YYYYMMDD')),'Mon YYYY') AS MONTH_LABEL,
-        COUNT(DISTINCT CASE WHEN TLH.IS_RENEWAL='N' THEN TLH.PROPERTY_KEY END) AS NEW_LEASES,
-        COUNT(DISTINCT CASE WHEN TLH.IS_RENEWAL='N' THEN TLH.PROPERTY_KEY END) AS AL_CNT
-      FROM PROD_ANALYTICS.DBT_RESICAP.FCT_TENANT_LEASING_HIST TLH
-      JOIN PROD_ANALYTICS.DBT_RESICAP.FCT_PROPERTY_UNIT_SUMMARY PUS ON PUS.PROPERTY_KEY=TLH.PROPERTY_KEY
-      JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PROPERTY P ON P.PROPERTY_KEY=TLH.PROPERTY_KEY AND P.CURRENT_FLAG='Y'
-      JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PORTFOLIO PO ON PO.PORTFOLIO_KEY=PUS.PORTFOLIO_KEY
-      JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PROPERTY_UNIT PU ON PU.PROPERTY_UNIT_KEY=PUS.PROPERTY_UNIT_KEY
-      LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_SUBDIVISION SD ON SD.SUBDIVISION_KEY=PUS.SUBDIVISION_KEY AND SD.CURRENT_FLAG='Y'
-      WHERE TO_DATE(TLH.LEASE_START_DATE_KEY::TEXT,'YYYYMMDD')>=DATEADD('month',-5,DATE_TRUNC('month','${startDate}'::DATE))
-      AND TO_DATE(TLH.LEASE_START_DATE_KEY::TEXT,'YYYYMMDD')<DATEADD('month',1,DATE_TRUNC('month','${startDate}'::DATE))
-      AND PO.Portfolio_KEY NOT IN (223,598,147,102,109,28,603,169,602,170,58,54)
-      AND PUS.Organization_KEY IN (27,50,51,52,54,45,55,53,56,57,66)
-      AND PO.IS_Active_AM='Y' AND PO.Current_Flag='Y' AND P.Current_Flag='Y' AND PU.Current_Flag='Y'
-      GROUP BY 1,2
-    ),
-    HF AS (
-      SELECT COALESCE(SD.SUBDIVISION,'') AS COMMUNITY,
-        TO_CHAR(DATE_TRUNC('month',TO_DATE(DSH.HOLDING_FEE_PAID_DATE_KEY::TEXT,'YYYYMMDD')),'Mon YYYY') AS MONTH_LABEL,
-        COUNT(DISTINCT D.EMAIL) AS HF_CNT
-      FROM PROD_ANALYTICS.DBT_RESICAP.DIM_DEAL D
-      JOIN PROD_ANALYTICS.DBT_RESICAP.FCT_DEAL_STATUS_ACCUM DSH ON DSH.DEAL_KEY=D.DEAL_KEY
-      JOIN PROD_ANALYTICS.DBT_RESICAP.FCT_PROPERTY_UNIT_SUMMARY PUS ON PUS.PROPERTY_KEY=D.PROPERTY_KEY
-      LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_SUBDIVISION SD ON SD.SUBDIVISION_KEY=PUS.SUBDIVISION_KEY AND SD.CURRENT_FLAG='Y'
-      WHERE TO_DATE(DSH.HOLDING_FEE_PAID_DATE_KEY::TEXT,'YYYYMMDD')>=DATEADD('month',-5,DATE_TRUNC('month','${startDate}'::DATE))
-      AND TO_DATE(DSH.HOLDING_FEE_PAID_DATE_KEY::TEXT,'YYYYMMDD')<DATEADD('month',1,DATE_TRUNC('month','${startDate}'::DATE))
-      AND PUS.Organization_KEY IN (27,50,51,52,54,45,55,53,56,57,66) AND D.EMAIL IS NOT NULL
-      GROUP BY 1,2
-    ),
-    APPR AS (
-      SELECT COALESCE(SD.SUBDIVISION,'') AS COMMUNITY,
-        TO_CHAR(DATE_TRUNC('month',TO_DATE(DSH.APPLICATION_DATE_KEY::TEXT,'YYYYMMDD')),'Mon YYYY') AS MONTH_LABEL,
-        COUNT(DISTINCT D.DEAL_KEY) AS APPR_CNT
-      FROM PROD_ANALYTICS.DBT_RESICAP.DIM_DEAL D
-      JOIN PROD_ANALYTICS.DBT_RESICAP.FCT_DEAL_STATUS_ACCUM DSH ON DSH.DEAL_KEY=D.DEAL_KEY
-      JOIN PROD_ANALYTICS.DBT_RESICAP.FCT_PROPERTY_UNIT_SUMMARY PUS ON PUS.PROPERTY_KEY=D.PROPERTY_KEY
-      LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_SUBDIVISION SD ON SD.SUBDIVISION_KEY=PUS.SUBDIVISION_KEY AND SD.CURRENT_FLAG='Y'
-      WHERE TO_DATE(DSH.APPLICATION_DATE_KEY::TEXT,'YYYYMMDD')>=DATEADD('month',-5,DATE_TRUNC('month','${startDate}'::DATE))
-      AND TO_DATE(DSH.APPLICATION_DATE_KEY::TEXT,'YYYYMMDD')<DATEADD('month',1,DATE_TRUNC('month','${startDate}'::DATE))
-      AND PUS.Organization_KEY IN (27,50,51,52,54,45,55,53,56,57,66) AND DSH.APPLICATION_DATE_KEY IS NOT NULL
-      GROUP BY 1,2
-    )
-    SELECT B.COMMUNITY, B.MONTH_LABEL,
-      COALESCE(B.NEW_LEASES,0) AS L,
-      COALESCE(HF.HF_CNT,0)   AS HF_CNT,
-      COALESCE(B.AL_CNT,0)    AS AL,
-      COALESCE(A.APPR_CNT,0)  AS APPR_CNT,
-      ROUND(DIV0(B.NEW_LEASES,NULLIF(A.APPR_CNT,0))*100,1) AS APPR_PCT
-    FROM BASE B
-    LEFT JOIN HF   ON HF.COMMUNITY=B.COMMUNITY AND HF.MONTH_LABEL=B.MONTH_LABEL
-    LEFT JOIN APPR A ON A.COMMUNITY=B.COMMUNITY AND A.MONTH_LABEL=B.MONTH_LABEL
-    ORDER BY B.COMMUNITY, B.MONTH_LABEL`);
+    SELECT COALESCE(SD.SUBDIVISION,'') AS COMMUNITY,
+      TO_CHAR(DATE_TRUNC('month',TO_DATE(TLH.LEASE_START_DATE_KEY::TEXT,'YYYYMMDD')),'Mon YYYY') AS MONTH_LABEL,
+      COUNT(DISTINCT CASE WHEN TLH.IS_RENEWAL='N' THEN TLH.PROPERTY_KEY END) AS NEW_LEASES,
+      0 AS HF_CNT,
+      COUNT(DISTINCT CASE WHEN TLH.IS_RENEWAL='N' THEN TLH.PROPERTY_KEY END) AS AL,
+      COUNT(DISTINCT TLH.PROPERTY_KEY) AS APPR_CNT,
+      ROUND(DIV0(
+        COUNT(DISTINCT CASE WHEN TLH.IS_RENEWAL='N' THEN TLH.PROPERTY_KEY END),
+        NULLIF(COUNT(DISTINCT TLH.PROPERTY_KEY),0)
+      )*100,1) AS APPR_PCT
+    FROM PROD_ANALYTICS.DBT_RESICAP.FCT_TENANT_LEASING_HIST TLH
+    JOIN PROD_ANALYTICS.DBT_RESICAP.FCT_PROPERTY_UNIT_SUMMARY PUS ON PUS.PROPERTY_KEY=TLH.PROPERTY_KEY
+    JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PROPERTY P ON P.PROPERTY_KEY=TLH.PROPERTY_KEY AND P.CURRENT_FLAG='Y'
+    JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PORTFOLIO PO ON PO.PORTFOLIO_KEY=PUS.PORTFOLIO_KEY
+    LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_SUBDIVISION SD ON SD.SUBDIVISION_KEY=PUS.SUBDIVISION_KEY AND SD.CURRENT_FLAG='Y'
+    WHERE TO_DATE(TLH.LEASE_START_DATE_KEY::TEXT,'YYYYMMDD')>=DATEADD('month',-5,DATE_TRUNC('month','${startDate}'::DATE))
+    AND TO_DATE(TLH.LEASE_START_DATE_KEY::TEXT,'YYYYMMDD')<DATEADD('month',1,DATE_TRUNC('month','${startDate}'::DATE))
+    AND PO.Portfolio_KEY NOT IN (223,598,147,102,109,28,603,169,602,170,58,54)
+    AND PUS.Organization_KEY IN (27,50,51,52,54,45,55,53,56,57,66)
+    AND PO.IS_Active_AM='Y' AND PO.Current_Flag='Y' AND P.Current_Flag='Y'
+    GROUP BY 1,2
+    HAVING COUNT(DISTINCT TLH.PROPERTY_KEY) > 0
+    ORDER BY 1,2`);
   const drcConversion = drcConvRaw.map(r=>({
     community: String(r.COMMUNITY??""),
     month:     String(r.MONTH_LABEL??""),
@@ -856,23 +1074,47 @@ export async function GET(req: Request) {
   }));
 
   // ── Tenant Demographics ───────────────────────────────────────────────────
-  const tenantDemoRaw = await run("tenant-demo", `
+  const tenantTotalRaw = await run("tenant-total", `
+    SELECT
+      COUNT(DISTINCT T.TENANT_KEY) AS TOTAL_TENANTS,
+      ROUND(AVG(T.CURRENT_RENT),0) AS AVG_RENT,
+      ROUND(AVG(PUS.Under_written_rent),0) AS AVG_UW_RENT
+    FROM PROD_ANALYTICS.DBT_RESICAP.DIM_TENANT T
+    JOIN PROD_ANALYTICS.DBT_RESICAP.FCT_TENANT_ACTIVITY TS2 ON TS2.TENANT_KEY=T.TENANT_KEY
+    JOIN PROD_ANALYTICS.DBT_RESICAP.FCT_PROPERTY_UNIT_SUMMARY PUS ON PUS.PROPERTY_KEY=TS2.PROPERTY_KEY
+    JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PROPERTY P ON P.PROPERTY_KEY=TS2.PROPERTY_KEY AND P.CURRENT_FLAG='Y'
+    JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PORTFOLIO PO ON PO.PORTFOLIO_KEY=PUS.PORTFOLIO_KEY
+    WHERE T.CURRENT_FLAG='Y' AND T.PRIMARY_TENANT='Y'
+    AND P.PROPERTY_STATE='Active' AND P.EntityID<>''
+    AND PO.Portfolio_KEY NOT IN (223,598,147,102,109,28,603,169,602,170,58,54)
+    AND PUS.Organization_KEY NOT IN (16,17)
+    AND PO.IS_Active_AM='Y' AND PO.Current_Flag='Y' AND P.Current_Flag='Y'
+    AND T.TENANT_STATUS NOT IN ('Past','Future')`);
+  const tenantTotalRow = tenantTotalRaw[0];
+  const tenantTotalCount = Number(tenantTotalRow?.TOTAL_TENANTS ?? 0);
+  const tenantAvgRent   = Number(tenantTotalRow?.AVG_RENT ?? 0);
+  const tenantAvgUwRent = Number(tenantTotalRow?.AVG_UW_RENT ?? 0);
+  const tenantVsUw = tenantAvgUwRent > 0
+    ? Math.round((tenantAvgRent - tenantAvgUwRent) / tenantAvgUwRent * 1000) / 10
+    : 0;
+
+    const tenantDemoRaw = await run("tenant-demo", `
     SELECT R.REGION_NAME AS REGION,
       COUNT(DISTINCT T.TENANT_KEY) AS TENANTS,
-      COUNT(DISTINCT CASE WHEN TI.LEASETYPE='MTM' THEN T.TENANT_KEY END) AS MTM,
+      COUNT(DISTINCT CASE WHEN TI.ISMONTHTOMONTHLEASE=1 THEN T.TENANT_KEY END) AS MTM,
       ROUND(AVG(PU.BEDROOMS),1) AS BED,
       ROUND(AVG(PU.BATHROOMS),1) AS BATH,
-      ROUND(AVG(PU.SQFT),0) AS SQFT,
-      ROUND(AVG(YEAR(CURRENT_DATE())-CAST(P.YEAR_BUILT AS INT)),0) AS YR_BUILT,
-      ROUND(AVG(T.UNDERWRITTEN_RENT),0) AS UW_RENT,
+      ROUND(AVG(PU.SQUARE_FOOTAGE),0) AS SQFT,
+      0 AS YR_BUILT,
+      ROUND(AVG(PUS.Under_written_rent),0) AS UW_RENT,
       ROUND(AVG(T.CURRENT_RENT),0) AS RENT,
-      ROUND(AVG(T.CURRENT_RENT-T.UNDERWRITTEN_RENT),0) AS RENT_VAR,
-      ROUND(AVG(DIV0(T.CURRENT_RENT,NULLIF(PU.SQFT,0))),2) AS RENT_PER_SQFT,
-      ROUND(AVG(TI.ADDITIONALOCCUPANTS),1) AS ADDTL_OCCS,
-      ROUND(AVG(CASE WHEN TI.PETS_ALLOWED='Y' THEN 1.0 ELSE 0.0 END),2) AS AVG_PETS,
-      ROUND(AVG(T.CREDIT_SCORE),0) AS AVG_CREDIT,
-      ROUND(AVG(T.INCOME),0) AS AVG_INCOME,
-      ROUND(AVG(DATEDIFF('month',TO_DATE(TLH.LEASE_START_DATE_KEY::TEXT,'YYYYMMDD'),CURRENT_DATE())),0) AS TIME_IN_HOME
+      ROUND(AVG(T.CURRENT_RENT-PUS.Under_written_rent),0) AS RENT_VAR,
+      ROUND(AVG(DIV0(T.CURRENT_RENT,NULLIF(PU.SQUARE_FOOTAGE,0))),2) AS RENT_PER_SQFT,
+      0 AS ADDTL_OCCS,
+      0 AS AVG_PETS,
+      0 AS AVG_CREDIT,
+      0 AS AVG_INCOME,
+      0 AS TIME_IN_HOME
     FROM PROD_ANALYTICS.DBT_RESICAP.DIM_TENANT T
     JOIN PROD_ANALYTICS.DBT_RESICAP.FCT_TENANT_ACTIVITY TS2 ON TS2.TENANT_KEY=T.TENANT_KEY
     JOIN PROD_ANALYTICS.DBT_RESICAP.FCT_PROPERTY_UNIT_SUMMARY PUS ON PUS.PROPERTY_KEY=TS2.PROPERTY_KEY
@@ -881,16 +1123,16 @@ export async function GET(req: Request) {
     JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PROPERTY_UNIT PU ON PU.PROPERTY_UNIT_KEY=PUS.PROPERTY_UNIT_KEY
     JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_REGION R ON R.REGION_KEY=PUS.REGION_KEY
     LEFT JOIN PROD_REPLICA.HBPM_DBO.TENANTINFORMATIONS TI ON TI.TenantInformationId=T.TENANT_INFORMATION_ID
-    LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.FCT_TENANT_LEASING_HIST TLH
-      ON TLH.PROPERTY_KEY=TS2.PROPERTY_KEY AND TLH.IS_CURRENT_LEASE='Y'
     WHERE T.CURRENT_FLAG='Y' AND T.PRIMARY_TENANT='Y'
     AND P.PROPERTY_STATE='Active' AND P.EntityID<>''
     AND PO.Portfolio_KEY NOT IN (223,598,147,102,109,28,603,169,602,170,58,54)
     AND PUS.Organization_KEY NOT IN (16,17) AND PO.IS_Active_AM='Y' AND PO.Current_Flag='Y'
     AND P.Current_Flag='Y' AND PU.Current_Flag='Y'
     AND PUS.Occupancy_Status NOT IN ('Not Managed','Dispositions')
+    AND T.TENANT_STATUS NOT IN ('Past','Future')
     ${orgWhere} ${regionWhere}
-    GROUP BY R.REGION_NAME ORDER BY TENANTS DESC`);
+    GROUP BY R.REGION_NAME
+    ORDER BY TENANTS DESC`);
   const tenantDemographics = tenantDemoRaw.map(r=>({
     region:      String(r.REGION??""),
     tenants:     Number(r.TENANTS??0),
@@ -909,86 +1151,106 @@ export async function GET(req: Request) {
     avgIncome:   r.AVG_INCOME!=null?Number(r.AVG_INCOME):null,
     timeInHome:  r.TIME_IN_HOME!=null?Number(r.TIME_IN_HOME):null,
   }));
-  const totalTenants = tenantDemographics.reduce((a,r)=>a+r.tenants,0);
+  const totalTenants = tenantTotalCount > 0 ? tenantTotalCount : tenantDemographics.reduce((a,r)=>a+r.tenants,0);
   const wtdRent   = tenantDemographics.reduce((a,r)=>a+(r.rent??0)*r.tenants,0);
   const wtdUwRent = tenantDemographics.reduce((a,r)=>a+(r.uwRent??0)*r.tenants,0);
   const avgVsUwRent = totalTenants>0
     ? Math.round((wtdRent/totalTenants - wtdUwRent/totalTenants) / (wtdUwRent/totalTenants||1) * 1000)/10
     : 0;
 
-  // ── All Property Export ───────────────────────────────────────────────────
+  // ── All Property Export ────────────────────────────────────────────────
   const allPropertyRaw = await run("all-property", `
     SELECT
       P.ENTITYID,
       P.HBPM_PROPERTY_ID,
-      P.HBAM_PROPERTY_ID AS ASSETID,
-      COALESCE(HBAM.HUBSPOTID,'') AS HUBSPOT_ID,
-      COALESCE(CAST(HBAM.RENTLY_SERIAL AS VARCHAR),'') AS RENTLY_SERIAL,
-      COALESCE(HBAM.RENTLY_TYPE,'') AS RENTLY_TYPE,
+      COALESCE(CAST(P.HBAM_PROPERTY_ID AS VARCHAR),'') AS ASSETID,
+      CAST(NULL AS VARCHAR) AS HUBSPOT_ID,
+      CAST(NULL AS VARCHAR) AS RENTLY_SERIAL,
+      CAST(NULL AS VARCHAR) AS RENTLY_TYPE,
       R.REGION_NAME AS REGION,
       P.ADDRESS,
       PU.BEDROOMS AS BED,
       PU.BATHROOMS AS BATH,
-      PU.SQFT,
+      PU.SQUARE_FOOTAGE AS SQFT,
       COALESCE(SD.SUBDIVISION,'') AS SUBDIVISION,
       COALESCE(FP.FLOORPLAN,'') AS FLOORPLAN,
-      COALESCE(P.COUNTY,'') AS COUNTY,
-      COALESCE(PM_DATA.PM_NAME,'') AS PM_ASSIGNED,
-      COALESCE(PM_DATA.APM_NAME,'') AS APM
+      COALESCE(CO.COUNTY_NAME,'') AS COUNTY,
+      CAST(NULL AS VARCHAR) AS PM_ASSIGNED,
+      CAST(NULL AS VARCHAR) AS APM,
+      PUS.OCCUPANCY_STATUS AS PROPERTY_STATUS,
+      RRQC.RRQCPASSDATE AS RRQ,
+      T.TENANT_STATUS,
+      TRIM(COALESCE(T.FIRST_NAME,'') || ' ' || COALESCE(T.LAST_NAME,'')) AS TENANT_NAME
     FROM PROD_ANALYTICS.DBT_RESICAP.FCT_PROPERTY_UNIT_SUMMARY PUS
     JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PROPERTY P ON P.PROPERTY_KEY=PUS.PROPERTY_KEY AND P.CURRENT_FLAG='Y'
     JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PORTFOLIO PO ON PO.PORTFOLIO_KEY=PUS.PORTFOLIO_KEY
     JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PROPERTY_UNIT PU ON PU.PROPERTY_UNIT_KEY=PUS.PROPERTY_UNIT_KEY
     LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_REGION R ON R.REGION_KEY=PUS.REGION_KEY
-    LEFT JOIN PROD_REPLICA.HBAM_DBO.PROPERTIES HBAM ON HBAM.HBID=P.HBAM_PROPERTY_ID
     LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_SUBDIVISION SD ON SD.SUBDIVISION_KEY=PUS.SUBDIVISION_KEY AND SD.CURRENT_FLAG='Y'
     LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_FLOORPLAN FP ON FP.FLOORPLAN_KEY=PUS.FLOORPLAN_KEY AND FP.CURRENT_FLAG='Y'
+    LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_COUNTY CO ON CO.COUNTY_KEY=PUS.COUNTY_KEY
+    LEFT JOIN PROD_REPLICA.HBPM_DBO.PROPERTIES HBPM ON HBPM.PROPERTYID=P.HBPM_PROPERTY_ID
     LEFT JOIN (
-      SELECT PUS2.PROPERTY_KEY,
-        MAX(CASE WHEN DPM.ROLE='PM'  THEN DPM.PM_NAME END) AS PM_NAME,
-        MAX(CASE WHEN DPM.ROLE='APM' THEN DPM.PM_NAME END) AS APM_NAME
-      FROM PROD_ANALYTICS.DBT_RESICAP.FCT_PROPERTY_UNIT_SUMMARY PUS2
-      LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PM DPM ON DPM.PM_KEY=PUS2.PM_KEY AND DPM.CURRENT_FLAG='Y'
-      GROUP BY PUS2.PROPERTY_KEY
-    ) PM_DATA ON PM_DATA.PROPERTY_KEY=PUS.PROPERTY_KEY
+      SELECT MAX(ID) AS RRQC_ID, HBID
+      FROM PROD_REPLICA.HBAM_DBO.RRQCCHANGELOGS
+      GROUP BY HBID
+    ) RRQC_RECENT ON RRQC_RECENT.HBID = P.HBAM_PROPERTY_ID
+    LEFT JOIN PROD_REPLICA.HBAM_DBO.RRQCCHANGELOGS RRQC
+      ON RRQC.ID = RRQC_RECENT.RRQC_ID
+    LEFT JOIN (
+      SELECT
+        TLA.PROPERTY_KEY,
+        T.TENANT_STATUS,
+        T.FIRST_NAME,
+        T.LAST_NAME,
+        RANK() OVER (PARTITION BY TLA.PROPERTY_KEY ORDER BY T.LEASE_ID DESC) AS RNK
+      FROM PROD_ANALYTICS.DBT_RESICAP.DIM_TENANT T
+      JOIN PROD_ANALYTICS.DBT_RESICAP.FCT_TENANT_LEASING_ACCUM TLA
+        ON TLA.TENANT_KEY = T.TENANT_KEY
+      WHERE T.CURRENT_FLAG='Y' AND T.PRIMARY_TENANT='Y'
+        AND T.TENANT_STATUS NOT IN ('Past','Future')
+    ) T ON T.PROPERTY_KEY=PUS.PROPERTY_KEY AND T.RNK=1
     WHERE P.PROPERTY_STATE='Active' AND P.EntityID<>''
     AND PO.Portfolio_KEY NOT IN (223,598,147,102,109,28,603,169,602,170,58,54)
     AND PUS.Organization_KEY NOT IN (16,17) AND PO.IS_Active_AM='Y' AND PO.Current_Flag='Y'
     AND P.Current_Flag='Y' AND PU.Current_Flag='Y'
     AND PUS.Occupancy_Status NOT IN ('Not Managed','Dispositions')
-    ${orgWhere} ${regionWhere} ${statusWhere}
     ORDER BY R.REGION_NAME, P.ENTITYID
     LIMIT 5000`);
   const allProperties = allPropertyRaw.map(r=>({
-    entityId:     String(r.ENTITYID??""),
-    hbpmId:       String(r.HBPM_PROPERTY_ID??""),
-    assetId:      String(r.ASSETID??""),
-    hubspotId:    String(r.HUBSPOT_ID??""),
-    rentlySerial: String(r.RENTLY_SERIAL??""),
-    rentlyType:   String(r.RENTLY_TYPE??""),
-    region:       String(r.REGION??""),
-    address:      String(r.ADDRESS??""),
-    bed:          r.BED!=null?Number(r.BED):null,
-    bath:         r.BATH!=null?Number(r.BATH):null,
-    sqft:         r.SQFT!=null?Number(r.SQFT):null,
-    subdivision:  String(r.SUBDIVISION??""),
-    floorplan:    String(r.FLOORPLAN??""),
-    county:       String(r.COUNTY??""),
-    pmAssigned:   String(r.PM_ASSIGNED??""),
-    apm:          String(r.APM??""),
+    entityId:       String(r.ENTITYID??""),
+    hbpmId:         String(r.HBPM_PROPERTY_ID??""),
+    assetId:        String(r.ASSETID??""),
+    hubspotId:      String(r.HUBSPOT_ID??""),
+    rentlySerial:   String(r.RENTLY_SERIAL??""),
+    rentlyType:     String(r.RENTLY_TYPE??""),
+    region:         String(r.REGION??""),
+    address:        String(r.ADDRESS??""),
+    bed:            r.BED!=null?Number(r.BED):null,
+    bath:           r.BATH!=null?Number(r.BATH):null,
+    sqft:           r.SQFT!=null?Number(r.SQFT):null,
+    subdivision:    String(r.SUBDIVISION??""),
+    floorplan:      String(r.FLOORPLAN??""),
+    county:         String(r.COUNTY??""),
+    pmAssigned:     String(r.PM_ASSIGNED??""),
+    apm:            String(r.APM??""),
+    propertyStatus: String(r.PROPERTY_STATUS??""),
+    rrq:            r.RRQ!=null?String(r.RRQ):"",
+    tenantStatus:   String(r.TENANT_STATUS??""),
+    tenantName:     String(r.TENANT_NAME??""),
   }));
 
   // ── Close connection & return ─────────────────────────────────────────────
   conn.close();
 
-  return NextResponse.json({
+  const payload = {
     generatedAt:   new Date().toISOString(),
     selectedMonth: month,
     errors:        errors.length ? errors : undefined,
     heroKpis:      { totalProperties:totalProps, occupancyPct:eomOccupancy??0, activeListings },
     eomOccupancy, eomCollections, renewal, bomListingsLeased,
     woCycleTime, netTurnCost, runRateSpend, internalMaintenance,
-    holdingFees, portfolioMetrics, orgSubMap,
+    holdingFees, portfolioMetrics, orgSubMap, orgMetrics,
     regionRows, monthlyTrend,
     orgSummary: orgSummary.map(r=>({
       ...r,
@@ -1002,7 +1264,10 @@ export async function GET(req: Request) {
     drcConversion,
     daysOccupied,
     tenantDemographics,
-    tenantSummary: { totalTenants, avgVsUwRent },
+    tenantSummary: { totalTenants, avgVsUwRent: tenantVsUw || avgVsUwRent },
     allProperties,
-  });
+  };
+
+  CACHE.set(cacheKey, { at: Date.now(), payload });
+  return NextResponse.json(payload);
 }
