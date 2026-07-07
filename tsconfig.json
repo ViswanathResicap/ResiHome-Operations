@@ -17,5 +17,5 @@
     "paths": { "@/*": ["./*"] }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules", "powerbi-source"]
+  "exclude": ["node_modules", "powerbi-source", "Backup", ".ingest", "PBIX file"]
 }
