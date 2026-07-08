@@ -12,6 +12,7 @@ const CACHE = new Map<string, { at: number; payload: any }>();
 const TTL = 30 * 60 * 1000;
 
 export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 
 export async function GET(req: Request) {
   const url = new URL(req.url);

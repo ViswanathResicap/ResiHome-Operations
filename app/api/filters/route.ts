@@ -1,6 +1,7 @@
 // app/api/filters/route.ts
 import { NextResponse } from "next/server";
 import { connect } from "@/lib/snowflake";
+export const maxDuration = 60;
 
 export async function GET() {
   let conn: Awaited<ReturnType<typeof connect>> | null = null;
