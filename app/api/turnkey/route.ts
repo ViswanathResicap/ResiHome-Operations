@@ -5,6 +5,7 @@ import { DW_TURNS_SQL } from "@/lib/dw-turns-sql";
 
 const CACHE = makeCache();
 export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 
 // Turnkey (Turns) tab — real turn data from DW_Turns: in-process turns and
 // completed turns (trailing 6 months) with turn cost, days-in-turn, MO→MI

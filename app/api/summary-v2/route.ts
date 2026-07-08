@@ -3,6 +3,9 @@ import { connect } from "@/lib/snowflake";
 import { PM_BOM_SQL, PM_LISTINGS_BOM_SQL } from "@/lib/pbi-sources";
 import { DW_TURNS_SQL } from "@/lib/dw-turns-sql";
 
+// Allow the heavy Snowflake compute the maximum function time (Hobby cap = 60s).
+export const maxDuration = 60;
+
 // In-memory response cache. The Snowflake compute takes ~40-50s, so without
 // this every page view (and every slicer change) would block that long. Keyed
 // by the filter params; stale entries revalidate in the background so a warm

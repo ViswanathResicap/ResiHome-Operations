@@ -7,6 +7,7 @@
 // DRC LTO / Conversion, Tenant Leased Demographics, All Property Export.
 
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
+import { getCachedPayload, setCachedPayload } from "@/lib/client-cache";
 import { PropertyMap } from "./PropertyMap";
 
 /* ----------------------------- payload types ----------------------------- */
@@ -177,8 +178,7 @@ export function SummaryView() {
     return () => { cancelled = true; };
   }, []);
 
-  const load = useCallback(async () => {
-    setLoading(true); setErr(null);
+  const load = useCallback(async (force = false) => {
     const qs = new URLSearchParams({ month });
     if (org) qs.set("org", org);
     if (region) qs.set("region", region);
@@ -186,12 +186,18 @@ export function SummaryView() {
     if (subdivision) qs.set("subdivision", subdivision);
     if (mgr) qs.set("pm", mgr);
     if (search) qs.set("q", search);
+    const key = `/api/summary-v2?${qs.toString()}`;
+    // Show any cached copy instantly, then refresh in the background.
+    const cached = getCachedPayload<V2>(key);
+    if (cached && !force) { setD(cached); setLoading(false); } else { setLoading(true); }
+    setErr(null);
     try {
-      const r = await fetch(`/api/summary-v2?${qs.toString()}`, { cache: "no-store" });
+      const r = await fetch(key, force ? { cache: "no-store" } : undefined);
       const j = await r.json();
       if (!r.ok || j.error) throw new Error(j.detail || j.error || `HTTP ${r.status}`);
+      setCachedPayload(key, j);
       setD(j as V2);
-    } catch (e) { setErr((e as Error).message); } finally { setLoading(false); }
+    } catch (e) { if (!cached) setErr((e as Error).message); } finally { setLoading(false); }
   }, [month, org, region, status, subdivision, mgr, search]);
   useEffect(() => { load(); }, [load]);
 
@@ -263,7 +269,7 @@ export function SummaryView() {
           <div className="ctx">
             {d ? `Live · Snowflake · ${d.selectedMonth} · updated ${new Date(d.generatedAt).toLocaleString("en-US")}` : "Loading…"}
             {loading && <span className="refresh-pill"><span className="spin">↻</span> loading…</span>}
-            <button className="refresh-btn" onClick={load} aria-busy={loading}><span className={loading ? "spin" : ""}>↻</span> Refresh</button>
+            <button className="refresh-btn" onClick={() => load(true)} aria-busy={loading}><span className={loading ? "spin" : ""}>↻</span> Refresh</button>
           </div>
         </div>
         {loading && <div className="refresh-bar" aria-hidden />}

@@ -5,6 +5,7 @@
 // renders the header, KPI strip, tables, and "pending source" stubs.
 
 import { useCallback, useEffect, useState } from "react";
+import { getCachedPayload, setCachedPayload } from "@/lib/client-cache";
 
 interface Kpi { label: string; value: string; tone?: "pos" | "neg" }
 interface Table { title: string; blue?: boolean; headers: string[]; aligns?: ("l" | "r")[]; rows: string[][]; note?: string }
@@ -18,17 +19,22 @@ export function TabPage({ title, endpoint, kpiCols = 6 }: { title: string; endpo
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
 
-  const load = useCallback(async () => {
-    setLoading(true); setErr(null);
+  const load = useCallback(async (force = false) => {
     const qs = new URLSearchParams();
     if (org) qs.set("org", org);
     if (region) qs.set("region", region);
+    const key = `${endpoint}?${qs.toString()}`;
+    // Show any cached copy instantly, then refresh in the background.
+    const cached = getCachedPayload<Payload>(key);
+    if (cached && !force) { setD(cached); setLoading(false); } else { setLoading(true); }
+    setErr(null);
     try {
-      const r = await fetch(`${endpoint}?${qs.toString()}`, { cache: "no-store" });
+      const r = await fetch(key, force ? { cache: "no-store" } : undefined);
       const j = await r.json();
       if (!r.ok || j.error) throw new Error(j.detail || j.error || `HTTP ${r.status}`);
+      setCachedPayload(key, j);
       setD(j as Payload);
-    } catch (e) { setErr((e as Error).message); } finally { setLoading(false); }
+    } catch (e) { if (!cached) setErr((e as Error).message); } finally { setLoading(false); }
   }, [endpoint, org, region]);
   useEffect(() => { load(); }, [load]);
 
@@ -58,7 +64,7 @@ export function TabPage({ title, endpoint, kpiCols = 6 }: { title: string; endpo
           <div className="ctx">
             {d ? `Live · Snowflake · updated ${new Date(d.generatedAt).toLocaleString("en-US")}` : "Loading…"}
             {loading && <span className="refresh-pill"><span className="spin">↻</span> loading…</span>}
-            <button className="refresh-btn" onClick={load} aria-busy={loading}><span className={loading ? "spin" : ""}>↻</span> Refresh</button>
+            <button className="refresh-btn" onClick={() => load(true)} aria-busy={loading}><span className={loading ? "spin" : ""}>↻</span> Refresh</button>
           </div>
         </div>
         {loading && <div className="refresh-bar" aria-hidden />}
