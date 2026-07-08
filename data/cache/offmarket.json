@@ -1,0 +1,25 @@
+{
+  "_meta": {
+    "source": "SAMPLE",
+    "generatedAt": "2026-06-30T00:00:00.000Z",
+    "note": "Placeholder snapshot — replaced by scripts/refresh-cache.mjs once Snowflake env is configured."
+  },
+  "hero": {
+    "finalWalkConQC": 0,
+    "sendUnderCon": 0,
+    "notPcPassed": 0,
+    "squatter": 0,
+    "other": 0,
+    "pendingMaint": 0,
+    "pendingRRQC": 0,
+    "rrqcFail": 0,
+    "missingRently": 0,
+    "rtlNeedsPhotos": 0,
+    "readyToListPL": 0,
+    "readyToList": 0,
+    "avgDaysInStatus": {}
+  },
+  "offMarketSelected": 0,
+  "avgDaysOffMarket": null,
+  "rows": []
+}
