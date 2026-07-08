@@ -20,6 +20,14 @@ export function PageNav() {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
 
+  // The login page has no session yet — never show the app nav there.
+  if (pathname === "/login") return null;
+
+  async function signOut() {
+    try { await fetch("/api/auth/logout", { method: "POST" }); } catch {}
+    window.location.href = "/login";
+  }
+
   if (collapsed) {
     return (
       <div style={{
@@ -129,6 +137,21 @@ export function PageNav() {
           );
         })}
       </nav>
+
+      {/* ── Sign out ── */}
+      <button
+        onClick={signOut}
+        style={{
+          margin: "8px 12px 14px", padding: "9px 12px", background: "#fff",
+          border: "1px solid #d1d5db", borderRadius: 6, cursor: "pointer",
+          fontSize: 12.5, fontWeight: 600, color: "#374151", textAlign: "left",
+        }}
+        onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.background = "#f5f5f5")}
+        onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.background = "#fff")}
+        title="Sign out"
+      >
+        ⎋  Sign out
+      </button>
 
     </div>
   );
