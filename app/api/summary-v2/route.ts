@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { connect } from "@/lib/snowflake";
 import { PM_BOM_SQL, PM_LISTINGS_BOM_SQL } from "@/lib/pbi-sources";
 import { DW_TURNS_SQL } from "@/lib/dw-turns-sql";
+import SUMMARY_SNAPSHOT from "@/data/snapshots/summary.json";
 
 // Allow the heavy Snowflake compute the maximum function time (Hobby cap = 60s).
 export const maxDuration = 60;
@@ -25,6 +26,15 @@ export async function GET(req: Request) {
   const pmFilter     = url.searchParams.get("pm")     || "";
   const searchFilter = (url.searchParams.get("q")     || "").trim();
   const fresh = url.searchParams.get("fresh") === "1";
+
+  // Serve the daily precomputed snapshot instantly for the default (current-
+  // month, unfiltered) view — this is what makes the page load fast and avoids
+  // the serverless timeout. Filtered/other-month requests and ?fresh=1 (used by
+  // the nightly precompute job) fall through to a live Snowflake query.
+  const isDefault = !orgFilter && !regionFilter && !statusFilter && !subFilter && !pmFilter && !searchFilter;
+  if (!fresh && isDefault && (SUMMARY_SNAPSHOT as { selectedMonth?: string })?.selectedMonth === month) {
+    return NextResponse.json(SUMMARY_SNAPSHOT);
+  }
 
   const cacheKey = `${month}|${orgFilter}|${regionFilter}|${statusFilter}|${subFilter}|${pmFilter}|${searchFilter}`;
   const cached = CACHE.get(cacheKey);
