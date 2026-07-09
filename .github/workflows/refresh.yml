@@ -1,0 +1,45 @@
+name: Daily data refresh
+
+# Runs once a day (and on-demand) to recompute the dashboard snapshots from
+# Snowflake — outside Vercel's 60s function limit — and commit them. The commit
+# to main triggers a Vercel redeploy, so the app serves fresh data instantly.
+on:
+  schedule:
+    - cron: "0 8 * * *"   # 08:00 UTC daily (~3-4 AM US Eastern)
+  workflow_dispatch: {}    # allow manual "Run workflow" from the Actions tab
+
+permissions:
+  contents: write
+
+concurrency:
+  group: daily-refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - run: npm ci
+      - name: Precompute snapshots from Snowflake
+        env:
+          SNOWFLAKE_ACCOUNT: ${{ secrets.SNOWFLAKE_ACCOUNT }}
+          SNOWFLAKE_USERNAME: ${{ secrets.SNOWFLAKE_USERNAME }}
+          SNOWFLAKE_PASSWORD: ${{ secrets.SNOWFLAKE_PASSWORD }}
+          SNOWFLAKE_WAREHOUSE: ${{ secrets.SNOWFLAKE_WAREHOUSE }}
+          SNOWFLAKE_ROLE: ${{ secrets.SNOWFLAKE_ROLE }}
+        run: npx tsx scripts/precompute.ts
+      - name: Commit updated snapshots
+        run: |
+          git config user.name "resihome-bot"
+          git config user.email "resihome-bot@users.noreply.github.com"
+          git add data/snapshots
+          if git diff --cached --quiet; then
+            echo "No snapshot changes."
+          else
+            git commit -m "chore: daily data snapshot refresh [skip ci]"
+            git push
+          fi
