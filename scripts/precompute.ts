@@ -56,6 +56,13 @@ async function main() {
     } catch (e) { console.log(`  ! ${name} skipped:`, (e as Error).message); }
   }
 
+  // Off-Market renders server-side from getLiveOffMarket() — snapshot the real
+  // data so the page shows it instantly instead of the sample placeholder.
+  try {
+    const { getLiveOffMarket } = await import("@/lib/live-offmarket");
+    write("offmarket", await getLiveOffMarket());
+  } catch (e) { console.log("  ! offmarket skipped:", (e as Error).message); }
+
   console.log("Done.");
   process.exit(0);
 }
