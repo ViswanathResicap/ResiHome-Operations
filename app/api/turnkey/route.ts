@@ -13,8 +13,11 @@ export const maxDuration = 60;
 // in JS; cached 30 min.
 export async function GET(req: Request) {
   const url = new URL(req.url);
-  const org = url.searchParams.get("org") || "", region = url.searchParams.get("region") || "", fresh = url.searchParams.get("fresh") === "1";
-  const key = `${org}|${region}`;
+  const selOrg = url.searchParams.getAll("org").filter(Boolean), selRegion = url.searchParams.getAll("region").filter(Boolean), fresh = url.searchParams.get("fresh") === "1";
+  const org = selOrg[0] || "", region = selRegion[0] || "";
+  const orgIn = (col: string) => selOrg.length ? `AND (${col}) IN (${selOrg.map(v => `'${esc(v)}'`).join(",")})` : "";
+  const regionIn = (col: string) => selRegion.length ? `AND ${col} IN (${selRegion.map(v => `'${esc(v)}'`).join(",")})` : "";
+  const key = `${selOrg.join(",")}|${selRegion.join(",")}`;
   const c0 = CACHE.get(key); if (c0 && !fresh) return NextResponse.json(c0.payload);
   let conn: Awaited<ReturnType<typeof connect>>; try { conn = await connect(); } catch (e) { return NextResponse.json({ error: "Snowflake connection failed", detail: String(e) }, { status: 500 }); }
   const errors: string[] = [];
@@ -22,8 +25,8 @@ export async function GET(req: Request) {
   const run = async (l: string, sql: string): Promise<any[]> => { try { return await conn.query(sql); } catch (e) { errors.push(`${l}: ${(e as Error).message}`); return []; } };
   const num = (v: unknown) => (v == null || Number.isNaN(Number(v)) ? null : Number(v));
 
-  const orgW = org ? `AND t.ORGANIZATION_NAME = '${esc(org)}'` : "";
-  const regionW = region ? `AND t.Region_Name = '${esc(region)}'` : "";
+  const orgW = orgIn("t.ORGANIZATION_NAME");
+  const regionW = regionIn("t.Region_Name");
   // In-process = latest turn per property, not yet re-leased. Completed = turn
   // completed in the trailing 6 months. One pass over DW_Turns for both.
   const rows = await run("turns", `

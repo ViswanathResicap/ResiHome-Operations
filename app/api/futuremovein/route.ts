@@ -8,8 +8,11 @@ export const maxDuration = 60;
 
 export async function GET(req: Request) {
   const url = new URL(req.url);
-  const org = url.searchParams.get("org") || "", region = url.searchParams.get("region") || "", fresh = url.searchParams.get("fresh") === "1";
-  const key = `${org}|${region}`;
+  const selOrg = url.searchParams.getAll("org").filter(Boolean), selRegion = url.searchParams.getAll("region").filter(Boolean), fresh = url.searchParams.get("fresh") === "1";
+  const org = selOrg[0] || "", region = selRegion[0] || "";
+  const orgIn = (col: string) => selOrg.length ? `AND (${col}) IN (${selOrg.map(v => `'${esc(v)}'`).join(",")})` : "";
+  const regionIn = (col: string) => selRegion.length ? `AND ${col} IN (${selRegion.map(v => `'${esc(v)}'`).join(",")})` : "";
+  const key = `${selOrg.join(",")}|${selRegion.join(",")}`;
   const c0 = CACHE.get(key); if (c0 && !fresh) return NextResponse.json(c0.payload);
   let conn: Awaited<ReturnType<typeof connect>>; try { conn = await connect(); } catch (e) { return NextResponse.json({ error: "Snowflake connection failed", detail: String(e) }, { status: 500 }); }
   const errors: string[] = [];
@@ -17,8 +20,8 @@ export async function GET(req: Request) {
   const run = async (l: string, sql: string): Promise<any[]> => { try { return await conn.query(sql); } catch (e) { errors.push(`${l}: ${(e as Error).message}`); return []; } };
 
   const FROM = `FROM ${DB}.FCT_DEAL_STATUS_ACCUM f LEFT JOIN ${DB}.DIM_OWNER_ORGANIZATION O ON O.ORGANIZATION_KEY=f.ORGANIZATION_KEY LEFT JOIN ${DB}.DIM_REGION R ON R.REGION_KEY=f.REGION_KEY`;
-  const orgW = org ? `AND (${orgCase("f")}) = '${esc(org)}'` : "";
-  const regionW = region ? `AND R.REGION_NAME = '${esc(region)}'` : "";
+  const orgW = orgIn(orgCase("f"));
+  const regionW = regionIn("R.REGION_NAME");
   const WHERE = `${excl("f")} ${orgW} ${regionW}`;
   const INPROG = `f.CURRENT_DEAL_STATUS NOT ILIKE '%won%' AND f.CURRENT_DEAL_STATUS NOT ILIKE '%lost%' AND f.CURRENT_DEAL_STATUS NOT ILIKE '%dead%' AND f.CURRENT_DEAL_STATUS NOT ILIKE '%cancel%' AND f.CURRENT_DEAL_STATUS NOT ILIKE '%clos%' AND f.CURRENT_DEAL_STATUS NOT ILIKE '%reject%' AND f.CURRENT_DEAL_STATUS NOT ILIKE '%denied%' AND f.CURRENT_DEAL_STATUS NOT ILIKE '%declin%'`;
   const TK = `TO_NUMBER(TO_CHAR(CURRENT_DATE(),'YYYYMMDD'))`;
