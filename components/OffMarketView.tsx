@@ -6,6 +6,8 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { OffMarketCache, OffMarketRow, OffMarketHero } from "@/lib/types";
+import { SmartTable } from "@/components/SmartTable";
+import { MultiSelect } from "@/components/MultiSelect";
 
 const fnum = (v: number | null | undefined) => (v == null ? "—" : Math.round(Number(v)).toLocaleString("en-US"));
 const fdec = (v: number | null | undefined, d = 1) => (v == null ? "—" : Number(v).toFixed(d));
@@ -28,8 +30,9 @@ const TILES: { label: string; key: keyof OffMarketHero | "squatterOther"; bucket
 ];
 
 type FilterKey = "org" | "region" | "subdivision" | "propertyStatus" | "reasonOffMarket" | "offMarketStatus";
-type Filters = Record<FilterKey, string> & { address: string };
-const EMPTY: Filters = { org: "", region: "", subdivision: "", propertyStatus: "", reasonOffMarket: "", offMarketStatus: "", address: "" };
+type Filters = Record<FilterKey, string[]> & { address: string };
+const EMPTY: Filters = { org: [], region: [], subdivision: [], propertyStatus: [], reasonOffMarket: [], offMarketStatus: [], address: "" };
+const FILTER_KEYS: FilterKey[] = ["org", "region", "subdivision", "propertyStatus", "reasonOffMarket", "offMarketStatus"];
 
 export function OffMarketView({ initialData }: { initialData: OffMarketCache }) {
   const [d, setD] = useState<OffMarketCache>(initialData);
@@ -65,24 +68,32 @@ export function OffMarketView({ initialData }: { initialData: OffMarketCache }) 
     offMarketStatus: uniq(d.rows.map((r) => r.status)),
   }), [d.rows]);
 
-  const active = (Object.keys(EMPTY) as (keyof Filters)[]).some((k) => f[k] !== "");
-  const set = (k: keyof Filters, v: string) => setF((p) => ({ ...p, [k]: v }));
+  const active = FILTER_KEYS.some((k) => f[k].length > 0) || f.address !== "";
+  const set = <K extends keyof Filters>(k: K, v: Filters[K]) => setF((p) => ({ ...p, [k]: v }));
 
   const rows: OffMarketRow[] = useMemo(() => d.rows.filter((r) =>
-    (!f.org || r.org === f.org) && (!f.region || r.region === f.region) &&
-    (!f.subdivision || r.subdivision === f.subdivision) && (!f.propertyStatus || r.occupancyStatus === f.propertyStatus) &&
-    (!f.reasonOffMarket || (r.reasonOffMarket ?? "") === f.reasonOffMarket) &&
-    (!f.offMarketStatus || (r.status ?? "") === f.offMarketStatus) &&
+    (!f.org.length || f.org.includes(r.org)) && (!f.region.length || f.region.includes(r.region)) &&
+    (!f.subdivision.length || f.subdivision.includes(r.subdivision)) && (!f.propertyStatus.length || f.propertyStatus.includes(r.occupancyStatus)) &&
+    (!f.reasonOffMarket.length || f.reasonOffMarket.includes(r.reasonOffMarket ?? "")) &&
+    (!f.offMarketStatus.length || f.offMarketStatus.includes(r.status ?? "")) &&
     (!f.address || r.address.toLowerCase().includes(f.address.toLowerCase()))
   ), [d.rows, f]);
 
   const isSample = d._meta.source === "SAMPLE";
   const slicer = (label: string, key: FilterKey) => (
     <div className="slicer" key={key}><h4>{label}</h4>
-      <select className="control dd-input" value={f[key]} onChange={(e) => set(key, e.target.value)} disabled={!opts[key].length}>
-        <option value="">All</option>{opts[key].map((o) => <option key={o} value={o}>{o}</option>)}
-      </select></div>
+      <MultiSelect options={opts[key]} selected={f[key]} onChange={(sel) => set(key, sel)} disabled={!opts[key].length} />
+    </div>
   );
+
+  const TH: string[] = ["Entity ID", "Owner", "Subdivision", "Floorplan", "Region", "Address", "Property Status", "Strategy", "Purchase Type", "PC Status", "Transfer Date", "Days Off-Mkt", "DIQ", "Con/Final Walk", "Off-Market Date", "Reason Off-Market", "WOs Open", "WOs Closed", "Last TKT", "Last WO Closed"];
+  const AL: ("l" | "r")[] = ["l", "l", "l", "l", "l", "l", "l", "l", "l", "l", "r", "r", "r", "r", "r", "l", "r", "r", "r", "r"];
+  const tableRows: string[][] = useMemo(() => rows.map((r) => [
+    r.entityId, r.org, r.subdivision, r.floorplan || "—", r.region, r.address,
+    r.occupancyStatus, "—", r.purchaseType || "—", r.pcStatus ?? "—", fdate(r.transferDate),
+    fnum(r.daysOffMarket), fnum(r.diq), fdate(r.conCompleteOrFinalWalk), fdate(r.offMarketDate), r.reasonOffMarket ?? "—",
+    fnum(r.wosOpen), fnum(r.wosClosed), fdate(r.lastTktCreated), fdate(r.lastWoClosed),
+  ]), [rows]);
 
   return (
     <div className="app pbi">
@@ -130,28 +141,9 @@ export function OffMarketView({ initialData }: { initialData: OffMarketCache }) 
         </div>
         <div style={{ fontSize: 10, color: "var(--p-muted)", margin: "3px 2px 0", textAlign: "right" }}>tile sub-value = avg Days in Status</div>
 
-        {/* Off-Market table */}
-        <div className="p-tbl-title" style={{ marginTop: 14 }}>Off-Market ({fnum(rows.length)})</div>
-        <div className="p-tbl-wrap" style={{ maxHeight: 560 }}>
-          <table className="p-tbl">
-            <thead><tr>
-              <th className="lbl">Entity ID</th><th className="lbl">Owner</th><th className="lbl">Subdivision</th><th className="lbl">Floorplan</th><th className="lbl">Region</th><th className="lbl">Address</th>
-              <th className="lbl">Property Status</th><th className="lbl">Strategy</th><th className="lbl">Purchase Type</th><th className="lbl">PC Status</th><th>Transfer Date</th>
-              <th>Days Off-Mkt</th><th>DIQ</th><th>Con/Final Walk</th><th>Off-Market Date</th><th className="lbl">Reason Off-Market</th>
-              <th>WOs Open</th><th>WOs Closed</th><th>Last TKT</th><th>Last WO Closed</th>
-            </tr></thead>
-            <tbody>
-              {rows.map((r) => (
-                <tr key={r.key}>
-                  <td className="lbl">{r.entityId}</td><td className="lbl">{r.org}</td><td className="lbl">{r.subdivision}</td><td className="lbl">{r.floorplan || "—"}</td><td className="lbl">{r.region}</td><td className="lbl">{r.address}</td>
-                  <td className="lbl">{r.occupancyStatus}</td><td className="lbl">—</td><td className="lbl">{r.purchaseType || "—"}</td><td className="lbl">{r.pcStatus ?? "—"}</td><td>{fdate(r.transferDate)}</td>
-                  <td>{fnum(r.daysOffMarket)}</td><td>{fnum(r.diq)}</td><td>{fdate(r.conCompleteOrFinalWalk)}</td><td>{fdate(r.offMarketDate)}</td><td className="lbl status">{r.reasonOffMarket ?? "—"}</td>
-                  <td>{fnum(r.wosOpen)}</td><td>{fnum(r.wosClosed)}</td><td>{fdate(r.lastTktCreated)}</td><td>{fdate(r.lastWoClosed)}</td>
-                </tr>
-              ))}
-              {!rows.length && <tr><td className="lbl" colSpan={20} style={{ color: "var(--p-muted)" }}>No off-market properties match the filter.</td></tr>}
-            </tbody>
-          </table>
+        {/* Off-Market table (sortable, resizable, exportable) */}
+        <div style={{ marginTop: 14 }}>
+          <SmartTable title={`Off-Market (${fnum(rows.length)})`} headers={TH} rows={tableRows} aligns={AL} maxHeight={560} exportName="Off-Market" />
         </div>
       </main>
     </div>
