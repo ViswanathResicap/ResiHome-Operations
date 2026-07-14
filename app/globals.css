@@ -228,6 +228,25 @@ table.tbl tfoot td { font-weight: 800; background: #fbfcfe; border-top: 2px soli
 .pbi .dd-clear { color: var(--p-ink); border: 1px solid #8a8886; border-radius: 2px; }
 .pbi .dd-clear:hover { background: var(--p-head); }
 .pbi .dd-hint { margin-top: 4px; font-size: 10.5px; color: var(--p-blue-head, #118dff); font-style: italic; }
+
+/* Export-to-Excel button on tables */
+.pbi .tbl-export { font: inherit; font-size: 11px; font-weight: 600; color: var(--p-ink); background: #fff; border: 1px solid #8a8886; border-radius: 3px; padding: 3px 9px; cursor: pointer; white-space: nowrap; }
+.pbi .tbl-export:hover { background: var(--p-head); }
+
+/* Multi-select slicer (checkbox dropdown) */
+.pbi .ms { position: relative; width: 100%; }
+.pbi .ms-trigger { display: flex; align-items: center; justify-content: space-between; gap: 6px; width: 100%; text-align: left; background: #fff; cursor: pointer; padding: 5px 8px; }
+.pbi .ms-val { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pbi .ms-caret { color: var(--p-muted); font-size: 10px; }
+.pbi .ms-pop { position: absolute; z-index: 30; top: calc(100% + 2px); left: 0; right: 0; background: #fff; border: 1px solid #8a8886; border-radius: 3px; box-shadow: 0 6px 18px rgba(0,0,0,.15); padding: 6px; }
+.pbi .ms-actions { display: flex; gap: 6px; margin-bottom: 4px; }
+.pbi .ms-actions button { flex: 1; font: inherit; font-size: 11px; padding: 3px 6px; border: 1px solid #d0d0d0; border-radius: 3px; background: #f6f6f6; cursor: pointer; }
+.pbi .ms-actions button:hover { background: #ececec; }
+.pbi .ms-search { width: 100%; box-sizing: border-box; font: inherit; font-size: 12px; padding: 4px 6px; border: 1px solid #d0d0d0; border-radius: 3px; margin-bottom: 4px; }
+.pbi .ms-list { max-height: 220px; overflow: auto; }
+.pbi .ms-opt { display: flex; align-items: center; gap: 7px; padding: 4px; font-size: 12px; cursor: pointer; border-radius: 3px; }
+.pbi .ms-opt:hover { background: #f4f7fb; }
+.pbi .ms-empty { padding: 6px; font-size: 11px; color: var(--p-muted); }
 .pbi .rail .kpi-mini { border: 1px solid var(--p-line); border-radius: 3px; padding: 10px; text-align: center; margin-top: 12px; }
 .pbi .rail .kpi-mini .v { font-size: 30px; font-weight: 700; font-family: "Segoe UI Semibold","Segoe UI",sans-serif; letter-spacing: -.5px; }
 .pbi .rail .kpi-mini .l { font-size: 11px; color: var(--p-muted); margin-top: 2px; text-decoration: underline; }

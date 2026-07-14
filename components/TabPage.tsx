@@ -6,6 +6,8 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { getCachedPayload, setCachedPayload } from "@/lib/client-cache";
+import { SmartTable } from "@/components/SmartTable";
+import { MultiSelect } from "@/components/MultiSelect";
 
 interface Kpi { label: string; value: string; tone?: "pos" | "neg" }
 interface Table { title: string; blue?: boolean; headers: string[]; aligns?: ("l" | "r")[]; rows: string[][]; note?: string }
@@ -13,16 +15,17 @@ interface Stub { title: string; note: string }
 interface Payload { generatedAt: string; kpis: Kpi[]; tables: Table[]; stubs?: Stub[]; filters?: { orgs: string[]; regions: string[] }; errors?: string[] }
 
 export function TabPage({ title, endpoint, kpiCols = 6 }: { title: string; endpoint: string; kpiCols?: number }) {
-  const [org, setOrg] = useState("");
-  const [region, setRegion] = useState("");
+  const [org, setOrg] = useState<string[]>([]);
+  const [region, setRegion] = useState<string[]>([]);
   const [d, setD] = useState<Payload | null>(null);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
 
+  const orgKey = org.join("~"), regionKey = region.join("~");
   const load = useCallback(async (force = false) => {
     const qs = new URLSearchParams();
-    if (org) qs.set("org", org);
-    if (region) qs.set("region", region);
+    org.forEach((v) => qs.append("org", v));
+    region.forEach((v) => qs.append("region", v));
     const key = `${endpoint}?${qs.toString()}`;
     // Show any cached copy instantly, then refresh in the background.
     const cached = getCachedPayload<Payload>(key);
@@ -35,7 +38,8 @@ export function TabPage({ title, endpoint, kpiCols = 6 }: { title: string; endpo
       setCachedPayload(key, j);
       setD(j as Payload);
     } catch (e) { if (!cached) setErr((e as Error).message); } finally { setLoading(false); }
-  }, [endpoint, org, region]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [endpoint, orgKey, regionKey]);
   useEffect(() => { load(); }, [load]);
 
   const hasFilters = !!d?.filters;
@@ -47,14 +51,10 @@ export function TabPage({ title, endpoint, kpiCols = 6 }: { title: string; endpo
         <img className="logo" src="/resihome-logo.png" alt="ResiHome" />
         {hasFilters && (<>
           <div className="slicer"><h4>Organization</h4>
-            <select className="control dd-input" value={org} onChange={(e) => setOrg(e.target.value)}>
-              <option value="">All</option>{(d!.filters!.orgs ?? []).map((o) => <option key={o} value={o}>{o}</option>)}
-            </select></div>
+            <MultiSelect options={d!.filters!.orgs ?? []} selected={org} onChange={setOrg} /></div>
           <div className="slicer"><h4>Region</h4>
-            <select className="control dd-input" value={region} onChange={(e) => setRegion(e.target.value)}>
-              <option value="">All</option>{(d!.filters!.regions ?? []).map((r) => <option key={r} value={r}>{r}</option>)}
-            </select></div>
-          {(org || region) && <button className="dd-clear" onClick={() => { setOrg(""); setRegion(""); }}>Clear filters ✕</button>}
+            <MultiSelect options={d!.filters!.regions ?? []} selected={region} onChange={setRegion} /></div>
+          {(org.length > 0 || region.length > 0) && <button className="dd-clear" onClick={() => { setOrg([]); setRegion([]); }}>Clear filters ✕</button>}
         </>)}
       </aside>
 
@@ -83,18 +83,7 @@ export function TabPage({ title, endpoint, kpiCols = 6 }: { title: string; endpo
 
           {d.tables.map((t, ti) => (
             <div key={ti} style={{ marginTop: 16 }}>
-              <div className="p-tbl-title">{t.title}</div>
-              <div className="p-tbl-wrap" style={{ maxHeight: 460 }}>
-                <table className={`p-tbl${t.blue ? " blue" : ""}`}>
-                  <thead><tr>{t.headers.map((h, i) => <th key={i} className={(t.aligns?.[i] ?? "r") === "l" ? "lbl" : undefined}>{h}</th>)}</tr></thead>
-                  <tbody>
-                    {t.rows.map((row, ri) => (
-                      <tr key={ri}>{row.map((cell, ci) => <td key={ci} className={(t.aligns?.[ci] ?? "r") === "l" ? "lbl" : undefined}>{cell}</td>)}</tr>
-                    ))}
-                    {!t.rows.length && <tr><td className="lbl" colSpan={t.headers.length} style={{ color: "var(--p-muted)" }}>No rows.</td></tr>}
-                  </tbody>
-                </table>
-              </div>
+              <SmartTable title={t.title} headers={t.headers} rows={t.rows} aligns={t.aligns} blue={t.blue} exportName={`${title} - ${t.title}`} />
               {t.note && <div style={{ fontSize: 11, color: "var(--p-muted)", marginTop: 4 }}>{t.note}</div>}
             </div>
           ))}

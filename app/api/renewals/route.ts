@@ -8,8 +8,11 @@ export const maxDuration = 60;
 
 export async function GET(req: Request) {
   const url = new URL(req.url);
-  const org = url.searchParams.get("org") || "", region = url.searchParams.get("region") || "", fresh = url.searchParams.get("fresh") === "1";
-  const key = `${org}|${region}`;
+  const selOrg = url.searchParams.getAll("org").filter(Boolean), selRegion = url.searchParams.getAll("region").filter(Boolean), fresh = url.searchParams.get("fresh") === "1";
+  const org = selOrg[0] || "", region = selRegion[0] || "";
+  const orgIn = (col: string) => selOrg.length ? `AND (${col}) IN (${selOrg.map(v => `'${esc(v)}'`).join(",")})` : "";
+  const regionIn = (col: string) => selRegion.length ? `AND ${col} IN (${selRegion.map(v => `'${esc(v)}'`).join(",")})` : "";
+  const key = `${selOrg.join(",")}|${selRegion.join(",")}`;
   const c0 = CACHE.get(key); if (c0 && !fresh) return NextResponse.json(c0.payload);
   let conn: Awaited<ReturnType<typeof connect>>; try { conn = await connect(); } catch (e) { return NextResponse.json({ error: "Snowflake connection failed", detail: String(e) }, { status: 500 }); }
   const errors: string[] = [];
@@ -21,8 +24,8 @@ export async function GET(req: Request) {
     LEFT JOIN ${DB}.DIM_OWNER_ORGANIZATION O ON O.ORGANIZATION_KEY=la.ORGANIZATION_KEY
     LEFT JOIN ${DB}.DIM_REGION R ON R.REGION_KEY=la.REGION_KEY
     LEFT JOIN ${DB}.DIM_TENANT T ON T.TENANT_KEY=la.TENANT_KEY AND T.CURRENT_FLAG='Y'`;
-  const orgWla = org ? `AND (${orgCase("la")}) = '${esc(org)}'` : "";
-  const regionW = region ? `AND R.REGION_NAME = '${esc(region)}'` : "";
+  const orgWla = orgIn(orgCase("la"));
+  const regionW = regionIn("R.REGION_NAME");
   const WHl = `${excl("la")} ${orgWla} ${regionW}`;
   const TK = `TO_NUMBER(TO_CHAR(CURRENT_DATE(),'YYYYMMDD'))`;
   const TK90 = `TO_NUMBER(TO_CHAR(DATEADD('day',90,CURRENT_DATE()),'YYYYMMDD'))`;
@@ -38,7 +41,7 @@ export async function GET(req: Request) {
   const NM = `FROM ${DB}.FCT_DAILY_TENANT_NOTICE_MOVE nm
     LEFT JOIN ${DB}.DIM_OWNER_ORGANIZATION O ON O.ORGANIZATION_KEY=nm.ORGANIZATION_KEY
     LEFT JOIN ${DB}.DIM_REGION R ON R.REGION_KEY=nm.REGION_KEY`;
-  const orgWnm = org ? `AND (${orgCase("nm")}) = '${esc(org)}'` : "";
+  const orgWnm = orgIn(orgCase("nm"));
   const WHn = `${excl("nm")} AND nm.DATE_KEY = (SELECT MAX(DATE_KEY) FROM ${DB}.FCT_DAILY_TENANT_NOTICE_MOVE) ${orgWnm} ${regionW}`;
   const mo = (await run("moKpis", `SELECT
       COUNT(DISTINCT IFF(nm.ANTICIPATED_MOVE_OUT_DATE >= CURRENT_DATE(), nm.TENANT_KEY, NULL)) AS UPCOMING,
