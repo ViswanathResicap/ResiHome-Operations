@@ -19,35 +19,37 @@ const inflight = new Set<string>();
 export async function GET(req: Request) {
   const url = new URL(req.url);
   const month = url.searchParams.get("month") || "May 2026";
-  const orgFilter    = url.searchParams.get("org")    || "";
-  const regionFilter = url.searchParams.get("region") || "";
-  const statusFilter = url.searchParams.get("status") || "";
-  const subFilter    = url.searchParams.get("subdivision") || "";
-  const pmFilter     = url.searchParams.get("pm")     || "";
-  const searchFilter = (url.searchParams.get("q")     || "").trim();
+  const orgF    = url.searchParams.getAll("org").filter(Boolean);
+  const regionF = url.searchParams.getAll("region").filter(Boolean);
+  const statusF = url.searchParams.getAll("status").filter(Boolean);
+  const subF    = url.searchParams.getAll("subdivision").filter(Boolean);
+  const pmF     = url.searchParams.getAll("pm").filter(Boolean);
+  const searchFilter = (url.searchParams.get("q") || "").trim();
   const fresh = url.searchParams.get("fresh") === "1";
+  // First-selected singles kept for the no-filter override block further down.
+  const orgFilter = orgF[0] || "", regionFilter = regionF[0] || "";
 
   // Serve the daily precomputed snapshot instantly for the default (current-
   // month, unfiltered) view — this is what makes the page load fast and avoids
   // the serverless timeout. Filtered/other-month requests and ?fresh=1 (used by
   // the nightly precompute job) fall through to a live Snowflake query.
-  const isDefault = !orgFilter && !regionFilter && !statusFilter && !subFilter && !pmFilter && !searchFilter;
+  const isDefault = !orgF.length && !regionF.length && !statusF.length && !subF.length && !pmF.length && !searchFilter;
   if (!fresh && isDefault && (SUMMARY_SNAPSHOT as { selectedMonth?: string })?.selectedMonth === month) {
     return NextResponse.json(SUMMARY_SNAPSHOT);
   }
 
-  const cacheKey = `${month}|${orgFilter}|${regionFilter}|${statusFilter}|${subFilter}|${pmFilter}|${searchFilter}`;
+  const cacheKey = `${month}|${orgF.join(",")}|${regionF.join(",")}|${statusF.join(",")}|${subF.join(",")}|${pmF.join(",")}|${searchFilter}`;
   const cached = CACHE.get(cacheKey);
   if (cached && !fresh) {
     // Serve instantly; kick a background revalidate if stale.
     if (Date.now() - cached.at > TTL && !inflight.has(cacheKey)) {
       inflight.add(cacheKey);
       const base = url.origin + url.pathname + `?month=${encodeURIComponent(month)}` +
-        (orgFilter ? `&org=${encodeURIComponent(orgFilter)}` : "") +
-        (regionFilter ? `&region=${encodeURIComponent(regionFilter)}` : "") +
-        (statusFilter ? `&status=${encodeURIComponent(statusFilter)}` : "") +
-        (subFilter ? `&subdivision=${encodeURIComponent(subFilter)}` : "") +
-        (pmFilter ? `&pm=${encodeURIComponent(pmFilter)}` : "") +
+        orgF.map((v) => `&org=${encodeURIComponent(v)}`).join("") +
+        regionF.map((v) => `&region=${encodeURIComponent(v)}`).join("") +
+        statusF.map((v) => `&status=${encodeURIComponent(v)}`).join("") +
+        subF.map((v) => `&subdivision=${encodeURIComponent(v)}`).join("") +
+        pmF.map((v) => `&pm=${encodeURIComponent(v)}`).join("") +
         (searchFilter ? `&q=${encodeURIComponent(searchFilter)}` : "") + `&fresh=1`;
       fetch(base).catch(() => {}).finally(() => inflight.delete(cacheKey));
     }
@@ -83,20 +85,21 @@ export async function GET(req: Request) {
     WHEN PUS.ORGANIZATION_KEY IN (67) THEN 'Newstar'
     ELSE O.ORGANIZATION_NAME END`;
 
-  const orgWhere    = orgFilter    ? `AND (${ORG_CASE}) = '${orgFilter.replace(/'/g,"''")}'`    : "";
-  const regionWhere = regionFilter ? `AND R.REGION_NAME = '${regionFilter.replace(/'/g,"''")}'` : "";
-  const statusWhere = statusFilter ? `AND PUS.OCCUPANCY_STATUS = '${statusFilter.replace(/'/g,"''")}'` : "";
   const esc1 = (s: string) => s.replace(/'/g, "''");
+  const inList = (vals: string[]) => vals.map((v) => `'${esc1(v)}'`).join(",");
+  const orgWhere    = orgF.length    ? `AND (${ORG_CASE}) IN (${inList(orgF)})`    : "";
+  const regionWhere = regionF.length ? `AND R.REGION_NAME IN (${inList(regionF)})` : "";
+  const statusWhere = statusF.length ? `AND PUS.OCCUPANCY_STATUS IN (${inList(statusF)})` : "";
   // Subdivision: match by key so no extra join alias is needed in any query.
-  const subWhere = subFilter
-    ? `AND PUS.SUBDIVISION_KEY IN (SELECT SUBDIVISION_KEY FROM PROD_ANALYTICS.DBT_RESICAP.DIM_SUBDIVISION WHERE SUBDIVISION='${esc1(subFilter)}' AND CURRENT_FLAG='Y')`
+  const subWhere = subF.length
+    ? `AND PUS.SUBDIVISION_KEY IN (SELECT SUBDIVISION_KEY FROM PROD_ANALYTICS.DBT_RESICAP.DIM_SUBDIVISION WHERE SUBDIVISION IN (${inList(subF)}) AND CURRENT_FLAG='Y')`
     : "";
-  // Property Manager: HBPM.ASSIGNEDUSERID → USERS full name (BASE already joins HBPM).
-  const pmWhere = pmFilter
-    ? (pmFilter === "(Blank)"
-        ? `AND HBPM.ASSIGNEDUSERID IS NULL`
-        : `AND HBPM.ASSIGNEDUSERID IN (SELECT USERID FROM PROD_REPLICA.HBPM_DBO.USERS WHERE FirstName||' '||LastName='${esc1(pmFilter)}')`)
-    : "";
+  // Property Manager: HBPM.ASSIGNEDUSERID → USERS full name ("(Blank)" = unassigned).
+  const pmNamed = pmF.filter((v) => v !== "(Blank)");
+  const pmParts: string[] = [];
+  if (pmF.includes("(Blank)")) pmParts.push("HBPM.ASSIGNEDUSERID IS NULL");
+  if (pmNamed.length) pmParts.push(`HBPM.ASSIGNEDUSERID IN (SELECT USERID FROM PROD_REPLICA.HBPM_DBO.USERS WHERE FirstName||' '||LastName IN (${inList(pmNamed)}))`);
+  const pmWhere = pmParts.length ? `AND (${pmParts.join(" OR ")})` : "";
   // Address search: substring match on street address or EntityID.
   const searchWhere = searchFilter
     ? `AND (P.ADDRESS ILIKE '%${esc1(searchFilter)}%' OR P.EntityID ILIKE '%${esc1(searchFilter)}%')`

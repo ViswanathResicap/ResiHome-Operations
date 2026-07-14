@@ -6,8 +6,9 @@
 // KPI gauges, Portfolio Metrics, org matrix, monthly trend, Days Occupied,
 // DRC LTO / Conversion, Tenant Leased Demographics, All Property Export.
 
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { getCachedPayload, setCachedPayload } from "@/lib/client-cache";
+import { MultiSelect } from "@/components/MultiSelect";
 import { PropertyMap } from "./PropertyMap";
 
 /* ----------------------------- payload types ----------------------------- */
@@ -92,20 +93,69 @@ type Col<T> = { key: keyof T | string; label: string; lbl?: boolean; fmt?: (v: u
 function Tbl<T>({ cols, rows, blue, max, title, foot }: {
   cols: Col<T>[]; rows: T[]; blue?: boolean; max?: number; title?: string; foot?: (rows: T[]) => (string | number)[] | null;
 }) {
-  const shown = max ? rows.slice(0, max) : rows;
+  const [sort, setSort] = useState<{ i: number; d: 1 | -1 } | null>(null);
+  const [widths, setWidths] = useState<Record<number, number>>({});
+  const drag = useRef<{ i: number; x: number; w: number } | null>(null);
+  const raw = (r: T, k: string) => (r as Record<string, unknown>)[k];
+  const asNum = (v: unknown): number | null => {
+    if (typeof v === "number") return v;
+    if (v == null || v === "") return null;
+    const n = Number(String(v).replace(/[$,%\s]/g, ""));
+    return Number.isNaN(n) ? null : n;
+  };
+  const sorted = useMemo(() => {
+    if (!sort) return rows;
+    const k = cols[sort.i].key as string, d = sort.d;
+    return [...rows].sort((a, b) => {
+      const av = raw(a, k), bv = raw(b, k), an = asNum(av), bn = asNum(bv);
+      if (an !== null && bn !== null) return (an - bn) * d;
+      if (an !== null) return -1 * d;
+      if (bn !== null) return 1 * d;
+      return String(av ?? "").localeCompare(String(bv ?? "")) * d;
+    });
+  }, [rows, sort, cols]);
+  const shown = max ? sorted.slice(0, max) : sorted;
   const footVals = foot ? foot(rows) : null;
+
+  const clickHead = (i: number) => setSort((s) => (s && s.i === i ? (s.d === 1 ? { i, d: -1 } : null) : { i, d: 1 }));
+  const startResize = (i: number, e: React.MouseEvent) => {
+    e.preventDefault(); e.stopPropagation();
+    const th = (e.currentTarget as HTMLElement).parentElement as HTMLElement;
+    drag.current = { i, x: e.clientX, w: widths[i] ?? th.offsetWidth };
+    const move = (ev: MouseEvent) => { if (!drag.current) return; const w = Math.max(48, drag.current.w + (ev.clientX - drag.current.x)); setWidths((p) => ({ ...p, [drag.current!.i]: w })); };
+    const up = () => { drag.current = null; window.removeEventListener("mousemove", move); window.removeEventListener("mouseup", up); };
+    window.addEventListener("mousemove", move); window.addEventListener("mouseup", up);
+  };
+  const exportCsv = () => {
+    const esc = (s: string) => (/[",\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s);
+    const cell = (c: Col<T>, r: T) => { const v = raw(r, c.key as string); return c.fmt ? c.fmt(v, r) : (v == null ? "" : String(v)); };
+    const lines = [cols.map((c) => esc(c.label)).join(","), ...sorted.map((r) => cols.map((c) => esc(cell(c, r))).join(","))].join("\r\n");
+    const blob = new Blob(["﻿" + lines], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob); const a = document.createElement("a");
+    a.href = url; a.download = (title || "table").replace(/[^\w.-]+/g, "_") + ".csv";
+    document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+  };
+
   return (
     <div>
-      {title && <div className="p-tbl-title">{title}</div>}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", margin: "0 0 5px", gap: 8 }}>
+        {title ? <div className="p-tbl-title" style={{ margin: 0 }}>{title}</div> : <span />}
+        <button className="tbl-export" onClick={exportCsv} title="Export to Excel (CSV)">⤓ Excel</button>
+      </div>
       <div className="p-tbl-wrap">
         <table className={`p-tbl${blue ? " blue" : ""}`}>
-          <thead><tr>{cols.map((c) => <th key={String(c.key)} className={c.lbl ? "lbl" : undefined}>{c.label}</th>)}</tr></thead>
+          <thead><tr>{cols.map((c, i) => (
+            <th key={String(c.key)} className={c.lbl ? "lbl" : undefined} style={{ width: widths[i], position: "relative", cursor: "pointer", userSelect: "none" }} onClick={() => clickHead(i)}>
+              {c.label}{sort && sort.i === i ? (sort.d === 1 ? " ▲" : " ▼") : ""}
+              <span onMouseDown={(e) => startResize(i, e)} onClick={(e) => e.stopPropagation()} style={{ position: "absolute", right: -1, top: 0, height: "100%", width: 7, cursor: "col-resize" }} />
+            </th>
+          ))}</tr></thead>
           <tbody>
             {shown.map((r, i) => (
               <tr key={i}>
-                {cols.map((c) => {
-                  const v = (r as Record<string, unknown>)[c.key as string];
-                  return <td key={String(c.key)} className={[c.lbl ? "lbl" : "", c.cls ? c.cls(v, r) : ""].filter(Boolean).join(" ") || undefined}>
+                {cols.map((c, ci) => {
+                  const v = raw(r, c.key as string);
+                  return <td key={String(c.key)} style={{ width: widths[ci] }} className={[c.lbl ? "lbl" : "", c.cls ? c.cls(v, r) : ""].filter(Boolean).join(" ") || undefined}>
                     {c.fmt ? c.fmt(v, r) : (v == null || v === "" ? "—" : String(v))}
                   </td>;
                 })}
@@ -156,11 +206,11 @@ export function SummaryView() {
   // Dynamic last-4 complete months (newest first); radio picker, default newest.
   const months = useMemo(() => recentMonths(4), []);
   const [month, setMonth] = useState(months[0]);
-  const [org, setOrg] = useState("");
-  const [region, setRegion] = useState("");
-  const [status, setStatus] = useState("");
-  const [subdivision, setSubdivision] = useState("");
-  const [mgr, setMgr] = useState("");
+  const [org, setOrg] = useState<string[]>([]);
+  const [region, setRegion] = useState<string[]>([]);
+  const [status, setStatus] = useState<string[]>([]);
+  const [subdivision, setSubdivision] = useState<string[]>([]);
+  const [mgr, setMgr] = useState<string[]>([]);
   const [search, setSearch] = useState("");       // committed address search
   const [searchInput, setSearchInput] = useState(""); // live text box value
   const [d, setD] = useState<V2 | null>(null);
@@ -178,13 +228,14 @@ export function SummaryView() {
     return () => { cancelled = true; };
   }, []);
 
+  const fKey = [org, region, status, subdivision, mgr].map((a) => a.join("~")).join("|") + "|" + search;
   const load = useCallback(async (force = false) => {
     const qs = new URLSearchParams({ month });
-    if (org) qs.set("org", org);
-    if (region) qs.set("region", region);
-    if (status) qs.set("status", status);
-    if (subdivision) qs.set("subdivision", subdivision);
-    if (mgr) qs.set("pm", mgr);
+    org.forEach((v) => qs.append("org", v));
+    region.forEach((v) => qs.append("region", v));
+    status.forEach((v) => qs.append("status", v));
+    subdivision.forEach((v) => qs.append("subdivision", v));
+    mgr.forEach((v) => qs.append("pm", v));
     if (search) qs.set("q", search);
     const key = `/api/summary-v2?${qs.toString()}`;
     // Show any cached copy instantly, then refresh in the background.
@@ -198,7 +249,8 @@ export function SummaryView() {
       setCachedPayload(key, j);
       setD(j as V2);
     } catch (e) { if (!cached) setErr((e as Error).message); } finally { setLoading(false); }
-  }, [month, org, region, status, subdivision, mgr, search]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [month, fKey]);
   useEffect(() => { load(); }, [load]);
 
   // Occupancy statuses for the Property Status slicer (matches PBI options).
@@ -226,25 +278,15 @@ export function SummaryView() {
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img className="logo" src="/resihome-logo.png" alt="ResiHome" />
         <div className="slicer"><h4>Organization</h4>
-          <select className="control dd-input" value={org} onChange={(e) => setOrg(e.target.value)}>
-            <option value="">All</option>{orgOpts.map((o) => <option key={o} value={o}>{o}</option>)}
-          </select></div>
+          <MultiSelect options={orgOpts} selected={org} onChange={setOrg} /></div>
         <div className="slicer"><h4>Region</h4>
-          <select className="control dd-input" value={region} onChange={(e) => setRegion(e.target.value)}>
-            <option value="">All</option>{regionOpts.map((r) => <option key={r} value={r}>{r}</option>)}
-          </select></div>
+          <MultiSelect options={regionOpts} selected={region} onChange={setRegion} /></div>
         <div className="slicer"><h4>Subdivision</h4>
-          <select className="control dd-input" value={subdivision} onChange={(e) => setSubdivision(e.target.value)}>
-            <option value="">All</option>{opts.subdivisions.map((s) => <option key={s} value={s}>{s}</option>)}
-          </select></div>
+          <MultiSelect options={opts.subdivisions} selected={subdivision} onChange={setSubdivision} /></div>
         <div className="slicer"><h4>Property Status</h4>
-          <select className="control dd-input" value={status} onChange={(e) => setStatus(e.target.value)}>
-            <option value="">All</option>{STATUS_OPTS.map((s) => <option key={s} value={s}>{s}</option>)}
-          </select></div>
+          <MultiSelect options={STATUS_OPTS} selected={status} onChange={setStatus} /></div>
         <div className="slicer"><h4>Property Manager</h4>
-          <select className="control dd-input" value={mgr} onChange={(e) => setMgr(e.target.value)}>
-            <option value="">All</option>{opts.propertyManagers.map((p) => <option key={p} value={p}>{p}</option>)}
-          </select></div>
+          <MultiSelect options={opts.propertyManagers} selected={mgr} onChange={setMgr} /></div>
         <div className="slicer"><h4>Address Search</h4>
           <input className="control dd-input" placeholder="Address or Entity ID…" value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
@@ -260,7 +302,7 @@ export function SummaryView() {
             ))}
           </div>
         </div>
-        {(org || region || status || subdivision || mgr || search) && <button className="dd-clear" onClick={() => { setOrg(""); setRegion(""); setStatus(""); setSubdivision(""); setMgr(""); setSearch(""); setSearchInput(""); }}>Clear filters ✕</button>}
+        {(org.length || region.length || status.length || subdivision.length || mgr.length || search) ? <button className="dd-clear" onClick={() => { setOrg([]); setRegion([]); setStatus([]); setSubdivision([]); setMgr([]); setSearch(""); setSearchInput(""); }}>Clear filters ✕</button> : null}
       </aside>
 
       <main className="canvas">
