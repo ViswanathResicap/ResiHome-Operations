@@ -9,17 +9,18 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { getCachedPayload, setCachedPayload } from "@/lib/client-cache";
 import { MultiSelect } from "@/components/MultiSelect";
+import { PbiCanvas, PbiBox } from "@/components/PbiCanvas";
 import { PropertyMap } from "./PropertyMap";
 
 /* ----------------------------- payload types ----------------------------- */
 type Num = number | null;
-interface RegRow { region: string; vacantOff: number; vacantOn: number; vacantFMI: number; trustee: number; tenant: number; turnkey: number; total: number }
+interface RegRow { region: string; inspection: number; vacantOff: number; vacantOn: number; vacantFMI: number; trustee: number; tenant: number; turnkey: number; total: number }
 interface OrgRow { org: string; avgRent: Num; offMarket: number; onMarket: number; leased: number; turnkey: number; total: number; bomOcc: Num; eomOcc: Num }
 interface TrendRow { month: string; homes: Num; avgRent: Num; bomOcc: Num; netOccGain: Num; eomOcc: Num; hfPullThru: Num; bomVacantLeased: Num; collections: Num; retention: Num; turnover: Num; renewal: Num; renewalRentGrowth: Num; releaseRentGrowth: Num; blendedRentGrowth: Num; spend90: Num; netTurnCost: Num }
 interface DrcLtoRow { community: string; type: string; entityId: string; address: string; floorplan: string; newLeaseStart: string; sqft: Num; currentRent: Num; newRent: Num; rentGrowth: Num }
 interface DrcConvRow { community: string; month: string; l: Num; hf: Num; al: Num; appr: Num; apprPct: Num }
 interface DemoRow { region: string; tenants: Num; mtm: Num; bed: Num; bath: Num; sqft: Num; uwRent: Num; rent: Num; rentVar: Num; rentPerSqft: Num; timeInHome: Num }
-interface PropRow { entityId: string; region: string; address: string; bed: Num; bath: Num; sqft: Num; subdivision: string; floorplan: string; county: string; propertyStatus: string; tenantStatus: string; tenantName: string }
+interface PropRow { entityId: string; hbpmId: string; assetId: string; hubspotId: string; rentlySerial: string; rentlyType: string; region: string; address: string; bed: Num; bath: Num; sqft: Num; subdivision: string; floorplan: string; county: string; propertyStatus: string; tenantStatus: string; tenantName: string }
 // Org > Region > Subdivision > Floorplan hierarchy (from summary-v2 orgSubMap).
 // NodeMetrics = measures the backend rolls up per node (ratios recomputed from
 // summed components); occupancy/rent are aggregated on the client from leaves.
@@ -42,6 +43,8 @@ interface V2 {
 
 /* ------------------------------- formatters ------------------------------- */
 const fnum = (v: Num) => (v == null ? "—" : Math.round(Number(v)).toLocaleString("en-US"));
+// Count formatter that renders 0/blank as an empty cell, matching Power BI matrices.
+const fcnt = (v: Num) => (v == null || Number(v) === 0 ? "" : Math.round(Number(v)).toLocaleString("en-US"));
 const fpct = (v: Num) => (v == null ? "—" : `${Number(v).toFixed(1)}%`);
 const fmoney = (v: Num) => (v == null ? "—" : `$${Math.round(Number(v)).toLocaleString("en-US")}`);
 const fmoney2 = (v: Num) => (v == null ? "—" : `$${Number(v).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`);
@@ -90,8 +93,8 @@ function Gauge({ g }: { g: GaugeCfg }) {
 
 /* ------------------------------ table helper ------------------------------ */
 type Col<T> = { key: keyof T | string; label: string; lbl?: boolean; fmt?: (v: unknown, row: T) => string; cls?: (v: unknown, row: T) => string };
-function Tbl<T>({ cols, rows, blue, max, title, foot }: {
-  cols: Col<T>[]; rows: T[]; blue?: boolean; max?: number; title?: string; foot?: (rows: T[]) => (string | number)[] | null;
+function Tbl<T>({ cols, rows, blue, max, title, foot, wrapH }: {
+  cols: Col<T>[]; rows: T[]; blue?: boolean; max?: number; title?: string; foot?: (rows: T[]) => (string | number)[] | null; wrapH?: number;
 }) {
   const [sort, setSort] = useState<{ i: number; d: 1 | -1 } | null>(null);
   const [widths, setWidths] = useState<Record<number, number>>({});
@@ -142,7 +145,7 @@ function Tbl<T>({ cols, rows, blue, max, title, foot }: {
         {title ? <div className="p-tbl-title" style={{ margin: 0 }}>{title}</div> : <span />}
         <button className="tbl-export" onClick={exportCsv} title="Export to Excel (CSV)">⤓ Excel</button>
       </div>
-      <div className="p-tbl-wrap">
+      <div className="p-tbl-wrap" style={wrapH ? { maxHeight: wrapH } : undefined}>
         <table className={`p-tbl${blue ? " blue" : ""}`}>
           <thead><tr>{cols.map((c, i) => (
             <th key={String(c.key)} className={c.lbl ? "lbl" : undefined} style={{ width: widths[i], position: "relative", cursor: "pointer", userSelect: "none" }} onClick={() => clickHead(i)}>
@@ -203,9 +206,11 @@ function metricCols<T>(leadKey: string, leadLabel: string): Col<T>[] {
 
 /* --------------------------------- view ----------------------------------- */
 export function SummaryView() {
-  // Dynamic last-4 complete months (newest first); radio picker, default newest.
+  // Dynamic last-4 months (newest first); radio picker. Default to the last
+  // COMPLETE month (months[1]) to match the Power BI report, since the current
+  // month (months[0]) is still in progress.
   const months = useMemo(() => recentMonths(4), []);
-  const [month, setMonth] = useState(months[0]);
+  const [month, setMonth] = useState(months[1] ?? months[0]);
   const [org, setOrg] = useState<string[]>([]);
   const [region, setRegion] = useState<string[]>([]);
   const [status, setStatus] = useState<string[]>([]);
@@ -260,139 +265,113 @@ export function SummaryView() {
   const regionOpts = useMemo(() => (d?.regionRows ?? []).map((r) => r.region).filter((r) => r && r !== "Total"), [d]);
 
   const gauges: GaugeCfg[] = d ? [
-    { label: "BOM Occupancy", value: d.eomOccupancy, min: 50, max: 100, target: 90, fmt: fpct, higherIsBetter: true },
-    { label: "EOM Collections", value: d.eomCollections, min: 80, max: 100, target: 95.5, fmt: fpct, higherIsBetter: true },
+    { label: "EOM Occupancy", value: d.eomOccupancy, min: 90, max: 97, target: 96, fmt: fpct, higherIsBetter: true },
+    { label: "EOM Collections", value: d.eomCollections, min: 90, max: 97, target: 95.5, fmt: fpct, higherIsBetter: true },
     { label: "Renewal", value: d.renewal, min: 0, max: 100, target: 75, fmt: fpct, higherIsBetter: true },
-    { label: "BOM Listings Leased", value: d.bomListingsLeased, min: 0, max: 100, target: 50, fmt: fpct, higherIsBetter: true },
-    { label: "W/O Cycle Time", value: d.woCycleTime, min: 0, max: 20, target: 10, fmt: (v) => fdec(v, 1), higherIsBetter: false },
+    { label: "BOM Listings Leased", value: d.bomListingsLeased, min: 0, max: 70, target: 50, fmt: fpct, higherIsBetter: true },
+    { label: "W/O Cycle Time", value: d.woCycleTime, min: 7, max: 16, target: 16, fmt: (v) => fdec(v, 1), higherIsBetter: false },
     { label: "Net Turn Cost (All)", value: d.netTurnCost, min: 1000, max: 3000, target: 1750, fmt: fmoney, higherIsBetter: false },
-    { label: "45+ Run Rate Spend", value: d.runRateSpend, min: 1000, max: 2500, target: 1700, fmt: fmoney, higherIsBetter: false },
-    { label: "Internal Maintenance", value: d.internalMaintenance, min: 0, max: Math.max(Number(d.internalMaintenance) || 0, 80000) * 1.1, target: 64000, fmt: fmoney, higherIsBetter: false },
+    { label: "90+ Run Rate Spend", value: d.runRateSpend, min: 1000, max: 2500, target: 1400, fmt: fmoney, higherIsBetter: false },
+    { label: "Internal Maintenance", value: d.internalMaintenance, min: 0, max: 64000, target: 64000, fmt: fmoney, higherIsBetter: false },
   ] : [];
 
   const pm = d?.portfolioMetrics;
 
+  const slh: React.CSSProperties = { fontSize: 11, fontWeight: 700, color: "#605e5c", textTransform: "uppercase", margin: "0 0 4px", letterSpacing: 0.3 };
+  const cardX = (label: string, value: string, cls?: string) => (
+    <div className="p-card" style={{ width: "100%", height: "100%", boxSizing: "border-box" }}>
+      <div className={`v${cls ? " " + cls : ""}`}>{value}</div><div className="l">{label}</div>
+    </div>
+  );
+  const gaugeX = [289, 502, 716, 930, 1144, 1358, 1572, 1787];
+  const canvasW = 1990, canvasH = 2700;
+
   return (
-    <div className="app pbi">
-      <aside className="rail">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img className="logo" src="/resihome-logo.png" alt="ResiHome" />
-        <div className="slicer"><h4>Organization</h4>
-          <MultiSelect options={orgOpts} selected={org} onChange={setOrg} /></div>
-        <div className="slicer"><h4>Region</h4>
-          <MultiSelect options={regionOpts} selected={region} onChange={setRegion} /></div>
-        <div className="slicer"><h4>Subdivision</h4>
-          <MultiSelect options={opts.subdivisions} selected={subdivision} onChange={setSubdivision} /></div>
-        <div className="slicer"><h4>Property Status</h4>
-          <MultiSelect options={STATUS_OPTS} selected={status} onChange={setStatus} /></div>
-        <div className="slicer"><h4>Property Manager</h4>
-          <MultiSelect options={opts.propertyManagers} selected={mgr} onChange={setMgr} /></div>
-        <div className="slicer"><h4>Address Search</h4>
-          <input className="control dd-input" placeholder="Address or Entity ID…" value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            onKeyDown={(e) => { if (e.key === "Enter") setSearch(searchInput.trim()); }}
-            onBlur={() => setSearch(searchInput.trim())} />
-          {search && <div className="dd-hint">Filtering “{search}”</div>}</div>
-        <div className="slicer"><h4>Month</h4>
-          <div className="month-radios">
-            {[...months].reverse().map((m) => (
-              <label key={m} className={`month-opt${m === month ? " on" : ""}`}>
-                <input type="radio" name="sum-month" checked={m === month} onChange={() => setMonth(m)} /> {m}
-              </label>
-            ))}
-          </div>
+    <div className="app pbi" style={{ display: "block", height: "auto", minHeight: "100vh", overflow: "auto" }}>
+      <div className="pagehead" style={{ padding: "8px 16px" }}>
+        <h1 style={{ margin: 0 }}>Summary</h1>
+        <div className="ctx">
+          {d ? `Live · Snowflake · ${d.selectedMonth} · updated ${new Date(d.generatedAt).toLocaleString("en-US")}` : "Loading…"}
+          {loading && <span className="refresh-pill"><span className="spin">↻</span> loading…</span>}
+          <button className="refresh-btn" onClick={() => load(true)} aria-busy={loading}><span className={loading ? "spin" : ""}>↻</span> Refresh</button>
         </div>
-        {(org.length || region.length || status.length || subdivision.length || mgr.length || search) ? <button className="dd-clear" onClick={() => { setOrg([]); setRegion([]); setStatus([]); setSubdivision([]); setMgr([]); setSearch(""); setSearchInput(""); }}>Clear filters ✕</button> : null}
-      </aside>
+      </div>
+      {loading && <div className="refresh-bar" aria-hidden />}
+      {err && <div className="banner">Couldn’t load live data: {err}</div>}
+      {d?.errors?.length ? <div className="banner">Some measures returned errors: {d.errors[0]}{d.errors.length > 1 ? ` (+${d.errors.length - 1} more)` : ""}</div> : null}
+      {!d && loading && <div className="p-loading">Loading live Snowflake data for {month}…</div>}
 
-      <main className="canvas">
-        <div className="pagehead">
-          <h1>Summary</h1>
-          <div className="ctx">
-            {d ? `Live · Snowflake · ${d.selectedMonth} · updated ${new Date(d.generatedAt).toLocaleString("en-US")}` : "Loading…"}
-            {loading && <span className="refresh-pill"><span className="spin">↻</span> loading…</span>}
-            <button className="refresh-btn" onClick={() => load(true)} aria-busy={loading}><span className={loading ? "spin" : ""}>↻</span> Refresh</button>
-          </div>
-        </div>
-        {loading && <div className="refresh-bar" aria-hidden />}
-        {err && <div className="banner">Couldn’t load live data: {err}</div>}
-        {d?.errors?.length ? <div className="banner">Some measures returned errors: {d.errors[0]}{d.errors.length > 1 ? ` (+${d.errors.length - 1} more)` : ""}</div> : null}
+      {d && (
+        <PbiCanvas width={canvasW} height={canvasH}>
+          {/* Header */}
+          <PbiBox x={0} y={6} w={290} h={62}>
+            <svg viewBox="0 0 290 60" width="290" height="60" role="img" aria-label="ResiHome">
+              <g fill="none" stroke="#231f20" strokeWidth="4.5" strokeLinejoin="round" strokeLinecap="round">
+                <path d="M6 42 L34 10 L62 42" />
+                <path d="M17 42 L34 22 L51 42" />
+              </g>
+              <text x="76" y="43" fontFamily="'Segoe UI Semibold','Segoe UI',Arial,sans-serif" fontWeight="700" fontSize="34" letterSpacing="0.5">
+                <tspan fill="#231f20">RESI</tspan><tspan fill="#ec008c">HOME</tspan>
+              </text>
+            </svg>
+          </PbiBox>
+          <PbiBox x={300} y={14} w={784} h={60}><div style={{ fontFamily: '"Segoe UI Semibold","Segoe UI",sans-serif', fontSize: 30, fontWeight: 700, color: "#252423", borderBottom: "2px solid #252423", display: "inline-block", lineHeight: "40px" }}>Portfolio Summary</div></PbiBox>
 
-        {!d && loading && <div className="p-loading">Loading live Snowflake data for {month}…</div>}
+          {/* Left rail slicers */}
+          <PbiBox x={4} y={80} w={264} h={70}><div style={slh}>Organization</div><MultiSelect options={orgOpts} selected={org} onChange={setOrg} /></PbiBox>
+          <PbiBox x={4} y={156} w={264} h={70}><div style={slh}>Region</div><MultiSelect options={regionOpts} selected={region} onChange={setRegion} /></PbiBox>
+          <PbiBox x={4} y={236} w={264} h={70}><div style={slh}>Subdivision</div><MultiSelect options={opts.subdivisions} selected={subdivision} onChange={setSubdivision} /></PbiBox>
+          <PbiBox x={4} y={312} w={264} h={70}><div style={slh}>Property Status</div><MultiSelect options={STATUS_OPTS} selected={status} onChange={setStatus} /></PbiBox>
+          <PbiBox x={4} y={389} w={264} h={70}><div style={slh}>Property Manager</div><MultiSelect options={opts.propertyManagers} selected={mgr} onChange={setMgr} /></PbiBox>
+          <PbiBox x={4} y={465} w={264} h={90}><div style={slh}>Address Search</div><input className="control dd-input" placeholder="Address or Entity ID…" value={searchInput} onChange={(e) => setSearchInput(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") setSearch(searchInput.trim()); }} onBlur={() => setSearch(searchInput.trim())} />{search && <div className="dd-hint">Filtering “{search}”</div>}</PbiBox>
+          <PbiBox x={13} y={600} w={255} h={250}><div style={slh}>Month</div><div className="month-radios">{[...months].reverse().map((m) => (<label key={m} className={`month-opt${m === month ? " on" : ""}`}><input type="radio" name="sum-month" checked={m === month} onChange={() => setMonth(m)} /> {m}</label>))}</div>{(org.length || region.length || status.length || subdivision.length || mgr.length || search) ? <button className="dd-clear" style={{ marginTop: 8 }} onClick={() => { setOrg([]); setRegion([]); setStatus([]); setSubdivision([]); setMgr([]); setSearch(""); setSearchInput(""); }}>Clear ✕</button> : null}</PbiBox>
 
-        {d && (<>
-          {/* ── Portfolio Summary ── */}
-          <div className="p-h1 u">Portfolio Summary</div>
-          <div style={{ display: "grid", gridTemplateColumns: "1.35fr 1fr", gap: 14, alignItems: "start" }}>
-            <div>
-              <div className="p-grid" style={{ gridTemplateColumns: "repeat(3,1fr)" }}>
-                <div className="p-card"><div className="v">{fnum(d.heroKpis.totalProperties)}</div><div className="l">Total Properties</div></div>
-                <div className="p-card"><div className="v">{fpct(d.heroKpis.occupancyPct)}</div><div className="l">Occupancy %</div></div>
-                <div className="p-card"><div className="v">{fnum(d.heroKpis.activeListings)}</div><div className="l">Active Listings</div></div>
-              </div>
-              <div style={{ marginTop: 10 }}>
-                <Tbl<RegRow> cols={[
-                  { key: "region", label: "Region", lbl: true },
-                  { key: "vacantOff", label: "Vacant - Off Market", fmt: (v) => fnum(v as Num) },
-                  { key: "vacantOn", label: "Vacant - On Market", fmt: (v) => fnum(v as Num) },
-                  { key: "vacantFMI", label: "Vacant - FMI", fmt: (v) => fnum(v as Num) },
-                  { key: "trustee", label: "Trustee Leased", fmt: (v) => fnum(v as Num) },
-                  { key: "tenant", label: "Tenant Leased", fmt: (v) => fnum(v as Num) },
-                  { key: "turnkey", label: "Turnkey", fmt: (v) => fnum(v as Num) },
-                  { key: "total", label: "Total", fmt: (v) => fnum(v as Num) },
-                ]} rows={d.regionRows}
-                  foot={(rows) => ["Total", ...(["vacantOff", "vacantOn", "vacantFMI", "trustee", "tenant", "turnkey", "total"] as const).map((k) => fnum(rows.reduce((s, r) => s + (r[k] || 0), 0)))]} />
-              </div>
-            </div>
-            <div>
-              <div className="p-h2" style={{ marginTop: 0 }}>Property Map</div>
-              <PropertyMap regions={d.regionRows} />
-            </div>
-          </div>
+          {/* Top KPI cards */}
+          <PbiBox x={300} y={100} w={190} h={120}>{cardX("Total Properties", fnum(d.heroKpis.totalProperties))}</PbiBox>
+          <PbiBox x={496} y={100} w={188} h={121}>{cardX("Occupancy %", fpct(d.heroKpis.occupancyPct))}</PbiBox>
+          <PbiBox x={691} y={100} w={205} h={121}>{cardX("Active Listings", fnum(d.heroKpis.activeListings))}</PbiBox>
 
-          {/* ── KPIs ── */}
-          <div className="p-h2">KPIs</div>
-          <div className="p-grid" style={{ gridTemplateColumns: "repeat(8,1fr)" }}>
-            {gauges.map((g) => <Gauge key={g.label} g={g} />)}
-          </div>
+          {/* Property Summary table + Map */}
+          <PbiBox x={300} y={238} w={833} h={379}><Tbl<RegRow> title="Property Summary" wrapH={330} cols={[
+            { key: "region", label: "Region", lbl: true },
+            { key: "inspection", label: "Inspection", fmt: (v) => fcnt(v as Num) },
+            { key: "vacantOff", label: "Vacant - Off Market", fmt: (v) => fcnt(v as Num) },
+            { key: "vacantOn", label: "Vacant - On Market", fmt: (v) => fcnt(v as Num) },
+            { key: "vacantFMI", label: "Vacant - FMI", fmt: (v) => fcnt(v as Num) },
+            { key: "trustee", label: "Trustee Leased", fmt: (v) => fcnt(v as Num) },
+            { key: "tenant", label: "Tenant Leased", fmt: (v) => fcnt(v as Num) },
+            { key: "turnkey", label: "Turnkey", fmt: (v) => fcnt(v as Num) },
+            { key: "total", label: "Total", fmt: (v) => fnum(v as Num) },
+          ]} rows={d.regionRows} foot={(rows) => ["Total", ...(["inspection", "vacantOff", "vacantOn", "vacantFMI", "trustee", "tenant", "turnkey", "total"] as const).map((k) => fnum(rows.reduce((s, r) => s + (r[k] || 0), 0)))]} /></PbiBox>
+          <PbiBox x={1138} y={238} w={849} h={374}><div style={{ fontFamily: '"Segoe UI Semibold","Segoe UI",sans-serif', fontWeight: 700, fontSize: 14, color: "#1a4f7a", marginBottom: 4 }}>Property Map</div><div style={{ height: "calc(100% - 24px)" }}><PropertyMap regions={d.regionRows} /></div></PbiBox>
 
-          {/* ── Portfolio Metrics ── */}
-          <div className="p-h2">Portfolio Metrics — {d.selectedMonth}</div>
-          <div className="p-grid" style={{ gridTemplateColumns: "repeat(7,1fr)" }}>
-            <div className="p-card sm"><div className="v">{fnum(pm?.bomListings ?? null)}</div><div className="l">BOM Listings</div></div>
-            <div className="p-card sm"><div className="v">{fnum(pm?.bomVacant ?? null)}</div><div className="l">BOM Vacant</div></div>
-            <div className="p-card sm"><div className="v">{fnum(pm?.holdingFees ?? d.holdingFees)}</div><div className="l">Holding Fees</div></div>
-            <div className="p-card sm"><div className="v">{fnum(pm?.actualMIs ?? null)}</div><div className="l">Proj / Actual MIs</div></div>
-            <div className="p-card sm"><div className="v">{fnum(pm?.actualMOs ?? null)}</div><div className="l">Proj / Actual MOs</div></div>
-            <div className="p-card sm"><div className="v">{fnum(pm?.netOccGain ?? null)}</div><div className="l">Net Occupancy Gain</div></div>
-            <div className="p-card sm"><div className="v">{fpct(pm?.turnoverPct ?? null)}</div><div className="l">Turnover %</div></div>
-          </div>
+          {/* Gauges */}
+          {gauges.map((g, i) => <PbiBox key={g.label} x={gaugeX[i]} y={699} w={210} h={160}><Gauge g={g} /></PbiBox>)}
 
-          {/* ── Portfolio Metrics by Organization ── */}
-          <div className="p-h2">Portfolio Metrics by Organization</div>
-          <OrgMetricsTable tree={d.orgSubMap ?? {}} orgMetrics={d.orgMetrics ?? {}} order={(d.orgSummary ?? []).map((o) => o.org).filter((o) => o && o !== "Total")} />
+          {/* Portfolio metric cards */}
+          <PbiBox x={302} y={866} w={700} h={36}><div className="p-h2" style={{ margin: 0 }}>Portfolio Metrics — {d.selectedMonth}</div></PbiBox>
+          <PbiBox x={299} y={909} w={170} h={120}>{cardX("BOM Listings", fnum(pm?.bomListings ?? null))}</PbiBox>
+          <PbiBox x={474} y={909} w={171} h={120}>{cardX("BOM Vacant", fnum(pm?.bomVacant ?? null))}</PbiBox>
+          <PbiBox x={650} y={909} w={170} h={120}>{cardX("Holding Fees", fnum(pm?.holdingFees ?? d.holdingFees))}</PbiBox>
+          <PbiBox x={825} y={909} w={170} h={120}>{cardX("Proj / Actual MIs", fnum(pm?.actualMIs ?? null))}</PbiBox>
+          <PbiBox x={998} y={909} w={170} h={120}>{cardX("Proj / Actual MOs", fnum(pm?.actualMOs ?? null))}</PbiBox>
+          <PbiBox x={1174} y={909} w={169} h={120}>{cardX("Net Occ Gain", fnum(pm?.netOccGain ?? null))}</PbiBox>
+          <PbiBox x={1347} y={909} w={170} h={122}>{cardX("Turnover %", fpct(pm?.turnoverPct ?? null))}</PbiBox>
 
-          {/* ── Portfolio Metrics by Month ── */}
-          <div className="p-h2">Portfolio Metrics by Month</div>
-          <Tbl<TrendRow> blue cols={metricCols<TrendRow>("month", "Month")} rows={d.monthlyTrend} />
+          {/* Metric pivots */}
+          <PbiBox x={306} y={1048} w={1667} h={207}><div className="p-h2" style={{ margin: "0 0 4px" }}>Portfolio Metrics by Organization</div><OrgMetricsTable tree={d.orgSubMap ?? {}} orgMetrics={d.orgMetrics ?? {}} order={(d.orgSummary ?? []).map((o) => o.org).filter((o) => o && o !== "Total")} /></PbiBox>
+          <PbiBox x={306} y={1263} w={1667} h={350}><div className="p-h2" style={{ margin: "0 0 4px" }}>Portfolio Metrics by Month</div><Tbl<TrendRow> blue wrapH={280} cols={metricCols<TrendRow>("month", "Month")} rows={d.monthlyTrend} /></PbiBox>
 
-          {/* ── Days Occupied + DRC ── */}
-          <div className="p-grid" style={{ gridTemplateColumns: "1fr 1.15fr 1fr", marginTop: 18, alignItems: "start" }}>
-            <div className="p-panel">
-              <div className="ph">Days Occupied</div>
-              <DaysOccupied rows={d.daysOccupied} />
-            </div>
-            <DrcLtoTable rows={d.drcLto} />
-            <DrcConvTable rows={d.drcConversion} />
-          </div>
+          {/* Days Occupied + DRC */}
+          <PbiBox x={298} y={1621} w={535} h={200}><div className="p-panel" style={{ height: "100%", boxSizing: "border-box" }}><div className="ph">Days Occupied</div><DaysOccupied rows={d.daysOccupied} /></div></PbiBox>
+          <PbiBox x={834} y={1621} w={787} h={361}><DrcLtoTable rows={d.drcLto} /></PbiBox>
+          <PbiBox x={1621} y={1621} w={364} h={361}><DrcConvTable rows={d.drcConversion} /></PbiBox>
 
-          {/* ── Tenant Leased Demographics ── */}
-          <div className="p-h1">Tenant Leased Demographics</div>
-          <div className="p-grid" style={{ gridTemplateColumns: "repeat(6,1fr)", marginBottom: 10 }}>
-            <div className="p-card"><div className="v">{fnum(d.tenantSummary.totalTenants)}</div><div className="l">Total Tenants</div></div>
-            <div className="p-card"><div className={`v ${d.tenantSummary.avgVsUwRent != null && d.tenantSummary.avgVsUwRent < 0 ? "bad" : "good"}`}>{fpct(d.tenantSummary.avgVsUwRent)}</div><div className="l">vs. UW Rent</div></div>
-          </div>
-          <Tbl<DemoRow> cols={[
+          {/* Tenant Leased Demographics */}
+          <PbiBox x={295} y={1900} w={538} h={36}><div className="p-h1" style={{ margin: 0 }}>Tenant Leased Demographics</div></PbiBox>
+          <PbiBox x={296} y={1945} w={189} h={110}>{cardX("Total Tenants", fnum(d.tenantSummary.totalTenants))}</PbiBox>
+          <PbiBox x={494} y={1945} w={191} h={110}>{cardX("vs. UW Rent", fpct(d.tenantSummary.avgVsUwRent), d.tenantSummary.avgVsUwRent != null && d.tenantSummary.avgVsUwRent < 0 ? "bad" : "good")}</PbiBox>
+          <PbiBox x={295} y={2070} w={1152} h={300}><Tbl<DemoRow> title="Tenant Demo" wrapH={250} cols={[
             { key: "region", label: "Region", lbl: true },
             { key: "tenants", label: "Tenants", fmt: (v) => fnum(v as Num) },
             { key: "mtm", label: "MTM", fmt: (v) => fnum(v as Num) },
@@ -404,11 +383,17 @@ export function SummaryView() {
             { key: "rentVar", label: "Rent Var", fmt: (v) => fpct(v as Num), cls: negRentVar },
             { key: "rentPerSqft", label: "Rent/Sqft", fmt: (v) => fmoney2(v as Num) },
             { key: "timeInHome", label: "Days In Home", fmt: (v) => fnum(v as Num) },
-          ]} rows={d.tenantDemographics} />
+          ]} rows={d.tenantDemographics} /></PbiBox>
 
-          {/* ── All Property Export ── */}
-          <div className="p-h1">All Property Export</div>
-          <Tbl<PropRow> max={300} cols={[
+          {/* All Property Export / In Process */}
+          <PbiBox x={290} y={2400} w={1683} h={285}><Tbl<PropRow> title="All Property Export" max={300} wrapH={225} cols={[
+            { key: "entityId", label: "EntityID", lbl: true },
+            { key: "hbpmId", label: "HBPM Property ID", lbl: true },
+            { key: "assetId", label: "ASSETID", lbl: true },
+            { key: "hubspotId", label: "Hubspot ID", lbl: true },
+            { key: "rentlySerial", label: "Rently Serial", lbl: true },
+            { key: "rentlyType", label: "Rently Type", lbl: true },
+            { key: "region", label: "Region", lbl: true },
             { key: "address", label: "Address", lbl: true },
             { key: "bed", label: "Bed", fmt: (v) => fdec(v as Num, 0) },
             { key: "bath", label: "Bath", fmt: (v) => fdec(v as Num, 1) },
@@ -419,7 +404,7 @@ export function SummaryView() {
             { key: "pmAssigned", label: "PM Assigned", lbl: true },
             { key: "apm", label: "APM Assigned", lbl: true },
             { key: "propertyStatus", label: "Property Status", lbl: true },
-            { key: "rrq", label: "RRQC", lbl: true },
+            { key: "rrq", label: "RRQC", fmt: (v) => fdate(v as string) },
             { key: "tenantStatus", label: "Tenant Status", lbl: true },
             { key: "tenantName", label: "Tenant Name", lbl: true },
             { key: "allTenantEmails", label: "All Tenant Emails", lbl: true },
@@ -428,9 +413,9 @@ export function SummaryView() {
             { key: "leaseStart", label: "Lease Start", fmt: (v) => fdate(v as string) },
             { key: "leaseEnd", label: "Lease End", fmt: (v) => fdate(v as string) },
             { key: "rent", label: "Rent", fmt: (v) => fmoney(v as Num) },
-          ]} rows={d.allProperties} />
-        </>)}
-      </main>
+          ]} rows={d.allProperties} /></PbiBox>
+        </PbiCanvas>
+      )}
     </div>
   );
 }

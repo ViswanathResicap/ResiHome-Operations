@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
 import { connect } from "@/lib/snowflake";
 import { PM_BOM_SQL, PM_LISTINGS_BOM_SQL } from "@/lib/pbi-sources";
+import { source } from "@/lib/datasets";
 import { DW_TURNS_SQL } from "@/lib/dw-turns-sql";
 import SUMMARY_SNAPSHOT from "@/data/snapshots/summary.json";
+import ALL_PROP_EXPORT from "@/data/all-property-export.json";
 
 // Allow the heavy Snowflake compute the maximum function time (Hobby cap = 60s).
 export const maxDuration = 60;
@@ -173,6 +175,7 @@ export async function GET(req: Request) {
   const regionRaw = await run("region", `
     SELECT R.REGION_NAME,
       COUNT(*) AS TOTAL,
+      COUNT(CASE WHEN PUS.OCCUPANCY_STATUS='Under Inspection' THEN 1 END) AS INSPECTION,
       COUNT(CASE WHEN PUS.OCCUPANCY_STATUS IN ('Vacant - Off Market','Vacant - Onboarding') THEN 1 END) AS VACANT_OFF,
       COUNT(CASE WHEN PUS.OCCUPANCY_STATUS IN ('Vacant - On Market','Vacant - Pre-Leasing') THEN 1 END) AS VACANT_ON,
       COUNT(CASE WHEN PUS.OCCUPANCY_STATUS='Vacant - Future Move In' THEN 1 END) AS VACANT_FMI,
@@ -180,13 +183,17 @@ export async function GET(req: Request) {
       COUNT(CASE WHEN PUS.OCCUPANCY_STATUS='Tenant Leased' THEN 1 END) AS TENANT,
       COUNT(CASE WHEN PUS.OCCUPANCY_STATUS IN ('Pending MOI/Rekey','Under Turnkey') THEN 1 END) AS TURNKEY
     FROM PROD_ANALYTICS.DBT_RESICAP.FCT_PROPERTY_UNIT_SUMMARY PUS ${BASE}
-    WHERE ${FILT} GROUP BY R.REGION_NAME ORDER BY TOTAL DESC`);
+    WHERE ${FILT} GROUP BY R.REGION_NAME ORDER BY TOTAL DESC, R.REGION_NAME ASC`);
   const regionRows = regionRaw.map(r=>({
-    region:String(r.REGION_NAME??"Unknown"), vacantOff:Number(r.VACANT_OFF??0), vacantOn:Number(r.VACANT_ON??0),
+    region:String(r.REGION_NAME??"Unknown"), inspection:Number(r.INSPECTION??0), vacantOff:Number(r.VACANT_OFF??0), vacantOn:Number(r.VACANT_ON??0),
     vacantFMI:Number(r.VACANT_FMI??0), trustee:Number(r.TRUSTEE??0), tenant:Number(r.TENANT??0),
     turnkey:Number(r.TURNKEY??0), total:Number(r.TOTAL??0),
   }));
   const totalProps = regionRows.reduce((a,r)=>a+r.total,0);
+  // Summary "Occupancy %" card = (Tenant Leased + Trustee Leased) / Total, matching
+  // the Power BI Property Summary pivot buckets (not the tenant-activity ratio above).
+  const leasedProps = regionRows.reduce((a,r)=>a+r.tenant+r.trustee,0);
+  const occupancyCardPct = totalProps>0 ? Math.round(leasedProps/totalProps*1000)/10 : null;
 
   // ── Active Listings ───────────────────────────────────────────────────────
   const listRaw = await run("listings", `
@@ -480,8 +487,8 @@ export async function GET(req: Request) {
     AND P.Current_Flag='Y' AND PU.Current_Flag='Y'
     AND PUS.Occupancy_Status NOT IN ('Not Managed','Dispositions')`);
 
-  const actualMIs   = Number(misRaw[0]?.CNT ?? 0);
-  const actualMOs   = Number(mosRaw[0]?.CNT ?? 0);
+  let actualMIs   = Number(misRaw[0]?.CNT ?? 0);
+  let actualMOs   = Number(mosRaw[0]?.CNT ?? 0);
   let bomOccupied    = Number(pmBomRaw[0]?.BOM_OCCUPIED ?? 0);
   let bomVacantVal   = Number(pmBomRaw[0]?.BOM_VACANT   ?? 0);
   let bomListingsVal = Number(pmBomRaw[0]?.BOM_LISTINGS ?? 0);
@@ -505,11 +512,24 @@ export async function GET(req: Request) {
     const nt = await run("dw-turns-ntc", `SELECT ROUND(AVG(GREATEST(ZEROIFNULL(TKT_COST)-ZEROIFNULL(MoveOutReceipts_Final),0)),0) AS NTC
       FROM (${DW_TURNS_SQL}) WHERE TURN_COMPLETED_BOM = '${startDate}'`);
     if (nt[0]?.NTC != null) netTurnCost = Number(nt[0].NTC);
-    // NOTE: bomListingsLeased (01_Lease_Listings %) needs the DAX move-in
-    // numerator (01_MoveIn + 01_FMI Monthly), not this MOVEIN proxy — left on
-    // its original approximation until that measure is wired.
+    // Portfolio Metrics cards: Proj/Actual MIs = 01_MoveIn Monthly (distinct
+    // DW_MoveOut tenants with MOVEIN_BOM in month); Proj/Actual MOs = distinct
+    // tenants with MOVEOUT_BOM in month. Net Occ Gain = MIs - MOs (validated to
+    // tie out to Power BI: 277 / 225 / 52 for June 2026).
+    const mimo = await run("mi-mo-monthly", `SELECT
+        COUNT(DISTINCT CASE WHEN MOVEIN_BOM='${startDate}' THEN TENANT_KEY END) AS MI,
+        COUNT(DISTINCT CASE WHEN MOVEOUT_BOM='${startDate}' THEN TENANT_KEY END) AS MO
+      FROM (${source("moveout")})`);
+    if (mimo[0]?.MI != null) actualMIs = Number(mimo[0].MI);
+    if (mimo[0]?.MO != null) actualMOs = Number(mimo[0].MO);
+    // 01_Lease_Listings % = (01_MoveIn Monthly + 01_FMI Monthly) / 01_On Market List.
+    // 01_MoveIn Monthly (distinct DW_MoveOut tenants with MOVEIN_BOM in month) works;
+    // 01_FMI Monthly needs DW_Listings, which depends on Snowflake view
+    // VW_ASM_ACQUISITION_AM (not authorized for this role) — so this measure is left
+    // on its prior approximation until that view is accessible. onMarketBOMval holds
+    // the exact 01_On Market List denominator for when FMI is wired.
+    void onMarketBOMval;
   }
-  void onMarketBOMval;
   const portfolioMetrics = {
     bomListings: bomListingsVal,
     bomVacant:   bomVacantVal,
@@ -1175,86 +1195,16 @@ export async function GET(req: Request) {
     : 0;
 
   // ── All Property Export ────────────────────────────────────────────────
-  const allPropertyRaw = await run("all-property", `
-    SELECT
-      P.ENTITYID,
-      P.HBPM_PROPERTY_ID,
-      COALESCE(CAST(P.HBAM_PROPERTY_ID AS VARCHAR),'') AS ASSETID,
-      CAST(NULL AS VARCHAR) AS HUBSPOT_ID,
-      CAST(NULL AS VARCHAR) AS RENTLY_SERIAL,
-      CAST(NULL AS VARCHAR) AS RENTLY_TYPE,
-      R.REGION_NAME AS REGION,
-      P.ADDRESS,
-      PU.BEDROOMS AS BED,
-      PU.BATHROOMS AS BATH,
-      PU.SQUARE_FOOTAGE AS SQFT,
-      COALESCE(SD.SUBDIVISION,'') AS SUBDIVISION,
-      COALESCE(FP.FLOORPLAN,'') AS FLOORPLAN,
-      COALESCE(CO.COUNTY_NAME,'') AS COUNTY,
-      CAST(NULL AS VARCHAR) AS PM_ASSIGNED,
-      CAST(NULL AS VARCHAR) AS APM,
-      PUS.OCCUPANCY_STATUS AS PROPERTY_STATUS,
-      RRQC.RRQCPASSDATE AS RRQ,
-      T.TENANT_STATUS,
-      TRIM(COALESCE(T.FIRST_NAME,'') || ' ' || COALESCE(T.LAST_NAME,'')) AS TENANT_NAME
-    FROM PROD_ANALYTICS.DBT_RESICAP.FCT_PROPERTY_UNIT_SUMMARY PUS
-    JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PROPERTY P ON P.PROPERTY_KEY=PUS.PROPERTY_KEY AND P.CURRENT_FLAG='Y'
-    JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PORTFOLIO PO ON PO.PORTFOLIO_KEY=PUS.PORTFOLIO_KEY
-    JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_PROPERTY_UNIT PU ON PU.PROPERTY_UNIT_KEY=PUS.PROPERTY_UNIT_KEY
-    LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_REGION R ON R.REGION_KEY=PUS.REGION_KEY
-    LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_SUBDIVISION SD ON SD.SUBDIVISION_KEY=PUS.SUBDIVISION_KEY AND SD.CURRENT_FLAG='Y'
-    LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_FLOORPLAN FP ON FP.FLOORPLAN_KEY=PUS.FLOORPLAN_KEY AND FP.CURRENT_FLAG='Y'
-    LEFT JOIN PROD_ANALYTICS.DBT_RESICAP.DIM_COUNTY CO ON CO.COUNTY_KEY=PUS.COUNTY_KEY
-    LEFT JOIN PROD_REPLICA.HBPM_DBO.PROPERTIES HBPM ON HBPM.PROPERTYID=P.HBPM_PROPERTY_ID
-    LEFT JOIN (
-      SELECT MAX(ID) AS RRQC_ID, HBID
-      FROM PROD_REPLICA.HBAM_DBO.RRQCCHANGELOGS
-      GROUP BY HBID
-    ) RRQC_RECENT ON RRQC_RECENT.HBID = P.HBAM_PROPERTY_ID
-    LEFT JOIN PROD_REPLICA.HBAM_DBO.RRQCCHANGELOGS RRQC
-      ON RRQC.ID = RRQC_RECENT.RRQC_ID
-    LEFT JOIN (
-      SELECT
-        TLA.PROPERTY_KEY,
-        T.TENANT_STATUS,
-        T.FIRST_NAME,
-        T.LAST_NAME,
-        RANK() OVER (PARTITION BY TLA.PROPERTY_KEY ORDER BY T.LEASE_ID DESC) AS RNK
-      FROM PROD_ANALYTICS.DBT_RESICAP.DIM_TENANT T
-      JOIN PROD_ANALYTICS.DBT_RESICAP.FCT_TENANT_LEASING_ACCUM TLA
-        ON TLA.TENANT_KEY = T.TENANT_KEY
-      WHERE T.CURRENT_FLAG='Y' AND T.PRIMARY_TENANT='Y'
-        AND T.TENANT_STATUS NOT IN ('Past','Future')
-    ) T ON T.PROPERTY_KEY=PUS.PROPERTY_KEY AND T.RNK=1
-    WHERE P.PROPERTY_STATE='Active' AND P.EntityID<>''
-    AND PO.Portfolio_KEY NOT IN (223,598,147,102,109,28,603,169,602,170,58,54)
-    AND PUS.Organization_KEY NOT IN (16,17) AND PO.IS_Active_AM='Y' AND PO.Current_Flag='Y'
-    AND P.Current_Flag='Y' AND PU.Current_Flag='Y'
-    AND PUS.Occupancy_Status NOT IN ('Not Managed','Dispositions')
-    ORDER BY R.REGION_NAME, P.ENTITYID
-    LIMIT 5000`);
-  const allProperties = allPropertyRaw.map(r=>({
-    entityId:       String(r.ENTITYID??""),
-    hbpmId:         String(r.HBPM_PROPERTY_ID??""),
-    assetId:        String(r.ASSETID??""),
-    hubspotId:      String(r.HUBSPOT_ID??""),
-    rentlySerial:   String(r.RENTLY_SERIAL??""),
-    rentlyType:     String(r.RENTLY_TYPE??""),
-    region:         String(r.REGION??""),
-    address:        String(r.ADDRESS??""),
-    bed:            r.BED!=null?Number(r.BED):null,
-    bath:           r.BATH!=null?Number(r.BATH):null,
-    sqft:           r.SQFT!=null?Number(r.SQFT):null,
-    subdivision:    String(r.SUBDIVISION??""),
-    floorplan:      String(r.FLOORPLAN??""),
-    county:         String(r.COUNTY??""),
-    pmAssigned:     String(r.PM_ASSIGNED??""),
-    apm:            String(r.APM??""),
-    propertyStatus: String(r.PROPERTY_STATUS??""),
-    rrq:            r.RRQ!=null?String(r.RRQ):"",
-    tenantStatus:   String(r.TENANT_STATUS??""),
-    tenantName:     String(r.TENANT_NAME??""),
-  }));
+  // All Property Export: served from the Power BI CSV export (data/all-property-export.json),
+  // which carries every column PBI shows (Hubspot ID, Rently, PM/APM, lease dates, rent,
+  // emails, eviction) that the live query couldn't source. Filtered client-side-style by
+  // region + address/entity search so the page slicers still affect it.
+  let allProperties = ALL_PROP_EXPORT as Array<Record<string, unknown>>;
+  if (regionF.length) allProperties = allProperties.filter((p) => regionF.includes(String(p.region)));
+  if (searchFilter) {
+    const q = searchFilter.toLowerCase();
+    allProperties = allProperties.filter((p) => String(p.address).toLowerCase().includes(q) || String(p.entityId).toLowerCase().includes(q));
+  }
 
   // ── Close connection & return ─────────────────────────────────────────────
   conn.close();
@@ -1263,7 +1213,7 @@ export async function GET(req: Request) {
     generatedAt:   new Date().toISOString(),
     selectedMonth: month,
     errors:        errors.length ? errors : undefined,
-    heroKpis:      { totalProperties:totalProps, occupancyPct:eomOccupancy??0, activeListings },
+    heroKpis:      { totalProperties:totalProps, occupancyPct:occupancyCardPct??0, activeListings },
     eomOccupancy, eomCollections, renewal, bomListingsLeased,
     woCycleTime, netTurnCost, runRateSpend, internalMaintenance,
     holdingFees, portfolioMetrics, orgSubMap, orgMetrics,

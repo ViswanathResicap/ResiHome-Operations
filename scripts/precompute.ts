@@ -15,7 +15,12 @@ if (existsSync(".env.local")) {
 }
 
 const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+// Snapshot the LAST COMPLETE month (previous month) — this matches the Summary
+// page's default month (months[1]), so the default view is served instantly from
+// the snapshot instead of falling through to a slow live query.
 const now = new Date();
+now.setDate(1);
+now.setMonth(now.getMonth() - 1);
 const month = `${MON[now.getMonth()]} ${now.getFullYear()}`;
 
 // Route handlers are just async (Request) => Response functions — call them directly.
