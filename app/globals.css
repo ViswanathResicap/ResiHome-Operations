@@ -238,15 +238,16 @@ table.tbl tfoot td { font-weight: 800; background: #fbfcfe; border-top: 2px soli
 .pbi .ms-trigger { display: flex; align-items: center; justify-content: space-between; gap: 6px; width: 100%; text-align: left; background: #fff; cursor: pointer; padding: 5px 8px; }
 .pbi .ms-val { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .pbi .ms-caret { color: var(--p-muted); font-size: 10px; }
-.pbi .ms-pop { position: absolute; z-index: 30; top: calc(100% + 2px); left: 0; right: 0; background: #fff; border: 1px solid #8a8886; border-radius: 3px; box-shadow: 0 6px 18px rgba(0,0,0,.15); padding: 6px; }
-.pbi .ms-actions { display: flex; gap: 6px; margin-bottom: 4px; }
-.pbi .ms-actions button { flex: 1; font: inherit; font-size: 11px; padding: 3px 6px; border: 1px solid #d0d0d0; border-radius: 3px; background: #f6f6f6; cursor: pointer; }
-.pbi .ms-actions button:hover { background: #ececec; }
-.pbi .ms-search { width: 100%; box-sizing: border-box; font: inherit; font-size: 12px; padding: 4px 6px; border: 1px solid #d0d0d0; border-radius: 3px; margin-bottom: 4px; }
-.pbi .ms-list { max-height: 220px; overflow: auto; }
-.pbi .ms-opt { display: flex; align-items: center; gap: 7px; padding: 4px; font-size: 12px; cursor: pointer; border-radius: 3px; }
-.pbi .ms-opt:hover { background: #f4f7fb; }
-.pbi .ms-empty { padding: 6px; font-size: 11px; color: var(--p-muted); }
+/* Portaled to <body>, so NOT scoped to .pbi and self-contained (no theme vars). */
+.ms-pop { position: fixed; z-index: 1000; background: #fff; border: 1px solid #8a8886; border-radius: 3px; box-shadow: 0 6px 18px rgba(0,0,0,.18); padding: 6px; box-sizing: border-box; }
+.ms-actions { display: flex; gap: 6px; margin-bottom: 4px; }
+.ms-actions button { flex: 1; font: inherit; font-size: 11px; padding: 3px 6px; border: 1px solid #d0d0d0; border-radius: 3px; background: #f6f6f6; cursor: pointer; }
+.ms-actions button:hover { background: #ececec; }
+.ms-search { width: 100%; box-sizing: border-box; font: inherit; font-size: 12px; padding: 4px 6px; border: 1px solid #d0d0d0; border-radius: 3px; margin-bottom: 4px; }
+.ms-list { max-height: 260px; overflow: auto; }
+.ms-opt { display: flex; align-items: center; gap: 7px; padding: 4px; font-size: 12px; cursor: pointer; border-radius: 3px; color: #252423; }
+.ms-opt:hover { background: #f4f7fb; }
+.ms-empty { padding: 6px; font-size: 11px; color: #605e5c; }
 .pbi .rail .kpi-mini { border: 1px solid var(--p-line); border-radius: 3px; padding: 10px; text-align: center; margin-top: 12px; }
 .pbi .rail .kpi-mini .v { font-size: 30px; font-weight: 700; font-family: "Segoe UI Semibold","Segoe UI",sans-serif; letter-spacing: -.5px; }
 .pbi .rail .kpi-mini .l { font-size: 11px; color: var(--p-muted); margin-top: 2px; text-decoration: underline; }
