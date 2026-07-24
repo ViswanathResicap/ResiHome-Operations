@@ -29,10 +29,10 @@ const TILES: { label: string; key: keyof OffMarketHero | "squatterOther"; bucket
   { label: "Ready to List", key: "readyToList", bucket: "Ready to List - On Market", good: true },
 ];
 
-type FilterKey = "org" | "region" | "subdivision" | "propertyStatus" | "reasonOffMarket" | "offMarketStatus";
-type Filters = Record<FilterKey, string[]> & { address: string };
-const EMPTY: Filters = { org: [], region: [], subdivision: [], propertyStatus: [], reasonOffMarket: [], offMarketStatus: [], address: "" };
-const FILTER_KEYS: FilterKey[] = ["org", "region", "subdivision", "propertyStatus", "reasonOffMarket", "offMarketStatus"];
+type FilterKey = "org" | "region" | "subdivision" | "propertyStatus" | "reasonOffMarket" | "offMarketStatus" | "address";
+type Filters = Record<FilterKey, string[]>;
+const EMPTY: Filters = { org: [], region: [], subdivision: [], propertyStatus: [], reasonOffMarket: [], offMarketStatus: [], address: [] };
+const FILTER_KEYS: FilterKey[] = ["org", "region", "subdivision", "propertyStatus", "reasonOffMarket", "offMarketStatus", "address"];
 
 export function OffMarketView({ initialData }: { initialData: OffMarketCache }) {
   const [d, setD] = useState<OffMarketCache>(initialData);
@@ -66,9 +66,10 @@ export function OffMarketView({ initialData }: { initialData: OffMarketCache }) 
     propertyStatus: uniq(d.rows.map((r) => r.occupancyStatus)),
     reasonOffMarket: uniq(d.rows.map((r) => r.reasonOffMarket)),
     offMarketStatus: uniq(d.rows.map((r) => r.status)),
+    address: uniq(d.rows.map((r) => r.address)),
   }), [d.rows]);
 
-  const active = FILTER_KEYS.some((k) => f[k].length > 0) || f.address !== "";
+  const active = FILTER_KEYS.some((k) => f[k].length > 0);
   const set = <K extends keyof Filters>(k: K, v: Filters[K]) => setF((p) => ({ ...p, [k]: v }));
 
   const rows: OffMarketRow[] = useMemo(() => d.rows.filter((r) =>
@@ -76,7 +77,7 @@ export function OffMarketView({ initialData }: { initialData: OffMarketCache }) 
     (!f.subdivision.length || f.subdivision.includes(r.subdivision)) && (!f.propertyStatus.length || f.propertyStatus.includes(r.occupancyStatus)) &&
     (!f.reasonOffMarket.length || f.reasonOffMarket.includes(r.reasonOffMarket ?? "")) &&
     (!f.offMarketStatus.length || f.offMarketStatus.includes(r.status ?? "")) &&
-    (!f.address || r.address.toLowerCase().includes(f.address.toLowerCase()))
+    (!f.address.length || f.address.includes(r.address))
   ), [d.rows, f]);
 
   const isSample = d._meta.source === "SAMPLE";
@@ -108,8 +109,7 @@ export function OffMarketView({ initialData }: { initialData: OffMarketCache }) 
         {slicer("Property Status", "propertyStatus")}
         {slicer("Reason Off Market", "reasonOffMarket")}
         {slicer("Off Market Status", "offMarketStatus")}
-        <div className="slicer"><h4>Address Search</h4>
-          <input className="control dd-input" placeholder="Search address…" value={f.address} onChange={(e) => set("address", e.target.value)} /></div>
+        {slicer("Address Search", "address")}
         {active && <button className="dd-clear" onClick={() => setF(EMPTY)}>Clear filters ✕</button>}
       </aside>
 
