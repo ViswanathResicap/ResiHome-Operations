@@ -61,12 +61,10 @@ async function main() {
     } catch (e) { console.log(`  ! ${name} skipped:`, (e as Error).message); }
   }
 
-  // Off-Market renders server-side from getLiveOffMarket() — snapshot the real
-  // data so the page shows it instantly instead of the sample placeholder.
-  try {
-    const { getLiveOffMarket } = await import("@/lib/live-offmarket");
-    write("offmarket", await getLiveOffMarket());
-  } catch (e) { console.log("  ! offmarket skipped:", (e as Error).message); }
+  // NOTE: Off-Market is intentionally NOT regenerated here. It is served from a
+  // committed Power BI export (data/snapshots/offmarket.json) because the live
+  // pipeline's "Off Market Status" bucketing doesn't match the report. Do not
+  // re-add a getLiveOffMarket() write — it would clobber the export snapshot.
 
   console.log("Done.");
   process.exit(0);
